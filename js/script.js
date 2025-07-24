@@ -70,13 +70,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Função para calcular a porcentagem de conclusão de uma tarefa
+    function calculateCompletionPercentage(task) {
+        if (!task.subtasks || task.subtasks.length === 0) {
+            return 0; // Se não houver subtarefas, 0% concluído
+        }
+        const completedSubtasks = task.subtasks.filter(sub => sub.completed).length;
+        return (completedSubtasks / task.subtasks.length) * 100;
+    }
+
     // Função para renderizar as subtarefas temporárias (na seção "Adicionar Tarefa")
     function renderCurrentSubtasks() {
         subtaskListContainer.innerHTML = ''; // Limpa a lista existente
         currentSubtasks.forEach((subtask, index) => {
             const li = document.createElement('li');
             li.innerHTML = `
-                <span>${subtask}</span>
+                <span>${subtask.name}</span>
                 <button type="button" class="remove-subtask-btn" data-index="${index}">
                     <i class="fas fa-times-circle"></i> Remover
                 </button>
@@ -106,13 +115,28 @@ document.addEventListener('DOMContentLoaded', () => {
             listItem.classList.add('task-item'); // Adiciona a classe para estilização
             listItem.setAttribute('data-id', task.id); // Armazena o ID da tarefa no elemento HTML
 
+            // Calcula a porcentagem de conclusão para o termômetro
+            const completionPercentage = calculateCompletionPercentage(task);
+            const isTaskComplete = completionPercentage === 100 && task.subtasks.length > 0;
+            if (isTaskComplete) {
+                listItem.classList.add('task-complete'); // Adiciona classe para estilizar tarefa completa
+            } else {
+                listItem.classList.remove('task-complete');
+            }
+
+
             let subtasksHtml = '';
             if (task.subtasks && task.subtasks.length > 0) {
-                // Monta o HTML para as subtarefas, se existirem
+                // Monta o HTML para as subtarefas, incluindo um checkbox para cada uma
                 subtasksHtml = `
                     <h4><i class="fas fa-tasks"></i> Subtarefas:</h4>
                     <ul class="subtasks-list">
-                        ${task.subtasks.map(sub => `<li><i class="fas fa-circle-notch"></i> ${sub}</li>`).join('')}
+                        ${task.subtasks.map((sub, subIndex) => `
+                            <li class="${sub.completed ? 'completed' : ''}">
+                                <input type="checkbox" id="subtask-${task.id}-${subIndex}" data-task-id="${task.id}" data-subtask-index="${subIndex}" ${sub.completed ? 'checked' : ''}>
+                                <label for="subtask-${task.id}-${subIndex}">${sub.name}</label>
+                            </li>
+                        `).join('')}
                     </ul>
                 `;
             }
@@ -122,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>${task.title}</h3>
                 <p>${task.description || 'Sem descrição.'}</p>
                 <div class="task-status-thermometer">
-                    <div class="thermometer-fill" style="width: 0%;"></div>
+                    <div class="thermometer-fill" style="width: ${completionPercentage}%;"></div>
                 </div>
                 ${task.imageUrl ? `<div class="task-image-container"><img src="${task.imageUrl}" alt="Imagem da tarefa" class="task-image"></div>` : ''}
                 ${subtasksHtml}
@@ -138,6 +162,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 deleteTask(taskIdToDelete); // Chama a função para excluir a tarefa
             });
         });
+
+        // Adiciona event listeners para os checkboxes das subtarefas
+        document.querySelectorAll('.subtasks-list input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const taskId = parseInt(this.dataset.taskId);
+                const subtaskIndex = parseInt(this.dataset.subtaskIndex);
+                toggleSubtaskCompletion(taskId, subtaskIndex, this.checked);
+            });
+        });
+    }
+
+    // Função para alternar o status de conclusão de uma subtarefa
+    function toggleSubtaskCompletion(taskId, subtaskIndex, isCompleted) {
+        let tasks = getTasks();
+        const task = tasks.find(t => t.id === taskId);
+
+        if (task && task.subtasks && task.subtasks[subtaskIndex]) {
+            task.subtasks[subtaskIndex].completed = isCompleted;
+            saveTasks(tasks);
+            renderTaskList(tasks); // Renderiza a lista novamente para atualizar o termômetro e o estilo da subtarefa
+            showNotification(`Subtarefa ${isCompleted ? 'concluída' : 'reaberta'}!`, 'success');
+        } else {
+            showNotification('Erro ao atualizar subtarefa.', 'error');
+        }
     }
 
     // Função para excluir uma tarefa pelo seu ID
@@ -170,7 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
     addSubtaskBtn.addEventListener('click', () => {
         const subtaskText = subtaskInput.value.trim();
         if (subtaskText) {
-            currentSubtasks.push(subtaskText);
+            // Adiciona a subtarefa com um status de conclusão
+            currentSubtasks.push({ name: subtaskText, completed: false });
             renderCurrentSubtasks();
             subtaskInput.value = '';
             subtaskInput.focus();
@@ -200,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title,
                 description,
                 imageUrl,
-                subtasks: [...currentSubtasks],
+                subtasks: [...currentSubtasks], // Subtarefas já com {name, completed}
                 createdAt: new Date().toISOString()
             };
 
@@ -270,15 +319,35 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (e) => {
                 try {
                     const importedTasks = JSON.parse(e.target.result);
-                    if (!Array.isArray(importedTasks) || importedTasks.some(task => !task.title)) {
-                        showNotification('Formato de arquivo JSON inválido ou corrompido. Certifique-se de que o arquivo contém um array de tarefas com títulos.', 'error');
+                    // Validação básica para garantir que o arquivo importado tenha a estrutura esperada
+                    if (!Array.isArray(importedTasks) || importedTasks.some(task => !task.title || !Array.isArray(task.subtasks))) {
+                        showNotification('Formato de arquivo JSON inválido ou corrompido. Certifique-se de que o arquivo contém um array de tarefas com títulos e subtarefas.', 'error');
                         return;
                     }
 
                     let existingTasks = getTasks();
-                    const newTasks = importedTasks.filter(importedTask =>
-                        !existingTasks.some(existingTask => existingTask.id === importedTask.id)
-                    );
+                    const newTasks = [];
+                    importedTasks.forEach(importedTask => {
+                        // Garante que as subtarefas importadas tenham a propriedade 'completed'
+                        if (importedTask.subtasks) {
+                            importedTask.subtasks = importedTask.subtasks.map(sub => {
+                                // Se a subtarefa for uma string (formato antigo), converte para objeto com completed: false
+                                if (typeof sub === 'string') {
+                                    return { name: sub, completed: false };
+                                }
+                                // Se já for um objeto, garante que 'completed' exista
+                                return { name: sub.name, completed: sub.completed || false };
+                            });
+                        } else {
+                            importedTask.subtasks = [];
+                        }
+
+                        // Verifica se a tarefa já existe pelo ID para evitar duplicação de IDs (apenas para importação)
+                        // Poderíamos ter uma lógica de merge mais complexa aqui
+                        if (!existingTasks.some(existingTask => existingTask.id === importedTask.id)) {
+                            newTasks.push(importedTask);
+                        }
+                    });
 
                     saveTasks([...existingTasks, ...newTasks]);
                     renderTaskList(getTasks());

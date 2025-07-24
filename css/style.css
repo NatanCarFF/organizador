@@ -287,6 +287,11 @@ button:active {
     align-items: start;
 }
 
+/* Estilo para tarefa completa (borda verde) */
+.task-item.task-complete {
+    border-left: 5px solid #28a745; /* Verde para tarefas completas */
+}
+
 .task-item > h3 {
     grid-column: 1 / 3; /* O título ocupa ambas as colunas */
     margin-bottom: 5px; /* Reduzida a margem abaixo do título */
@@ -318,6 +323,11 @@ button:active {
     transition: width 0.3s ease-in-out; /* Animação suave */
 }
 
+/* Cor do termômetro quando a tarefa está 100% completa */
+.task-item.task-complete .thermometer-fill {
+    background-color: #28a745; /* Verde para termômetro completo */
+}
+
 .task-image-container {
     grid-column: 1 / 3; /* A imagem ocupa ambas as colunas */
     text-align: center;
@@ -342,7 +352,7 @@ button:active {
 .task-item .subtasks-list {
     grid-column: 1 / 3; /* Lista de subtarefas ocupa ambas as colunas */
     padding-left: 20px;
-    list-style-type: disc;
+    list-style-type: none; /* Remove o marcador padrão da lista */
     margin-bottom: 0; /* Removida a margem inferior da lista de subtarefas */
 }
 
@@ -353,8 +363,27 @@ button:active {
     margin-bottom: 1px; /* Reduzida a margem dos itens da subtarefa */
     font-size: 0.8em;
     color: #555;
-    display: list-item;
+    display: flex; /* Para alinhar checkbox e texto */
+    align-items: center;
 }
+
+.task-item .subtasks-list li input[type="checkbox"] {
+    margin-right: 8px; /* Espaçamento entre o checkbox e o texto */
+    transform: scale(1.1); /* Aumenta um pouco o tamanho do checkbox */
+    cursor: pointer;
+}
+
+.task-item .subtasks-list li label {
+    cursor: pointer;
+    flex-grow: 1; /* Permite que o label ocupe o espaço restante */
+}
+
+/* Estilo para subtarefas concluídas */
+.task-item .subtasks-list li.completed label {
+    text-decoration: line-through; /* Risca o texto */
+    color: #888; /* Escurece um pouco a cor */
+}
+
 
 .delete-btn {
     grid-column: 2 / 3;
