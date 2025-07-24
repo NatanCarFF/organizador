@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskTitleInput = document.getElementById('taskTitle');
     const taskDescriptionInput = document.getElementById('taskDescription');
     const taskImageInput = document.getElementById('taskImage');
-    const imagePreviewContainer = document.getElementById('imagePreviewContainer'); // NOVO: Contêiner para o preview da imagem
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskList = document.getElementById('taskList');
     const taskListSection = document.getElementById('taskListSection');
@@ -380,6 +380,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carrega as tarefas salvas no LocalStorage e renderiza a lista
     function loadTasks() {
+        // NOVO: Carrega as preferências de filtro e ordenação
+        const savedFilterStatus = localStorage.getItem('filterStatus');
+        const savedSortBy = localStorage.getItem('sortBy');
+
+        if (savedFilterStatus) {
+            filterStatusSelect.value = savedFilterStatus;
+        }
+        if (savedSortBy) {
+            sortBySelect.value = savedSortBy;
+        }
+
         renderTaskList();
         // Define o estado inicial do checkbox baseado na preferência salva ou padrão
         const savedImageVisibility = localStorage.getItem('showImages');
@@ -559,8 +570,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Adiciona listeners para os selects de filtro e ordenação
-    filterStatusSelect.addEventListener('change', renderTaskList);
-    sortBySelect.addEventListener('change', renderTaskList);
+    filterStatusSelect.addEventListener('change', () => {
+        localStorage.setItem('filterStatus', filterStatusSelect.value); // Salva o filtro
+        renderTaskList();
+    });
+    sortBySelect.addEventListener('change', () => {
+        localStorage.setItem('sortBy', sortBySelect.value); // Salva a ordenação
+        renderTaskList();
+    });
 
     // Adiciona listener para o checkbox de ocultar/exibir imagens
     toggleImagesCheckbox.addEventListener('change', () => {
