@@ -1,164 +1,310 @@
 body {
-     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-     margin: 0;
-     padding: 0;
-     background-color: #f4f4f4;
-     color: #333;
-     display: flex;
-     flex-direction: column;
-     align-items: center;
- }
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5; /* Um cinza claro e suave para o fundo */
+    color: #333; /* Cor de texto principal */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* Garante que o rodapé fique no final da página, mesmo com pouco conteúdo */
+}
 
- header {
-     background-color: #007bff;
-     color: white;
-     padding: 20px 0;
-     text-align: center;
-     width: 100%;
-     margin-bottom: 20px;
- }
+header {
+    background-color: #28a745; /* Um verde vibrante para o cabeçalho */
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidade */
+}
 
- main {
-     display: flex;
-     flex-direction: column;
-     width: 80%;
-     max-width: 960px;
-     padding: 20px;
-     background-color: white;
-     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-     border-radius: 8px;
- }
+header h1 {
+    margin: 0;
+    font-size: 2.5em;
+    display: flex; /* Para alinhar o ícone e o texto */
+    justify-content: center;
+    align-items: center;
+}
 
- section {
-     margin-bottom: 30px;
-     padding: 15px;
-     border-bottom: 1px solid #eee;
- }
+header h1 .fas {
+    margin-right: 10px; /* Espaço entre o ícone e o título */
+}
 
- section:last-child {
-     border-bottom: none;
- }
+main {
+    display: flex;
+    flex-direction: column;
+    width: 90%; /* Maior largura no desktop */
+    max-width: 1000px; /* Largura máxima para centralizar o conteúdo */
+    padding: 30px;
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Sombra mais pronunciada para o container principal */
+    border-radius: 12px; /* Cantos arredondados para um visual moderno */
+    margin-bottom: 30px;
+}
 
- h2 {
-     color: #007bff;
-     margin-top: 0;
-     margin-bottom: 15px;
- }
+section {
+    margin-bottom: 40px;
+    padding: 20px;
+    border-bottom: 1px solid #eee; /* Linha divisória entre as seções */
+}
 
- input, textarea {
-     width: calc(100% - 22px);
-     padding: 10px;
-     margin-bottom: 10px;
-     border: 1px solid #ddd;
-     border-radius: 4px;
-     box-sizing: border-box;
- }
+section:last-child {
+    border-bottom: none; /* Remove a linha da última seção */
+    margin-bottom: 0;
+}
 
- textarea {
-     resize: vertical;
- }
+h2 {
+    color: #007bff; /* Cor azul para os títulos das seções */
+    margin-top: 0;
+    margin-bottom: 20px;
+    display: flex; /* Para alinhar o ícone e o texto */
+    align-items: center;
+    gap: 10px; /* Espaçamento entre ícone e texto */
+}
 
- button {
-     background-color: #007bff;
-     color: white;
-     border: none;
-     padding: 10px 15px;
-     border-radius: 4px;
-     cursor: pointer;
-     transition: background-color 0.3s ease;
-     margin-right: 10px;
- }
+h2 .fas {
+    font-size: 1.2em; /* Tamanho do ícone nos títulos */
+}
 
- button:hover {
-     background-color: #0056b3;
- }
+input[type="text"],
+textarea {
+    width: calc(100% - 24px); /* Largura total menos o padding */
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
+    font-size: 1em;
+}
 
- #subtasksContainer h3 {
-     color: #555;
-     margin-top: 20px;
-     margin-bottom: 10px;
- }
+textarea {
+    resize: vertical; /* Permite redimensionar verticalmente */
+    min-height: 80px; /* Altura mínima para a área de texto */
+}
 
- #subtaskList li {
-     background-color: #f9f9f9;
-     border: 1px solid #eee;
-     padding: 8px;
-     margin-bottom: 5px;
-     border-radius: 4px;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
- }
+/* Estilos específicos para o input e botão de adicionar subtarefa */
+#subtasksContainer input[type="text"] {
+    width: calc(100% - 150px); /* Ajuste para o botão 'Adicionar Subtarefa' ficar ao lado */
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
 
- #subtaskList li span {
-     flex-grow: 1;
- }
+#subtasksContainer button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    vertical-align: middle;
+}
 
- #subtaskList li button {
-     background-color: #dc3545;
-     margin-left: 10px;
- }
+/* Estilos gerais para todos os botões */
+button {
+    background-color: #007bff; /* Cor azul para os botões principais */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transição suave no hover */
+    font-size: 1em;
+    display: inline-flex; /* Para alinhar ícone e texto */
+    align-items: center;
+    gap: 8px; /* Espaçamento entre ícone e texto */
+}
 
- #subtaskList li button:hover {
-     background-color: #c82333;
- }
+button:hover {
+    background-color: #0056b3; /* Azul mais escuro no hover */
+    transform: translateY(-2px); /* Efeito sutil de "elevação" */
+}
 
- #taskList ul {
-     list-style: none;
-     padding: 0;
- }
+button .fas {
+    font-size: 1em; /* Tamanho do ícone nos botões */
+}
 
- #taskList li {
-     background-color: #fff;
-     border: 1px solid #ddd;
-     margin-bottom: 10px;
-     padding: 15px;
-     border-radius: 4px;
-     display: flex;
-     flex-direction: column;
- }
+/* Esconde o input de arquivo padrão do navegador */
+input[type="file"] {
+    display: none;
+}
 
- .task-item h3 {
-     margin-top: 0;
-     margin-bottom: 5px;
-     color: #333;
- }
+/* Estiliza o label associado ao input de arquivo para parecer um botão */
+.file-upload-btn {
+    background-color: #6c757d; /* Cor cinza para botões de upload/seleção */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 1em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
 
- .task-item p {
-     color: #666;
-     margin-bottom: 10px;
- }
+.file-upload-btn:hover {
+    background-color: #5a6268; /* Cinza mais escuro no hover */
+    transform: translateY(-2px);
+}
 
- .task-image-container {
-     max-width: 100%;
-     margin-bottom: 10px;
- }
+/* Título das subtarefas dentro da seção de adicionar tarefa */
+#subtasksContainer h3 {
+    color: #555;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
- .task-image {
-     max-width: 100%;
-     height: auto;
-     border-radius: 4px;
-     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
- }
+#subtaskList {
+    list-style: none; /* Remove marcadores de lista padrão */
+    padding: 0;
+}
 
- .subtasks-list {
-     margin-top: 10px;
-     padding-left: 20px;
- }
+#subtaskList li {
+    background-color: #e9ecef; /* Um cinza claro para os itens de subtarefa */
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95em;
+}
 
- .subtasks-list li {
-     background: none;
-     border: none;
-     padding: 5px 0;
-     margin-bottom: 0;
-     display: block;
- }
+#subtaskList li span {
+    flex-grow: 1;
+    word-break: break-word; /* Quebra de texto para subtarefas longas */
+}
 
- footer {
-     text-align: center;
-     padding: 10px 0;
-     width: 100%;
-     background-color: #333;
-     color: white;
-     margin-top: 30px;
- }
+#subtaskList li .remove-subtask-btn { /* Botão de remover subtarefa temporária */
+    background-color: #dc3545; /* Vermelho para remover */
+    margin-left: 15px;
+    padding: 6px 10px;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#subtaskList li .remove-subtask-btn:hover {
+    background-color: #c82333; /* Vermelho mais escuro no hover */
+}
+
+#taskList {
+    list-style: none;
+    padding: 0;
+}
+
+/* Estilo para cada item de tarefa na lista principal */
+#taskList li.task-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Necessário para posicionar o botão de exclusão */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Sombra para cada tarefa */
+}
+
+.task-item h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.task-item p {
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.6; /* Espaçamento de linha para melhor leitura */
+}
+
+.task-image-container {
+    max-width: 100%;
+    margin-bottom: 15px;
+    text-align: center; /* Centraliza a imagem */
+}
+
+.task-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.subtasks-list {
+    margin-top: 15px;
+    padding-left: 20px;
+    list-style: disc; /* Marcadores de bolinha para as subtarefas */
+    color: #555;
+}
+
+.subtasks-list li {
+    background: none; /* Remove fundo dos LIs aninhados */
+    border: none; /* Remove borda dos LIs aninhados */
+    padding: 3px 0;
+    margin-bottom: 3px;
+    display: list-item; /* Garante que seja um item de lista com marcador */
+    box-shadow: none; /* Remove sombra dos LIs aninhados */
+}
+
+.subtasks-list li .fas {
+    margin-right: 5px; /* Espaçamento para o ícone da subtarefa */
+    font-size: 0.8em; /* Tamanho do ícone da subtarefa */
+}
+
+/* Botão de excluir tarefa flutuante no canto superior direito */
+.delete-btn {
+    background-color: #dc3545; /* Vermelho para excluir */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: absolute; /* Posição absoluta em relação ao .task-item */
+    top: 15px;
+    right: 15px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.delete-btn:hover {
+    background-color: #c82333; /* Vermelho mais escuro no hover */
+    transform: translateY(-1px);
+}
+
+/* Mensagem quando não há tarefas */
+.no-tasks-message {
+    text-align: center;
+    color: #888;
+    padding: 20px;
+    font-style: italic;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+
+
+footer {
+    text-align: center;
+    padding: 15px 0;
+    width: 100%;
+    background-color: #343a40; /* Um cinza escuro para o rodapé */
+    color: white;
+    margin-top: auto; /* Empurra o rodapé para o final da página */
+}
+
+footer .fas {
+    margin-left: 5px;
+    font-size: 0.9em;
+}

@@ -1,44 +1,51 @@
 <!DOCTYPE html>
- <html lang="pt-BR">
- <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Organizador de Tarefas</title>
-     <link rel="stylesheet" href="css/style.css">
-     </head>
- <body>
-     <header>
-         <h1>Organizador de Tarefas</h1>
-     </header>
-     <main>
-         <section id="addTaskSection">
-             <h2>Adicionar Tarefa</h2>
-             <input type="text" id="taskTitle" placeholder="Título da Tarefa">
-             <textarea id="taskDescription" placeholder="Descrição da Tarefa"></textarea>
-             <input type="file" id="taskImage" accept="image/*">
-             <div id="subtasksContainer">
-                 <h3>Subtarefas</h3>
-                 <button type="button" id="addSubtaskBtn">Adicionar Subtarefa</button>
-                 <ul id="subtaskList"></ul>
-             </div>
-             <button type="button" id="addTaskBtn">Adicionar Tarefa</button>
-         </section>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Tarefas</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-clipboard-list"></i> Organizador de Tarefas</h1>
+    </header>
+    <main>
+        <section id="addTaskSection">
+            <h2><i class="fas fa-plus-circle"></i> Adicionar Tarefa</h2>
+            <input type="text" id="taskTitle" placeholder="Título da Tarefa" required>
+            <textarea id="taskDescription" placeholder="Descrição da Tarefa"></textarea>
 
-         <section id="taskListSection">
-             <h2>Lista de Tarefas</h2>
-             <ul id="taskList"></ul>
-         </section>
+            <label for="taskImage" class="file-upload-btn"><i class="fas fa-image"></i> Anexar Imagem</label>
+            <input type="file" id="taskImage" accept="image/*">
 
-         <section id="ioSection">
-             <h2>Importar/Exportar</h2>
-             <button type="button" id="exportBtn">Exportar para JSON</button>
-             <input type="file" id="importFile" accept=".json">
-             <button type="button" id="importBtn">Importar de JSON</button>
-         </section>
-     </main>
-     <footer>
-         <p>&copy; 2024 Organizador de Tarefas</p>
-     </footer>
-     <script src="js/script.js"></script>
- </body>
- </html>
+            <div id="subtasksContainer">
+                <h3><i class="fas fa-tasks"></i> Subtarefas</h3>
+                <input type="text" id="subtaskInput" placeholder="Nome da subtarefa">
+                <button type="button" id="addSubtaskBtn"><i class="fas fa-plus"></i> Adicionar Subtarefa</button>
+                <ul id="subtaskList"></ul>
+            </div>
+            <button type="button" id="addTaskBtn"><i class="fas fa-check-circle"></i> Adicionar Tarefa</button>
+        </section>
+
+        <section id="taskListSection">
+            <h2><i class="fas fa-list-ul"></i> Lista de Tarefas</h2>
+            <ul id="taskList"></ul>
+        </section>
+
+        <section id="ioSection">
+            <h2><i class="fas fa-exchange-alt"></i> Importar/Exportar</h2>
+            <button type="button" id="exportBtn"><i class="fas fa-file-export"></i> Exportar para JSON</button>
+            
+            <label for="importFile" class="file-upload-btn"><i class="fas fa-file-import"></i> Selecionar Arquivo JSON</label>
+            <input type="file" id="importFile" accept=".json">
+            <button type="button" id="importBtn"><i class="fas fa-upload"></i> Importar de JSON</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Organizador de Tarefas <i class="fas fa-code"></i></p>
+    </footer>
+    <script src="js/script.js"></script>
+</body>
+</html>
