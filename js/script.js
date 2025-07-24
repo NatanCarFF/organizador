@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSubtasks = []; // Array temporário para armazenar subtarefas enquanto a tarefa principal está sendo criada
 
     // --- FUNÇÕES AUXILIARES ---
+    // Funções movidas para o topo para garantir que estejam definidas antes de serem chamadas.
 
     // Função auxiliar para salvar o array de tarefas no LocalStorage
     function saveTasks(tasks) {
@@ -241,4 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             reader.readAsText(file); // Lê o conteúdo do arquivo como texto
         } else {
-            alert('S
+            alert('Selecione um arquivo JSON para importar.');
+        }
+    });
+
+    // Se não houver tarefas salvas inicialmente, exibe a mensagem de "nenhuma tarefa"
+    if (getTasks().length === 0) {
+        taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa adicionada ainda. Comece a organizar!</p>';
+    }
+});
