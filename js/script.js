@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Seletores para o modal de confirmação
     const confirmationModal = document.getElementById('confirmationModal');
+    confirmationModal.style.display = 'none'; // Garante que o modal esteja oculto ao carregar a página
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const closeButton = document.querySelector('.close-button'); // Botão 'x' do modal
