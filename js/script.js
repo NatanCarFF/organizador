@@ -129,7 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Define o conteúdo HTML de cada item da tarefa
             listItem.innerHTML = `
                 <h3>${task.title}</h3>
-                <p>${task.description || 'Sem descrição.'}</p> ${task.imageUrl ? `<div class="task-image-container"><img src="${task.imageUrl}" alt="Imagem da tarefa" class="task-image"></div>` : ''}
+                <p>${task.description ? task.description : 'Sem descrição.'}</p>
+${task.imageUrl ? `<div class="task-image-container"><img src="${task.imageUrl}" alt="Imagem da tarefa" class="task-image"></div>` : ''}
                 ${subtasksHtml}
                 <button type="button" class="delete-btn" data-id="${task.id}"><i class="fas fa-trash-alt"></i> Excluir</button>
             `;
