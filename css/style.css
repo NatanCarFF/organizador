@@ -592,6 +592,99 @@ footer .fas {
     cursor: pointer;
 }
 
+/* NOVO: Estilos para o Modal de Confirmação */
+.modal {
+    display: none; /* Oculto por padrão */
+    position: fixed; /* Fixa na tela */
+    z-index: 1001; /* Fica acima de tudo, incluindo notificações */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Permite rolagem se o conteúdo for muito grande */
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo escurecido */
+    display: flex;
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; /* Centraliza o modal na tela */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 450px; /* Largura máxima do modal */
+    text-align: center;
+    position: relative; /* Para posicionar o botão de fechar */
+}
+
+.modal-content h2 {
+    color: #343a40;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.modal-content p {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #333;
+    text-decoration: none;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espaçamento entre os botões */
+}
+
+.modal-buttons button {
+    padding: 10px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: none;
+}
+
+.confirm-btn {
+    background-color: #dc3545; /* Vermelho para confirmar exclusão */
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.cancel-btn {
+    background-color: #6c757d; /* Cinza para cancelar */
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
 
 /* --- Media Queries para Responsividade --- */
 
@@ -684,6 +777,22 @@ footer .fas {
     .filter-sort-group select {
         width: 100%; /* Ocupa a largura total */
         min-width: unset; /* Remove largura mínima */
+    }
+
+    /* Modal em telas menores */
+    .modal-content {
+        padding: 20px;
+        max-width: 95%;
+    }
+    .modal-content h2 {
+        font-size: 1.5em;
+    }
+    .modal-content p {
+        font-size: 1em;
+    }
+    .modal-buttons button {
+        padding: 8px 15px;
+        font-size: 0.9em;
     }
 }
 

@@ -18,11 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const notificationContainer = document.getElementById('notificationContainer');
 
-    // Novos seletores para filtros e ordenação
+    // Seletores para filtros e ordenação
     const filterStatusSelect = document.getElementById('filterStatus');
     const sortBySelect = document.getElementById('sortBy');
 
-    // Novo seletor para ocultar/exibir imagens
+    // Seletor para ocultar/exibir imagens
     const toggleImagesCheckbox = document.getElementById('toggleImages');
 
     // Seletores para as mensagens de erro (Validação de Formulário Mais Visível)
@@ -30,9 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskDescriptionError = document.getElementById('taskDescriptionError');
     const subtaskInputError = document.getElementById('subtaskInputError');
 
+    // NOVO: Seletores para o modal de confirmação
+    const confirmationModal = document.getElementById('confirmationModal');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const closeButton = document.querySelector('.close-button'); // Botão 'x' do modal
+
     let currentSubtasks = [];
     let editingTaskId = null;
     let currentImageBase64 = null; // Variável para armazenar a imagem em base64 no modo de edição/criação
+    let taskIdToDeleteConfirmed = null; // NOVO: Armazena o ID da tarefa a ser excluída após confirmação
 
     // --- FUNÇÕES AUXILIARES ---
 
@@ -93,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button type="button" class="remove-image-preview-btn"><i class="fas fa-times"></i> Remover Imagem</button>
                 `;
                 imagePreviewContainer.style.display = 'block';
-                currentImageBase64 = e.target.result; // Armazena a imagem em base64
+                currentImageBase66 = e.target.result; // Armazena a imagem em base64
                 // Adiciona listener ao novo botão de remover
                 imagePreviewContainer.querySelector('.remove-image-preview-btn').addEventListener('click', clearImagePreview);
             };
@@ -308,8 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Adiciona event listeners para os botões de excluir de cada tarefa
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const taskIdToDelete = parseInt(this.dataset.id);
-                deleteTask(taskIdToDelete);
+                // NOVO: Abre o modal de confirmação ao invés de excluir diretamente
+                taskIdToDeleteConfirmed = parseInt(this.dataset.id);
+                confirmationModal.style.display = 'flex'; // Mostra o modal
             });
         });
 
@@ -355,8 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Função para excluir uma tarefa pelo seu ID
-    function deleteTask(id) {
+    // Função para realmente excluir a tarefa (chamada após confirmação)
+    function performDeleteTask(id) {
         let tasks = getTasks();
         const initialLength = tasks.length;
         tasks = tasks.filter(task => task.id !== id);
@@ -380,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carrega as tarefas salvas no LocalStorage e renderiza a lista
     function loadTasks() {
-        // NOVO: Carrega as preferências de filtro e ordenação
+        // Carrega as preferências de filtro e ordenação
         const savedFilterStatus = localStorage.getItem('filterStatus');
         const savedSortBy = localStorage.getItem('sortBy');
 
@@ -585,6 +593,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // Salva a preferência do usuário no localStorage
         localStorage.setItem('showImages', toggleImagesCheckbox.checked);
     });
+
+    // NOVO: Listeners para os botões do modal de confirmação
+    confirmDeleteBtn.addEventListener('click', () => {
+        if (taskIdToDeleteConfirmed !== null) {
+            performDeleteTask(taskIdToDeleteConfirmed); // Chama a função real de exclusão
+            taskIdToDeleteConfirmed = null; // Reseta o ID
+        }
+        confirmationModal.style.display = 'none'; // Esconde o modal
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        taskIdToDeleteConfirmed = null; // Reseta o ID
+        confirmationModal.style.display = 'none'; // Esconde o modal
+    });
+
+    closeButton.addEventListener('click', () => {
+        taskIdToDeleteConfirmed = null; // Reseta o ID
+        confirmationModal.style.display = 'none'; // Esconde o modal
+    });
+
+    // NOVO: Fecha o modal se clicar fora dele
+    window.addEventListener('click', (event) => {
+        if (event.target === confirmationModal) {
+            taskIdToDeleteConfirmed = null; // Reseta o ID
+            confirmationModal.style.display = 'none';
+        }
+    });
+
 
     if (getTasks().length === 0 && taskList.innerHTML === '') {
         // Nada a fazer aqui, renderTaskList já cuida disso.
