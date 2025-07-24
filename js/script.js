@@ -5,10 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskImageInput = document.getElementById('taskImage');
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskList = document.getElementById('taskList');
+    const taskListSection = document.getElementById('taskListSection'); // Adicionado para controlar a classe de imagem
 
     const exportBtn = document.getElementById('exportBtn');
     const importFile = document.getElementById('importFile');
-    const importBtn = document = document.getElementById('importBtn');
+    const importBtn = document.getElementById('importBtn');
 
     const addSubtaskBtn = document.getElementById('addSubtaskBtn');
     const subtaskInput = document.getElementById('subtaskInput');
@@ -19,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Novos seletores para filtros e ordenação
     const filterStatusSelect = document.getElementById('filterStatus');
     const sortBySelect = document.getElementById('sortBy');
+
+    // Novo seletor para ocultar/exibir imagens
+    const toggleImagesCheckbox = document.getElementById('toggleImages');
 
     let currentSubtasks = [];
     let editingTaskId = null;
@@ -124,6 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateFormForEdit(task) {
         taskTitleInput.value = task.title;
         taskDescriptionInput.value = task.description;
+        // Não podemos preencher diretamente o input de tipo 'file' por segurança,
+        // mas o usuário terá que selecionar uma nova imagem se quiser alterá-la.
+        taskImageInput.value = ''; 
         currentSubtasks = task.subtasks ? [...task.subtasks] : [];
         renderCurrentSubtasks();
         editingTaskId = task.id;
@@ -135,14 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para aplicar filtro e ordenação antes de renderizar
     function applyFiltersAndSorting(tasks) {
-        let filteredTasks = [...tasks]; // Começa com uma cópia das tarefas originais
+        let filteredTasks = [...tasks];
 
         // 1. Aplica o filtro de status
         const filterStatus = filterStatusSelect.value;
         if (filterStatus === 'pending') {
             filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) < 100);
         } else if (filterStatus === 'completed') {
-            filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) === 100);
+            filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) === 100 && task.subtasks.length > 0); // Considera completa se tiver subtarefas e 100%
         }
 
         // 2. Aplica a ordenação
@@ -167,8 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para renderizar a lista completa de tarefas
     function renderTaskList() {
-        const allTasks = getTasks(); // Pega todas as tarefas salvas
-        const tasksToDisplay = applyFiltersAndSorting(allTasks); // Aplica filtros e ordenação
+        const allTasks = getTasks();
+        const tasksToDisplay = applyFiltersAndSorting(allTasks);
 
         taskList.innerHTML = '';
         if (tasksToDisplay.length === 0) {
@@ -250,6 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleSubtaskCompletion(taskId, subtaskIndex, this.checked);
             });
         });
+
+        // Aplica o estado de visibilidade da imagem ao renderizar
+        applyImageVisibility();
     }
 
     // Função para alternar o status de conclusão de uma subtarefa
@@ -260,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (task && task.subtasks && task.subtasks[subtaskIndex]) {
             task.subtasks[subtaskIndex].completed = isCompleted;
             saveTasks(tasks);
-            renderTaskList(); // Renderiza a lista novamente para atualizar o termômetro e o estilo da subtarefa
+            renderTaskList();
             showNotification(`Subtarefa ${isCompleted ? 'concluída' : 'reaberta'}!`, 'success');
         } else {
             showNotification('Erro ao atualizar subtarefa.', 'error');
@@ -274,16 +284,33 @@ document.addEventListener('DOMContentLoaded', () => {
         tasks = tasks.filter(task => task.id !== id);
         if (tasks.length < initialLength) {
             saveTasks(tasks);
-            renderTaskList(); // Atualiza a lista após exclusão
+            renderTaskList();
             showNotification('Tarefa excluída com sucesso!', 'success');
         } else {
             showNotification('Erro ao excluir tarefa. Tarefa não encontrada.', 'error');
         }
     }
 
+    // Função para aplicar/remover a classe que oculta imagens
+    function applyImageVisibility() {
+        if (!toggleImagesCheckbox.checked) {
+            taskListSection.classList.add('hide-images');
+        } else {
+            taskListSection.classList.remove('hide-images');
+        }
+    }
+
     // Carrega as tarefas salvas no LocalStorage e renderiza a lista
     function loadTasks() {
-        renderTaskList(); // Chama renderTaskList que já aplica filtros/ordenação
+        renderTaskList();
+        // Define o estado inicial do checkbox baseado na preferência salva ou padrão
+        const savedImageVisibility = localStorage.getItem('showImages');
+        if (savedImageVisibility === 'false') {
+            toggleImagesCheckbox.checked = false;
+        } else {
+            toggleImagesCheckbox.checked = true; // Padrão é mostrar
+        }
+        applyImageVisibility(); // Aplica o estado inicial
     }
 
     // --- CHAMADAS INICIAIS E LISTENERS DE EVENTOS ---
@@ -352,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveTasks(tasks);
                 showNotification('Tarefa adicionada com sucesso!', 'success');
             }
-            renderTaskList(); // Renderiza a lista atualizada com filtros e ordenação
+            renderTaskList();
             clearForm();
         };
 
@@ -364,11 +391,11 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onerror = () => {
                 showNotification('Erro ao ler a imagem.', 'error');
                 console.error('Erro ao ler a imagem:', reader.error);
-                handleTaskSave(undefined); // Tenta salvar a tarefa, mantendo imagem existente se for edição
+                handleTaskSave(undefined);
             };
             reader.readAsDataURL(imageFile);
         } else {
-            handleTaskSave(undefined); // 'undefined' significa que não há nova imagem para processar
+            handleTaskSave(undefined);
         }
     });
 
@@ -436,8 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         newTasks.push(importedTask);
                     });
 
-                    saveTasks([...existingTasks, ...newTasks]); // Adiciona as novas tarefas às existentes
-                    renderTaskList(); // Renderiza a lista com as novas tarefas
+                    saveTasks([...existingTasks, ...newTasks]);
+                    renderTaskList();
                     showNotification('Tarefas importadas com sucesso!', 'success');
                     importFile.value = '';
                 } catch (error) {
@@ -459,8 +486,15 @@ document.addEventListener('DOMContentLoaded', () => {
     filterStatusSelect.addEventListener('change', renderTaskList);
     sortBySelect.addEventListener('change', renderTaskList);
 
-    // Se não houver tarefas salvas inicialmente (e não for um erro de carregamento), exibe a mensagem de "nenhuma tarefa"
+    // Adiciona listener para o checkbox de ocultar/exibir imagens
+    toggleImagesCheckbox.addEventListener('change', () => {
+        applyImageVisibility();
+        // Salva a preferência do usuário no localStorage
+        localStorage.setItem('showImages', toggleImagesCheckbox.checked);
+    });
+
+    // Esta mensagem é agora tratada dentro de renderTaskList, mas este check garante que se não houver tarefas, a mensagem padrão é exibida.
     if (getTasks().length === 0 && taskList.innerHTML === '') {
-        // Esta mensagem é agora tratada dentro de renderTaskList
+        // Nada a fazer aqui, renderTaskList já cuida disso.
     }
 });

@@ -350,6 +350,11 @@ button.save-changes-btn:hover {
 .task-image-container {
     text-align: center;
     margin-bottom: 10px;
+    /* Transição para ocultar/exibir suavemente */
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    max-height: 500px; /* Altura máxima para transição */
+    overflow: hidden; /* Garante que a transição de altura seja visível */
+    opacity: 1; /* Padrão visível */
 }
 
 .task-image {
@@ -358,6 +363,14 @@ button.save-changes-btn:hover {
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
+/* Classe para ocultar imagens */
+.hide-images .task-image-container {
+    max-height: 0; /* Oculta a imagem */
+    opacity: 0; /* Torna transparente */
+    margin-bottom: 0; /* Remove margem para não ocupar espaço */
+}
+
 
 .task-item > h4 {
     font-size: 0.95em;
@@ -468,7 +481,7 @@ footer .fas {
     margin-left: 5px;
 }
 
-/* --- Novos estilos para Filtros e Ordenação --- */
+/* --- Estilos para Filtros e Ordenação --- */
 .controls-container {
     display: flex;
     flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
@@ -481,19 +494,22 @@ footer .fas {
     justify-content: center; /* Centraliza os grupos */
 }
 
-.filter-sort-group {
+.filter-sort-group,
+.display-options { /* Adicionado .display-options aqui */
     display: flex;
     align-items: center;
-    gap: 10px; /* Espaçamento entre label e select */
+    gap: 10px; /* Espaçamento entre label e select/checkbox */
 }
 
-.filter-sort-group label {
+.filter-sort-group label,
+.display-options label { /* Estilo para os labels dos controles */
     font-weight: bold;
     color: #555;
     white-space: nowrap; /* Impede que o texto quebre a linha */
 }
 
-.filter-sort-group label .fas {
+.filter-sort-group label .fas,
+.display-options label .fas { /* Estilo para os ícones nos labels */
     margin-right: 5px;
     color: #007bff;
 }
@@ -512,6 +528,13 @@ footer .fas {
     background-position: right 10px top 50%;
     background-size: 12px auto;
     min-width: 120px; /* Largura mínima para os selects */
+}
+
+/* Estilo específico para o checkbox de exibir imagens */
+.display-options input[type="checkbox"] {
+    transform: scale(1.3); /* Aumenta o tamanho do checkbox */
+    margin-right: 5px; /* Espaçamento entre checkbox e label */
+    cursor: pointer;
 }
 
 
@@ -582,7 +605,7 @@ footer .fas {
         margin-bottom: 10px;
     }
 
-    /* Responsividade para filtros e ordenação */
+    /* Responsividade para filtros e ordenação e opção de imagem */
     .controls-container {
         flex-direction: column; /* Empilha os grupos verticalmente */
         align-items: flex-start; /* Alinha à esquerda */
@@ -590,8 +613,9 @@ footer .fas {
         padding: 10px;
     }
 
-    .filter-sort-group {
-        flex-direction: column; /* Empilha label e select */
+    .filter-sort-group,
+    .display-options {
+        flex-direction: column; /* Empilha label e select/checkbox */
         align-items: flex-start;
         width: 100%; /* Ocupa a largura total */
     }
