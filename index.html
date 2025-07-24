@@ -20,6 +20,15 @@
             <textarea id="taskDescription" placeholder="Descrição da Tarefa"></textarea>
             <span class="error-message" id="taskDescriptionError"></span>
 
+            <div class="input-group">
+                <label for="taskPriority"><i class="fas fa-flag"></i> Prioridade:</label>
+                <select id="taskPriority">
+                    <option value="low">Baixa</option>
+                    <option value="medium" selected>Média</option>
+                    <option value="high">Alta</option>
+                </select>
+            </div>
+
             <label for="taskImage" class="file-upload-btn"><i class="fas fa-image"></i> Anexar Imagem</label>
             <input type="file" id="taskImage" accept="image/*">
             <div id="imagePreviewContainer"></div> <div id="subtasksContainer">
@@ -45,6 +54,15 @@
                         <option value="all">Todas</option>
                         <option value="pending">Pendentes</option>
                         <option value="completed">Concluídas</option>
+                    </select>
+                </div>
+                <div class="filter-sort-group">
+                    <label for="filterPriority"><i class="fas fa-flag"></i> Filtrar por Prioridade:</label>
+                    <select id="filterPriority">
+                        <option value="all">Todas</option>
+                        <option value="low">Baixa</option>
+                        <option value="medium">Média</option>
+                        <option value="high">Alta</option>
                     </select>
                 </div>
                 <div class="filter-sort-group">

@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Seletores de elementos HTML para fácil acesso
     const taskTitleInput = document.getElementById('taskTitle');
     const taskDescriptionInput = document.getElementById('taskDescription');
+    const taskPriorityInput = document.getElementById('taskPriority'); // NOVO
     const taskImageInput = document.getElementById('taskImage');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const addTaskBtn = document.getElementById('addTaskBtn');
@@ -21,8 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Seletores para filtros e ordenação
     const filterStatusSelect = document.getElementById('filterStatus');
     const sortBySelect = document.getElementById('sortBy');
+    const filterPrioritySelect = document.getElementById('filterPriority'); // NOVO
 
-    // Seletores para busca (NOVO)
+    // Seletores para busca
     const searchInput = document.getElementById('searchInput');
 
     // Seletor para ocultar/exibir imagens
@@ -182,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearForm() {
         taskTitleInput.value = '';
         taskDescriptionInput.value = '';
+        taskPriorityInput.value = 'medium'; // Volta para o padrão
         taskImageInput.value = ''; // Garante que o input file esteja limpo
         clearImagePreview(); // Limpa o preview da imagem
         currentSubtasks = [];
@@ -200,7 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateFormForEdit(task) {
         taskTitleInput.value = task.title;
         taskDescriptionInput.value = task.description;
-        
+        taskPriorityInput.value = task.priority || 'medium'; // Define a prioridade ou padrão
+
         // Exibe a imagem existente no preview se houver
         if (task.imageUrl) {
             imagePreviewContainer.innerHTML = `
@@ -228,10 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
         clearError(subtaskInput, subtaskInputError);
     }
 
-    // Função para aplicar filtro, busca e ordenação antes de renderizar (ATUALIZADA)
+    // Função para aplicar filtro, busca e ordenação antes de renderizar (ATUALIZADA com Prioridade)
     function applyFiltersAndSorting(tasks) {
         let filteredTasks = [...tasks];
-        const currentSearchQuery = searchInput.value.toLowerCase().trim(); // Pega o termo de busca
+        const currentSearchQuery = searchInput.value.toLowerCase().trim();
 
         // 0. Aplica a busca
         if (currentSearchQuery) {
@@ -246,10 +250,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filterStatus === 'pending') {
             filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) < 100);
         } else if (filterStatus === 'completed') {
-            filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) === 100 && task.subtasks.length > 0); // Considera completa se tiver subtarefas e 100%
+            filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) === 100 && task.subtasks.length > 0);
         }
 
-        // 2. Aplica a ordenação
+        // 2. Aplica o filtro de prioridade (NOVO)
+        const filterPriority = filterPrioritySelect.value;
+        if (filterPriority !== 'all') {
+            filteredTasks = filteredTasks.filter(task => (task.priority || 'medium') === filterPriority);
+        }
+
+        // 3. Aplica a ordenação (ATUALIZADA para considerar prioridade na ordenação)
         const sortBy = sortBySelect.value;
         filteredTasks.sort((a, b) => {
             if (sortBy === 'createdAt') {
@@ -269,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return filteredTasks;
     }
 
-    // Função para renderizar a lista completa de tarefas
+    // Função para renderizar a lista completa de tarefas (ATUALIZADA para exibir prioridade)
     function renderTaskList() {
         const allTasks = getTasks();
         const tasksToDisplay = applyFiltersAndSorting(allTasks);
@@ -292,6 +302,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 listItem.classList.remove('task-complete');
             }
+
+            // Adiciona classe de prioridade (NOVO)
+            listItem.classList.add(`priority-${task.priority || 'medium'}`);
+
 
             let subtasksHtml = '';
             if (task.subtasks && task.subtasks.length > 0) {
@@ -319,6 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listItem.innerHTML = `
                 <h3>${task.title}</h3>
                 <p>${task.description || 'Sem descrição.'}</p>
+                <p><strong>Prioridade:</strong> <span class="priority-text">${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Média'}</span></p>
                 <div class="task-status-thermometer">
                     <div class="thermometer-fill" style="width: ${completionPercentage}%;"></div>
                 </div>
@@ -526,9 +541,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Carrega as preferências de filtro e ordenação
         const savedFilterStatus = localStorage.getItem('filterStatus');
         const savedSortBy = localStorage.getItem('sortBy');
-        // Carrega o termo de busca (NOVO)
         const savedSearchQuery = localStorage.getItem('searchQuery');
-
+        const savedFilterPriority = localStorage.getItem('filterPriority'); // NOVO
 
         if (savedFilterStatus) {
             filterStatusSelect.value = savedFilterStatus;
@@ -536,8 +550,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedSortBy) {
             sortBySelect.value = savedSortBy;
         }
-        if (savedSearchQuery) { // NOVO
+        if (savedSearchQuery) {
             searchInput.value = savedSearchQuery;
+        }
+        if (savedFilterPriority) { // NOVO
+            filterPrioritySelect.value = savedFilterPriority;
         }
 
         renderTaskList();
@@ -587,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addTaskBtn.addEventListener('click', () => {
         const title = taskTitleInput.value.trim();
         const description = taskDescriptionInput.value.trim();
-        // A imagem já está em currentImageBase64 se selecionada/presente
+        const priority = taskPriorityInput.value; // NOVO: Pega o valor da prioridade
 
         // Limpa erros anteriores
         clearError(taskTitleInput, taskTitleError);
@@ -608,8 +625,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (taskIndex > -1) {
                     tasks[taskIndex].title = title;
                     tasks[taskIndex].description = description;
+                    tasks[taskIndex].priority = priority; // NOVO: Salva a prioridade
                     tasks[taskIndex].subtasks = [...currentSubtasks];
-                    tasks[taskIndex].imageUrl = currentImageBase64; // Usa a imagem em base64 atual
+                    tasks[taskIndex].imageUrl = currentImageBase64;
                     saveTasks(tasks);
                     showNotification('Tarefa atualizada com sucesso!', 'success');
                 } else {
@@ -620,7 +638,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     id: Date.now(),
                     title,
                     description,
-                    imageUrl: currentImageBase64, // Usa a imagem em base64 atual
+                    priority, // NOVO: Inclui a prioridade na nova tarefa
+                    imageUrl: currentImageBase64,
                     subtasks: [...currentSubtasks],
                     createdAt: new Date().toISOString()
                 };
@@ -632,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clearForm();
         };
 
-        handleTaskSave(); // Chama a função para salvar a tarefa, com a imagem já em currentImageBase64
+        handleTaskSave();
     });
 
     // Adiciona um listener para o botão de exportar tarefas
@@ -690,9 +709,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             importedTask.subtasks = [];
                         }
 
-                        // Garante que a tarefa tenha um createdAt e ID único para evitar conflitos na importação
+                        // Garante que a tarefa tenha um createdAt e ID único
                         importedTask.createdAt = importedTask.createdAt || new Date().toISOString();
-                        // Verifica se o ID já existe para evitar duplicatas ao importar no mesmo ID
+                        // Garante que a tarefa tenha uma prioridade padrão se ausente
+                        importedTask.priority = importedTask.priority || 'medium'; // NOVO: Define prioridade padrão
+
+                        // Verifica se o ID já existe para evitar conflitos ao importar no mesmo ID
                         if (existingTasks.some(existingTask => existingTask.id === importedTask.id)) {
                              importedTask.id = Date.now() + Math.floor(Math.random() * 1000); // Gera um novo ID único
                         }
@@ -729,10 +751,16 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTaskList();
     });
 
-    // Adiciona listener para o campo de busca (NOVO)
+    // Adiciona listener para o filtro de prioridade (NOVO)
+    filterPrioritySelect.addEventListener('change', () => {
+        localStorage.setItem('filterPriority', filterPrioritySelect.value); // Salva o filtro de prioridade
+        renderTaskList();
+    });
+
+    // Adiciona listener para o campo de busca
     searchInput.addEventListener('input', () => {
         localStorage.setItem('searchQuery', searchInput.value); // Salva o termo de busca
-        renderTaskList(); // Re-renderiza a lista com o novo filtro de busca
+        renderTaskList();
     });
 
     // Adiciona listener para o checkbox de ocultar/exibir imagens

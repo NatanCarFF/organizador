@@ -164,6 +164,43 @@ select { /* Adicionado select aqui */
     resize: vertical; /* Permite redimensionar verticalmente */
 }
 
+/* Estilo para o grupo de input (para prioridade) */
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px; /* Espaço abaixo do grupo */
+}
+
+.input-group label {
+    font-weight: bold;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.input-group label .fas {
+    color: #007bff;
+}
+
+#taskPriority {
+    flex-grow: 1; /* Permite que o select ocupe o espaço restante */
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+    appearance: none; /* Remove estilo padrão do sistema operacional */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-4.4-4.4-11.4-4.4-15.8%2C0L5.4%2C197.3c-4.4%2C4.4-4.4%2C11.4%2C0%2C15.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0L143%2C91.4c4.4-4.4%2C11.4-4.4%2C15.8%2C0l122.8%2C122.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0C291.4%2C208.7%2C291.4%2C201.7%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E'); /* Ícone de seta personalizado */
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+    background-size: 12px auto;
+}
+
+
 input#subtaskInput {
     padding: 12px;
     border: 1px solid #ccc;
@@ -358,7 +395,7 @@ button.save-changes-btn:hover {
     margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid #007bff; /* Destaque azul para itens de tarefa */
+    border-left: 5px solid #007bff; /* Destaque azul padrão para itens de tarefa (pode ser sobrescrito por prioridade) */
     position: relative; /* Para posicionar botões de ação */
 }
 
@@ -366,6 +403,20 @@ button.save-changes-btn:hover {
 .task-item.task-complete {
     border-left: 5px solid #28a745; /* Verde para tarefas completas */
 }
+
+/* Estilos de borda para prioridade */
+.task-item.priority-low {
+    border-left-color: #28a745; /* Verde para baixa prioridade */
+}
+
+.task-item.priority-medium {
+    border-left-color: #007bff; /* Azul para média prioridade */
+}
+
+.task-item.priority-high {
+    border-left-color: #dc3545; /* Vermelho para alta prioridade */
+}
+
 
 .task-item > h3 {
     margin-top: 0;
@@ -616,7 +667,7 @@ footer .fas {
     justify-content: center; /* Centraliza os grupos */
 }
 
-.search-group, /* NOVO */
+.search-group,
 .filter-sort-group,
 .display-options {
     display: flex;
@@ -624,14 +675,14 @@ footer .fas {
     gap: 10px; /* Espaçamento entre label e input/select/checkbox */
 }
 
-.search-group label .fas, /* NOVO */
+.search-group label .fas,
 .filter-sort-group label .fas,
 .display-options label .fas { /* Estilo para os ícones nos labels */
     margin-right: 5px;
     color: #007bff;
 }
 
-.search-group input[type="text"] { /* NOVO: Estilo para o input de busca */
+.search-group input[type="text"] {
     padding: 10px 12px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -803,6 +854,17 @@ footer .fas {
         box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.2);
     }
 
+    /* Ajuste para o grupo de input de prioridade em telas menores */
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .input-group select {
+        width: 100%;
+    }
+
     #subtasksContainer h3 {
         font-size: 1.1em;
         margin-top: 20px;
@@ -869,7 +931,7 @@ footer .fas {
         padding: 10px;
     }
 
-    .search-group, /* NOVO */
+    .search-group,
     .filter-sort-group,
     .display-options {
         flex-direction: column; /* Empilha label e input/select/checkbox */
@@ -877,7 +939,7 @@ footer .fas {
         width: 100%; /* Ocupa a largura total */
     }
 
-    .search-group input[type="text"] { /* NOVO */
+    .search-group input[type="text"] {
         width: 100%; /* Ocupa a largura total */
         min-width: unset;
     }
