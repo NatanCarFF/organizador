@@ -47,6 +47,11 @@ body {
     background-color: #dc3545; /* Vermelho */
 }
 
+.notification.info {
+    background-color: #17a2b8; /* Azul claro para informações */
+}
+
+
 @keyframes slideIn {
     from {
         opacity: 0;
@@ -140,7 +145,8 @@ section h2 .fas {
 input,
 textarea,
 button,
-.file-upload-btn {
+.file-upload-btn,
+select { /* Adicionado select aqui */
     font-size: 1em; /* Tamanho de fonte base para elementos de formulário */
 }
 
@@ -149,6 +155,7 @@ button,
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 6px;
+    width: calc(100% - 30px); /* Ajusta a largura com padding */
 }
 
 #addTaskSection > textarea#taskDescription { /* Seletor mais específico para a textarea de descrição */
@@ -156,6 +163,9 @@ button,
     border: 1px solid #ccc;
     border-radius: 6px;
     margin-bottom: 20px; /* Mais margem abaixo da descrição */
+    width: calc(100% - 30px); /* Ajusta a largura com padding */
+    min-height: 80px; /* Altura mínima para a descrição */
+    resize: vertical; /* Permite redimensionar verticalmente */
 }
 
 input#subtaskInput {
@@ -163,6 +173,10 @@ input#subtaskInput {
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
+    width: calc(100% - 24px - 10px); /* Ajusta largura para caber botão */
+    max-width: 300px; /* Limita largura do input de subtarefa */
+    display: inline-block; /* Para alinhar com o botão */
+    vertical-align: middle;
 }
 
 /* Estilos para o contêiner de subtarefas */
@@ -247,6 +261,16 @@ button:active {
     width: fit-content; /* Ajusta a largura ao conteúdo */
 }
 
+/* Estilo para o botão de salvar alterações */
+button.save-changes-btn {
+    background-color: #28a745; /* Verde para salvar alterações */
+}
+
+button.save-changes-btn:hover {
+    background-color: #218838;
+}
+
+
 /* Estilo para o label de upload de arquivo */
 .file-upload-btn {
     background-color: #6c757d; /* Cinza para botões de utilidade */
@@ -280,11 +304,7 @@ button:active {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-left: 5px solid #007bff; /* Destaque azul para itens de tarefa */
-    display: grid;
-    grid-template-columns: 1fr auto; /* Layout em grid para o conteúdo e botão de exclusão */
-    grid-template-rows: auto auto auto auto 1fr; /* Adicionada uma linha para o termômetro */
-    gap: 10px; /* Reduzido um pouco o gap */
-    align-items: start;
+    position: relative; /* Para posicionar botões de ação */
 }
 
 /* Estilo para tarefa completa (borda verde) */
@@ -293,26 +313,25 @@ button:active {
 }
 
 .task-item > h3 {
-    grid-column: 1 / 3; /* O título ocupa ambas as colunas */
-    margin-bottom: 5px; /* Reduzida a margem abaixo do título */
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #343a40;
 }
 
 .task-item > p {
-    grid-column: 1 / 3; /* A descrição ocupa ambas as colunas */
     color: #666;
     font-size: 0.9em;
     line-height: 1.4;
-    margin-bottom: 5px; /* Reduzida a margem abaixo da descrição */
+    margin-bottom: 10px;
 }
 
 /* Estilos para o termômetro de status da tarefa */
 .task-status-thermometer {
-    grid-column: 1 / 3; /* O termômetro ocupa ambas as colunas */
     background-color: #e0e0e0;
     border-radius: 5px;
-    height: 6px; /* Termômetro mais fino */
-    margin: 5px 0; /* Margem menor para o termômetro */
-    overflow: hidden; /* Garante que a barra de preenchimento fique dentro */
+    height: 6px;
+    margin: 10px 0;
+    overflow: hidden;
 }
 
 .thermometer-fill {
@@ -320,7 +339,7 @@ button:active {
     height: 100%;
     border-radius: 5px;
     width: 0%; /* Inicialmente vazio */
-    transition: width 0.3s ease-in-out; /* Animação suave */
+    transition: width 0.3s ease-in-out;
 }
 
 /* Cor do termômetro quando a tarefa está 100% completa */
@@ -329,8 +348,8 @@ button:active {
 }
 
 .task-image-container {
-    grid-column: 1 / 3; /* A imagem ocupa ambas as colunas */
     text-align: center;
+    margin-bottom: 10px;
 }
 
 .task-image {
@@ -338,71 +357,82 @@ button:active {
     height: auto;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 5px; /* Reduzida a margem abaixo da imagem */
 }
 
 .task-item > h4 {
-    grid-column: 1 / 3; /* Título das subtarefas ocupa ambas as colunas */
     font-size: 0.95em;
     color: #777;
-    margin-top: 10px;
-    margin-bottom: 5px; /* Reduzida a margem abaixo do título das subtarefas */
+    margin-top: 15px;
+    margin-bottom: 5px;
 }
 
 .task-item .subtasks-list {
-    grid-column: 1 / 3; /* Lista de subtarefas ocupa ambas as colunas */
     padding-left: 20px;
-    list-style-type: none; /* Remove o marcador padrão da lista */
-    margin-bottom: 0; /* Removida a margem inferior da lista de subtarefas */
+    list-style-type: none;
+    margin-bottom: 10px;
 }
 
 .task-item .subtasks-list li {
     background: none;
     border: none;
-    padding: 2px 0; /* Reduzido o padding dos itens da subtarefa */
-    margin-bottom: 1px; /* Reduzida a margem dos itens da subtarefa */
-    font-size: 0.8em;
+    padding: 5px 0;
+    margin-bottom: 3px;
+    font-size: 0.85em;
     color: #555;
-    display: flex; /* Para alinhar checkbox e texto */
+    display: flex;
     align-items: center;
 }
 
 .task-item .subtasks-list li input[type="checkbox"] {
-    margin-right: 8px; /* Espaçamento entre o checkbox e o texto */
-    transform: scale(1.1); /* Aumenta um pouco o tamanho do checkbox */
+    margin-right: 8px;
+    transform: scale(1.1);
     cursor: pointer;
 }
 
 .task-item .subtasks-list li label {
     cursor: pointer;
-    flex-grow: 1; /* Permite que o label ocupe o espaço restante */
+    flex-grow: 1;
 }
 
 /* Estilo para subtarefas concluídas */
 .task-item .subtasks-list li.completed label {
-    text-decoration: line-through; /* Risca o texto */
-    color: #888; /* Escurece um pouco a cor */
+    text-decoration: line-through;
+    color: #888;
 }
 
+/* Contêiner para botões de ação da tarefa (Excluir e Editar) */
+.task-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 10px; /* Espaçamento entre os botões */
+}
+
+.task-actions button {
+    padding: 6px 10px;
+    font-size: 0.8em;
+    border-radius: 4px;
+}
 
 .delete-btn {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-    justify-self: end; /* Alinha o botão à direita */
     background-color: #dc3545;
     color: white;
-    border: none;
-    padding: 6px 10px; /* Botão de excluir menor */
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 0.7em; /* Texto do botão de excluir menor */
 }
 
 .delete-btn:hover {
     background-color: #c82333;
-    transform: translateY(-1px);
 }
+
+.edit-btn {
+    background-color: #ffc107; /* Amarelo para editar */
+    color: #333;
+}
+
+.edit-btn:hover {
+    background-color: #e0a800;
+}
+
 
 /* Estilos para a seção de importar/exportar */
 #ioSection button {
@@ -410,14 +440,15 @@ button:active {
 }
 
 /* Estilos para a mensagem de sem tarefas */
-.no-tasks-message {
+.no-tasks-message,
+.no-subtasks-message {
     text-align: center;
     color: #777;
     font-style: italic;
-    padding: 20px;
+    padding: 10px;
     background-color: #f9f9f9;
-    border-radius: 8px;
-    margin-top: 20px;
+    border-radius: 5px;
+    margin-top: 15px;
 }
 
 /* Estilos para o rodapé */
@@ -436,6 +467,53 @@ footer .fas {
     color: #007bff;
     margin-left: 5px;
 }
+
+/* --- Novos estilos para Filtros e Ordenação --- */
+.controls-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
+    gap: 20px; /* Espaçamento entre os grupos de filtro/ordenação */
+    margin-bottom: 25px; /* Espaço abaixo dos controles */
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    justify-content: center; /* Centraliza os grupos */
+}
+
+.filter-sort-group {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espaçamento entre label e select */
+}
+
+.filter-sort-group label {
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap; /* Impede que o texto quebre a linha */
+}
+
+.filter-sort-group label .fas {
+    margin-right: 5px;
+    color: #007bff;
+}
+
+.filter-sort-group select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+    appearance: none; /* Remove estilo padrão do sistema operacional */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-4.4-4.4-11.4-4.4-15.8%2C0L5.4%2C197.3c-4.4%2C4.4-4.4%2C11.4%2C0%2C15.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0L143%2C91.4c4.4-4.4%2C11.4-4.4%2C15.8%2C0l122.8%2C122.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0C291.4%2C208.7%2C291.4%2C201.7%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E'); /* Ícone de seta personalizado */
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+    background-size: 12px auto;
+    min-width: 120px; /* Largura mínima para os selects */
+}
+
 
 /* --- Media Queries para Responsividade --- */
 
@@ -464,7 +542,8 @@ footer .fas {
     input,
     textarea,
     .file-upload-btn,
-    button {
+    button,
+    select { /* Adicionado select aqui também */
         padding: 10px 15px;
         font-size: 0.9em;
     }
@@ -480,22 +559,46 @@ footer .fas {
     }
 
     .task-item {
-        grid-template-columns: 1fr auto;
-        gap: 8px;
+        padding: 15px; /* Reduz o padding */
+        margin-bottom: 15px; /* Reduz a margem inferior */
     }
 
-    .task-item > h3 {
-        font-size: 1.2em;
+    .task-actions {
+        position: static; /* Volta para posicionamento estático */
+        display: flex;
+        justify-content: flex-end; /* Alinha os botões à direita */
+        margin-top: 10px; /* Espaço acima dos botões */
+        gap: 8px; /* Reduz o gap */
     }
 
-    .delete-btn {
-        justify-self: start;
+    .task-actions button {
+        padding: 5px 8px; /* Botões menores */
+        font-size: 0.75em;
     }
 
     #ioSection button {
         width: 100%;
         margin-right: 0;
         margin-bottom: 10px;
+    }
+
+    /* Responsividade para filtros e ordenação */
+    .controls-container {
+        flex-direction: column; /* Empilha os grupos verticalmente */
+        align-items: flex-start; /* Alinha à esquerda */
+        gap: 15px;
+        padding: 10px;
+    }
+
+    .filter-sort-group {
+        flex-direction: column; /* Empilha label e select */
+        align-items: flex-start;
+        width: 100%; /* Ocupa a largura total */
+    }
+
+    .filter-sort-group select {
+        width: 100%; /* Ocupa a largura total */
+        min-width: unset; /* Remove largura mínima */
     }
 }
 
@@ -507,23 +610,5 @@ footer .fas {
 
     section h2 {
         font-size: 1.2em;
-    }
-
-    .task-item {
-        grid-template-columns: 1fr; /* Uma coluna para tudo em telas muito pequenas */
-        gap: 6px;
-    }
-
-    .delete-btn {
-        grid-column: 1 / 2;
-        margin-top: 10px;
-        justify-self: stretch; /* O botão ocupa a largura total */
-    }
-}
-
-/* Estilos para o termômetro em telas menores */
-@media (max-width: 480px) {
-    .task-status-thermometer {
-        margin: 3px 0; /* Margem ainda menor em telas muito pequenas */
     }
 }

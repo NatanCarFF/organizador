@@ -33,6 +33,26 @@
 
         <section id="taskListSection">
             <h2><i class="fas fa-list-ul"></i> Lista de Tarefas</h2>
+            <div class="controls-container">
+                <div class="filter-sort-group">
+                    <label for="filterStatus"><i class="fas fa-filter"></i> Filtrar por Status:</label>
+                    <select id="filterStatus">
+                        <option value="all">Todas</option>
+                        <option value="pending">Pendentes</option>
+                        <option value="completed">Concluídas</option>
+                    </select>
+                </div>
+                <div class="filter-sort-group">
+                    <label for="sortBy"><i class="fas fa-sort"></i> Ordenar por:</label>
+                    <select id="sortBy">
+                        <option value="createdAt">Data de Criação</option>
+                        <option value="titleAsc">Título (A-Z)</option>
+                        <option value="titleDesc">Título (Z-A)</option>
+                        <option value="completionAsc">Conclusão (0-100%)</option>
+                        <option value="completionDesc">Conclusão (100-0%)</option>
+                    </select>
+                </div>
+            </div>
             <ul id="taskList"></ul>
         </section>
 
