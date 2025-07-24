@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskDescriptionError = document.getElementById('taskDescriptionError');
     const subtaskInputError = document.getElementById('subtaskInputError');
 
-    // NOVO: Seletores para o modal de confirmação
+    // Seletores para o modal de confirmação
     const confirmationModal = document.getElementById('confirmationModal');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSubtasks = [];
     let editingTaskId = null;
     let currentImageBase64 = null; // Variável para armazenar a imagem em base64 no modo de edição/criação
-    let taskIdToDeleteConfirmed = null; // NOVO: Armazena o ID da tarefa a ser excluída após confirmação
+    let taskIdToDeleteConfirmed = null; // Armazena o ID da tarefa a ser excluída após confirmação
 
     // --- FUNÇÕES AUXILIARES ---
 
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button type="button" class="remove-image-preview-btn"><i class="fas fa-times"></i> Remover Imagem</button>
                 `;
                 imagePreviewContainer.style.display = 'block';
-                currentImageBase66 = e.target.result; // Armazena a imagem em base64
+                currentImageBase64 = e.target.result; // Armazena a imagem em base64
                 // Adiciona listener ao novo botão de remover
                 imagePreviewContainer.querySelector('.remove-image-preview-btn').addEventListener('click', clearImagePreview);
             };
@@ -287,9 +287,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h4><i class="fas fa-tasks"></i> Subtarefas:</h4>
                     <ul class="subtasks-list">
                         ${task.subtasks.map((sub, subIndex) => `
-                            <li class="${sub.completed ? 'completed' : ''}">
-                                <input type="checkbox" id="subtask-${task.id}-${subIndex}" data-task-id="${task.id}" data-subtask-index="${subIndex}" ${sub.completed ? 'checked' : ''}>
-                                <label for="subtask-${task.id}-${subIndex}">${sub.name}</label>
+                            <li data-task-id="${task.id}" data-subtask-index="${subIndex}" class="${sub.completed ? 'completed' : ''}">
+                                <div>
+                                    <input type="checkbox" id="subtask-${task.id}-${subIndex}" ${sub.completed ? 'checked' : ''}>
+                                    <label for="subtask-${task.id}-${subIndex}">${sub.name}</label>
+                                </div>
+                                <div class="subtask-actions">
+                                    <button type="button" class="edit-subtask-btn"><i class="fas fa-edit"></i></button>
+                                    <button type="button" class="save-subtask-btn" style="display:none;"><i class="fas fa-save"></i></button>
+                                    <button type="button" class="cancel-subtask-btn" style="display:none;"><i class="fas fa-times"></i></button>
+                                    <button type="button" class="remove-subtask-btn"><i class="fas fa-times-circle"></i></button>
+                                </div>
                             </li>
                         `).join('')}
                     </ul>
@@ -315,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Adiciona event listeners para os botões de excluir de cada tarefa
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                // NOVO: Abre o modal de confirmação ao invés de excluir diretamente
                 taskIdToDeleteConfirmed = parseInt(this.dataset.id);
                 confirmationModal.style.display = 'flex'; // Mostra o modal
             });
@@ -338,11 +345,128 @@ document.addEventListener('DOMContentLoaded', () => {
         // Adiciona event listeners para os checkboxes das subtarefas
         document.querySelectorAll('.subtasks-list input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                const taskId = parseInt(this.dataset.taskId);
-                const subtaskIndex = parseInt(this.dataset.subtaskIndex);
+                const taskId = parseInt(this.closest('li').dataset.taskId);
+                const subtaskIndex = parseInt(this.closest('li').dataset.subtaskIndex);
                 toggleSubtaskCompletion(taskId, subtaskIndex, this.checked);
             });
         });
+
+        // NOVO: Adiciona event listeners para os botões de editar subtarefas
+        document.querySelectorAll('.edit-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const taskId = parseInt(li.dataset.taskId);
+                const subtaskIndex = parseInt(li.dataset.subtaskIndex);
+                const tasks = getTasks();
+                const task = tasks.find(t => t.id === taskId);
+                const subtask = task ? task.subtasks[subtaskIndex] : null;
+
+                if (subtask) {
+                    const span = li.querySelector('div > label'); // O label é o que exibe o nome
+                    const checkbox = li.querySelector('div > input[type="checkbox"]');
+                    const originalName = subtask.name;
+
+                    // Cria o input de edição
+                    const editInput = document.createElement('input');
+                    editInput.type = 'text';
+                    editInput.classList.add('subtask-edit-input');
+                    editInput.value = originalName;
+                    editInput.dataset.originalName = originalName; // Guarda o nome original para 'cancelar'
+
+                    // Esconde o checkbox e o label, mostra o input
+                    checkbox.style.display = 'none';
+                    span.style.display = 'none';
+                    li.querySelector('div').insertBefore(editInput, span); // Insere antes do label
+
+                    // Esconde editar, mostra salvar/cancelar
+                    this.style.display = 'none';
+                    li.querySelector('.save-subtask-btn').style.display = 'inline-flex';
+                    li.querySelector('.cancel-subtask-btn').style.display = 'inline-flex';
+
+                    editInput.focus();
+                } else {
+                    showNotification('Erro: Subtarefa não encontrada para edição.', 'error');
+                }
+            });
+        });
+
+        // NOVO: Adiciona event listeners para os botões de salvar subtarefas
+        document.querySelectorAll('.save-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const taskId = parseInt(li.dataset.taskId);
+                const subtaskIndex = parseInt(li.dataset.subtaskIndex);
+                const editInput = li.querySelector('.subtask-edit-input');
+                const newName = editInput.value.trim();
+
+                if (!newName) {
+                    showNotification('O nome da subtarefa não pode ser vazio!', 'error');
+                    editInput.focus();
+                    return;
+                }
+
+                let tasks = getTasks();
+                const task = tasks.find(t => t.id === taskId);
+
+                if (task && task.subtasks && task.subtasks[subtaskIndex]) {
+                    task.subtasks[subtaskIndex].name = newName;
+                    saveTasks(tasks);
+                    renderTaskList(); // Re-renderiza toda a lista para aplicar as mudanças
+                    showNotification('Subtarefa atualizada com sucesso!', 'success');
+                } else {
+                    showNotification('Erro ao salvar subtarefa.', 'error');
+                }
+            });
+        });
+
+        // NOVO: Adiciona event listeners para os botões de cancelar edição de subtarefas
+        document.querySelectorAll('.cancel-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const editInput = li.querySelector('.subtask-edit-input');
+                const originalName = editInput.dataset.originalName; // Recupera o nome original
+
+                const span = li.querySelector('div > label');
+                const checkbox = li.querySelector('div > input[type="checkbox"]');
+
+                // Volta o label e checkbox
+                span.style.display = 'inline'; // Ou 'flex' dependendo do seu display do label
+                checkbox.style.display = 'inline';
+                span.textContent = originalName; // Restaura o nome original no label
+
+                // Remove o input
+                editInput.remove();
+
+                // Esconde salvar/cancelar, mostra editar
+                li.querySelector('.edit-subtask-btn').style.display = 'inline-flex';
+                this.style.display = 'none';
+                li.querySelector('.save-subtask-btn').style.display = 'none';
+
+                showNotification('Edição de subtarefa cancelada.', 'info');
+            });
+        });
+
+        // Adiciona event listeners para os botões de remover subtarefas (dentro da lista de tarefas)
+        document.querySelectorAll('.task-item .remove-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const taskId = parseInt(li.dataset.taskId);
+                const subtaskIndex = parseInt(li.dataset.subtaskIndex);
+
+                let tasks = getTasks();
+                const task = tasks.find(t => t.id === taskId);
+
+                if (task && task.subtasks && task.subtasks[subtaskIndex]) {
+                    task.subtasks.splice(subtaskIndex, 1);
+                    saveTasks(tasks);
+                    renderTaskList(); // Re-renderiza para atualizar a lista e porcentagem
+                    showNotification('Subtarefa removida da tarefa principal.', 'success');
+                } else {
+                    showNotification('Erro ao remover subtarefa.', 'error');
+                }
+            });
+        });
+
 
         // Aplica o estado de visibilidade da imagem ao renderizar
         applyImageVisibility();
@@ -551,7 +675,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // Garante que a tarefa tenha um createdAt e ID único para evitar conflitos na importação
                         importedTask.createdAt = importedTask.createdAt || new Date().toISOString();
-                        if (!importedTask.id || existingTasks.some(existingTask => existingTask.id === importedTask.id)) {
+                        // Verifica se o ID já existe para evitar duplicatas ao importar no mesmo ID
+                        if (existingTasks.some(existingTask => existingTask.id === importedTask.id)) {
                              importedTask.id = Date.now() + Math.floor(Math.random() * 1000); // Gera um novo ID único
                         }
 
@@ -594,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('showImages', toggleImagesCheckbox.checked);
     });
 
-    // NOVO: Listeners para os botões do modal de confirmação
+    // Listeners para os botões do modal de confirmação de exclusão de tarefa
     confirmDeleteBtn.addEventListener('click', () => {
         if (taskIdToDeleteConfirmed !== null) {
             performDeleteTask(taskIdToDeleteConfirmed); // Chama a função real de exclusão
@@ -613,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmationModal.style.display = 'none'; // Esconde o modal
     });
 
-    // NOVO: Fecha o modal se clicar fora dele
+    // Fecha o modal se clicar fora dele
     window.addEventListener('click', (event) => {
         if (event.target === confirmationModal) {
             taskIdToDeleteConfirmed = null; // Reseta o ID

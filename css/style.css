@@ -449,6 +449,14 @@ button.save-changes-btn:hover {
     color: #555;
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Alinha o conteúdo e os botões */
+    flex-wrap: wrap; /* Permite que os itens quebrem a linha */
+}
+
+.task-item .subtasks-list li > div { /* Contêiner para checkbox e label */
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Permite que o checkbox/label ocupe o espaço */
 }
 
 .task-item .subtasks-list li input[type="checkbox"] {
@@ -466,6 +474,65 @@ button.save-changes-btn:hover {
 .task-item .subtasks-list li.completed label {
     text-decoration: line-through;
     color: #888;
+}
+
+/* NOVO: Estilos para o input de edição de subtarefa */
+.subtask-edit-input {
+    flex-grow: 1;
+    padding: 5px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.85em;
+    margin-right: 10px; /* Espaço entre o input e os botões de ação */
+}
+
+/* NOVO: Contêiner para os botões de ação da subtarefa */
+.subtask-actions {
+    display: flex;
+    gap: 5px; /* Espaçamento entre os botões */
+    margin-left: 10px; /* Espaço entre o texto/input e os botões */
+}
+
+/* NOVO: Botões de editar/salvar/cancelar subtarefa */
+.edit-subtask-btn,
+.save-subtask-btn,
+.cancel-subtask-btn {
+    padding: 5px 8px;
+    font-size: 0.75em;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-subtask-btn {
+    background-color: #17a2b8; /* Azul info */
+    color: white;
+}
+
+.edit-subtask-btn:hover {
+    background-color: #138496;
+}
+
+.save-subtask-btn {
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+
+.save-subtask-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-subtask-btn {
+    background-color: #6c757d; /* Cinza */
+    color: white;
+}
+
+.cancel-subtask-btn:hover {
+    background-color: #5a6268;
 }
 
 /* Contêiner para botões de ação da tarefa (Excluir e Editar) */
@@ -734,6 +801,30 @@ footer .fas {
     #subtaskList li span {
         font-size: 0.9em;
     }
+
+    /* Subtarefas responsivas */
+    .task-item .subtasks-list li {
+        flex-direction: column; /* Empilha o checkbox/label e os botões */
+        align-items: flex-start;
+        gap: 8px; /* Espaçamento entre os itens empilhados */
+    }
+
+    .task-item .subtasks-list li > div {
+        width: 100%; /* Ocupa a largura total */
+    }
+
+    .subtask-edit-input {
+        width: calc(100% - 16px); /* Ajusta largura com padding */
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+
+    .subtask-actions {
+        width: 100%;
+        justify-content: flex-end; /* Alinha os botões da subtarefa à direita */
+        margin-left: 0;
+    }
+
 
     .task-item {
         padding: 15px; /* Reduz o padding */
