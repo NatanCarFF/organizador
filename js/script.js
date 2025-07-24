@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSubtasks = []; // Array temporário para armazenar subtarefas enquanto a tarefa principal está sendo criada
 
     // --- FUNÇÕES AUXILIARES ---
-    // Funções movidas para o topo para garantir que estejam definidas antes de serem chamadas.
 
     /**
      * Exibe uma notificação na tela.
@@ -122,6 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
             listItem.innerHTML = `
                 <h3>${task.title}</h3>
                 <p>${task.description || 'Sem descrição.'}</p>
+                <div class="task-status-thermometer">
+                    <div class="thermometer-fill" style="width: 0%;"></div>
+                </div>
                 ${task.imageUrl ? `<div class="task-image-container"><img src="${task.imageUrl}" alt="Imagem da tarefa" class="task-image"></div>` : ''}
                 ${subtasksHtml}
                 <button type="button" class="delete-btn" data-id="${task.id}"><i class="fas fa-trash-alt"></i> Excluir</button>
@@ -183,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addTaskBtn.addEventListener('click', () => {
         const title = taskTitleInput.value.trim();
         const description = taskDescriptionInput.value.trim();
-        const imageFile = taskImageInput.files[0];
+        const imageFile = taskImageInput.files && taskImageInput.files.length > 0 ? taskImageInput.files[0] : null;
 
         if (!title) {
             alert('O título da tarefa é obrigatório.'); // Mantido alerta para validação simples

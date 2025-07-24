@@ -14,13 +14,13 @@ body {
 
 /* Estilos para o contêiner de notificações */
 #notificationContainer {
-    position: fixed;
+    position: fixed; /* Fixa a notificação na tela */
     top: 20px;
     right: 20px;
-    z-index: 1000;
+    z-index: 1000; /* Garante que a notificação fique acima de outros elementos */
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 10px; /* Espaçamento entre múltiplas notificações */
     pointer-events: none; /* Permite interagir com elementos abaixo */
 }
 
@@ -31,9 +31,9 @@ body {
     font-weight: bold;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 10px; /* Espaçamento entre o ícone e o texto */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    opacity: 0;
+    opacity: 0; /* Começa invisível para a animação */
     transform: translateX(20px); /* Começa da direita para a animação */
     animation: slideIn 0.5s ease-out forwards, fadeOut 0.5s ease-in forwards 3s; /* Animação de entrada e saída */
     pointer-events: auto; /* Permite que a notificação seja clicável (se necessário) */
@@ -77,13 +77,13 @@ header {
     text-align: center;
     width: 100%;
     margin-bottom: 40px; /* Mais espaço abaixo do cabeçalho */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidade */
 }
 
 header h1 {
     margin: 0;
     font-size: 2.2em; /* Um pouco menor para melhor encaixe */
-    display: flex;
+    display: flex; /* Para alinhar o ícone e o texto */
     justify-content: center;
     align-items: center;
 }
@@ -144,18 +144,18 @@ button,
     font-size: 1em; /* Tamanho de fonte base para elementos de formulário */
 }
 
-input#taskTitle {
-    margin-bottom: 20px; /* Mais espaço abaixo do título da tarefa */
+#addTaskSection > input#taskTitle { /* Seletor mais específico para o input de título na seção de adicionar */
+    margin-bottom: 10px; /* Menos margem abaixo do título */
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 6px;
 }
 
-textarea#taskDescription {
+#addTaskSection > textarea#taskDescription { /* Seletor mais específico para a textarea de descrição */
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* Mais margem abaixo da descrição */
 }
 
 input#subtaskInput {
@@ -282,14 +282,14 @@ button:active {
     border-left: 5px solid #007bff; /* Destaque azul para itens de tarefa */
     display: grid;
     grid-template-columns: 1fr auto; /* Layout em grid para o conteúdo e botão de exclusão */
-    grid-template-rows: auto auto auto 1fr; /* Define as linhas do grid */
-    gap: 15px;
+    grid-template-rows: auto auto auto auto 1fr; /* Adicionada uma linha para o termômetro */
+    gap: 10px; /* Reduzido um pouco o gap */
     align-items: start;
 }
 
 .task-item > h3 {
     grid-column: 1 / 3; /* O título ocupa ambas as colunas */
-    margin-bottom: 10px;
+    margin-bottom: 5px; /* Reduzida a margem abaixo do título */
 }
 
 .task-item > p {
@@ -297,6 +297,25 @@ button:active {
     color: #666;
     font-size: 0.9em;
     line-height: 1.4;
+    margin-bottom: 5px; /* Reduzida a margem abaixo da descrição */
+}
+
+/* Estilos para o termômetro de status da tarefa */
+.task-status-thermometer {
+    grid-column: 1 / 3; /* O termômetro ocupa ambas as colunas */
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    height: 6px; /* Termômetro mais fino */
+    margin: 5px 0; /* Margem menor para o termômetro */
+    overflow: hidden; /* Garante que a barra de preenchimento fique dentro */
+}
+
+.thermometer-fill {
+    background-color: #007bff; /* Cor do preenchimento do termômetro */
+    height: 100%;
+    border-radius: 5px;
+    width: 0%; /* Inicialmente vazio */
+    transition: width 0.3s ease-in-out; /* Animação suave */
 }
 
 .task-image-container {
@@ -309,6 +328,7 @@ button:active {
     height: auto;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 5px; /* Reduzida a margem abaixo da imagem */
 }
 
 .task-item > h4 {
@@ -316,20 +336,22 @@ button:active {
     font-size: 0.95em;
     color: #777;
     margin-top: 10px;
+    margin-bottom: 5px; /* Reduzida a margem abaixo do título das subtarefas */
 }
 
 .task-item .subtasks-list {
     grid-column: 1 / 3; /* Lista de subtarefas ocupa ambas as colunas */
     padding-left: 20px;
     list-style-type: disc;
+    margin-bottom: 0; /* Removida a margem inferior da lista de subtarefas */
 }
 
 .task-item .subtasks-list li {
     background: none;
     border: none;
-    padding: 3px 0;
-    margin-bottom: 2px;
-    font-size: 0.85em;
+    padding: 2px 0; /* Reduzido o padding dos itens da subtarefa */
+    margin-bottom: 1px; /* Reduzida a margem dos itens da subtarefa */
+    font-size: 0.8em;
     color: #555;
     display: list-item;
 }
@@ -341,11 +363,11 @@ button:active {
     background-color: #dc3545;
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 6px 10px; /* Botão de excluir menor */
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 0.8em;
+    font-size: 0.7em; /* Texto do botão de excluir menor */
 }
 
 .delete-btn:hover {
@@ -382,7 +404,7 @@ footer {
 }
 
 footer .fas {
-    color: #007bff; /* Cor do ícone do rodapé */
+    color: #007bff;
     margin-left: 5px;
 }
 
@@ -430,15 +452,15 @@ footer .fas {
 
     .task-item {
         grid-template-columns: 1fr auto;
-        gap: 10px;
+        gap: 8px;
     }
 
     .task-item > h3 {
-        font-size: 1.3em;
+        font-size: 1.2em;
     }
 
     .delete-btn {
-        justify-self: start; /* Alinha o botão à esquerda em telas menores */
+        justify-self: start;
     }
 
     #ioSection button {
@@ -460,11 +482,19 @@ footer .fas {
 
     .task-item {
         grid-template-columns: 1fr; /* Uma coluna para tudo em telas muito pequenas */
+        gap: 6px;
     }
 
     .delete-btn {
         grid-column: 1 / 2;
         margin-top: 10px;
         justify-self: stretch; /* O botão ocupa a largura total */
+    }
+}
+
+/* Estilos para o termômetro em telas menores */
+@media (max-width: 480px) {
+    .task-status-thermometer {
+        margin: 3px 0; /* Margem ainda menor em telas muito pequenas */
     }
 }
