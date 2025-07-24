@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Seletores de elementos HTML para fácil acesso
     const taskTitleInput = document.getElementById('taskTitle');
     const taskDescriptionInput = document.getElementById('taskDescription');
-    const taskPriorityInput = document.getElementById('taskPriority'); // NOVO
+    const taskPriorityInput = document.getElementById('taskPriority');
+    const taskDueDateInput = document.getElementById('taskDueDate'); // NOVO
     const taskImageInput = document.getElementById('taskImage');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const addTaskBtn = document.getElementById('addTaskBtn');
@@ -22,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Seletores para filtros e ordenação
     const filterStatusSelect = document.getElementById('filterStatus');
     const sortBySelect = document.getElementById('sortBy');
-    const filterPrioritySelect = document.getElementById('filterPriority'); // NOVO
+    const filterPrioritySelect = document.getElementById('filterPriority');
 
     // Seletores para busca
     const searchInput = document.getElementById('searchInput');
@@ -120,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         imagePreviewContainer.innerHTML = '';
         imagePreviewContainer.style.display = 'none';
         taskImageInput.value = ''; // Limpa o input file
-        currentImageBase64 = null; // Zera a imagem em base64
+        currentImageBase664 = null; // Zera a imagem em base64
     }
 
     // Função auxiliar para salvar o array de tarefas no LocalStorage
@@ -185,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         taskTitleInput.value = '';
         taskDescriptionInput.value = '';
         taskPriorityInput.value = 'medium'; // Volta para o padrão
+        taskDueDateInput.value = ''; // NOVO: Limpa a data de vencimento
         taskImageInput.value = ''; // Garante que o input file esteja limpo
         clearImagePreview(); // Limpa o preview da imagem
         currentSubtasks = [];
@@ -204,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         taskTitleInput.value = task.title;
         taskDescriptionInput.value = task.description;
         taskPriorityInput.value = task.priority || 'medium'; // Define a prioridade ou padrão
+        taskDueDateInput.value = task.dueDate || ''; // NOVO: Define a data de vencimento ou vazio
 
         // Exibe a imagem existente no preview se houver
         if (task.imageUrl) {
@@ -232,7 +235,31 @@ document.addEventListener('DOMContentLoaded', () => {
         clearError(subtaskInput, subtaskInputError);
     }
 
-    // Função para aplicar filtro, busca e ordenação antes de renderizar (ATUALIZADA com Prioridade)
+    // Função para determinar o status da data de vencimento
+    function getDueDateStatus(dueDate) {
+        if (!dueDate) return '';
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas a data
+
+        const due = new Date(dueDate);
+        due.setHours(0, 0, 0, 0);
+
+        if (due < today) {
+            return 'overdue'; // Vencida
+        } else if (due.getTime() === today.getTime()) {
+            return 'due-today'; // Vence hoje
+        } else {
+            const diffTime = Math.abs(due.getTime() - today.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays <= 3) { // Vence em 3 dias ou menos
+                return 'due-soon';
+            }
+        }
+        return ''; // Sem status especial
+    }
+
+    // Função para aplicar filtro, busca e ordenação antes de renderizar (ATUALIZADA com Prioridade e Data de Vencimento)
     function applyFiltersAndSorting(tasks) {
         let filteredTasks = [...tasks];
         const currentSearchQuery = searchInput.value.toLowerCase().trim();
@@ -253,13 +280,13 @@ document.addEventListener('DOMContentLoaded', () => {
             filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) === 100 && task.subtasks.length > 0);
         }
 
-        // 2. Aplica o filtro de prioridade (NOVO)
+        // 2. Aplica o filtro de prioridade
         const filterPriority = filterPrioritySelect.value;
         if (filterPriority !== 'all') {
             filteredTasks = filteredTasks.filter(task => (task.priority || 'medium') === filterPriority);
         }
 
-        // 3. Aplica a ordenação (ATUALIZADA para considerar prioridade na ordenação)
+        // 3. Aplica a ordenação (ATUALIZADA para considerar data de vencimento)
         const sortBy = sortBySelect.value;
         filteredTasks.sort((a, b) => {
             if (sortBy === 'createdAt') {
@@ -272,6 +299,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 return calculateCompletionPercentage(a) - calculateCompletionPercentage(b);
             } else if (sortBy === 'completionDesc') {
                 return calculateCompletionPercentage(b) - calculateCompletionPercentage(a);
+            } else if (sortBy === 'dueDateAsc') { // NOVO: Ordena por data de vencimento (mais próxima primeiro)
+                const dateA = a.dueDate ? new Date(a.dueDate) : null;
+                const dateB = b.dueDate ? new Date(b.dueDate) : null;
+
+                if (dateA && dateB) {
+                    return dateA - dateB;
+                } else if (dateA) {
+                    return -1; // A tem data, B não, então A vem antes
+                } else if (dateB) {
+                    return 1; // B tem data, A não, então B vem antes
+                }
+                return 0; // Ambos sem data
+            } else if (sortBy === 'dueDateDesc') { // NOVO: Ordena por data de vencimento (mais distante primeiro)
+                const dateA = a.dueDate ? new Date(a.dueDate) : null;
+                const dateB = b.dueDate ? new Date(b.dueDate) : null;
+
+                if (dateA && dateB) {
+                    return dateB - dateA;
+                } else if (dateA) {
+                    return 1; // A tem data, B não, então B vem antes
+                } else if (dateB) {
+                    return -1; // B tem data, A não, então A vem antes
+                }
+                return 0; // Ambos sem data
             }
             return 0;
         });
@@ -279,7 +330,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return filteredTasks;
     }
 
-    // Função para renderizar a lista completa de tarefas (ATUALIZADA para exibir prioridade)
+    // Função para formatar a data para exibição
+    function formatDate(dateString) {
+        if (!dateString) return 'Não definida';
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR', options); // Adiciona T00:00:00 para evitar problemas de fuso horário
+    }
+
+    // Função para renderizar a lista completa de tarefas (ATUALIZADA para exibir prioridade e data de vencimento)
     function renderTaskList() {
         const allTasks = getTasks();
         const tasksToDisplay = applyFiltersAndSorting(allTasks);
@@ -303,8 +361,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 listItem.classList.remove('task-complete');
             }
 
-            // Adiciona classe de prioridade (NOVO)
+            // Adiciona classe de prioridade
             listItem.classList.add(`priority-${task.priority || 'medium'}`);
+
+            // Adiciona classe de status de vencimento (NOVO)
+            const dueDateStatus = getDueDateStatus(task.dueDate);
+            if (dueDateStatus) {
+                listItem.classList.add(dueDateStatus);
+            }
 
 
             let subtasksHtml = '';
@@ -334,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>${task.title}</h3>
                 <p>${task.description || 'Sem descrição.'}</p>
                 <p><strong>Prioridade:</strong> <span class="priority-text">${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Média'}</span></p>
+                <p><strong>Vencimento:</strong> <span class="due-date-text">${formatDate(task.dueDate)}</span></p>
                 <div class="task-status-thermometer">
                     <div class="thermometer-fill" style="width: ${completionPercentage}%;"></div>
                 </div>
@@ -542,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedFilterStatus = localStorage.getItem('filterStatus');
         const savedSortBy = localStorage.getItem('sortBy');
         const savedSearchQuery = localStorage.getItem('searchQuery');
-        const savedFilterPriority = localStorage.getItem('filterPriority'); // NOVO
+        const savedFilterPriority = localStorage.getItem('filterPriority');
 
         if (savedFilterStatus) {
             filterStatusSelect.value = savedFilterStatus;
@@ -553,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedSearchQuery) {
             searchInput.value = savedSearchQuery;
         }
-        if (savedFilterPriority) { // NOVO
+        if (savedFilterPriority) {
             filterPrioritySelect.value = savedFilterPriority;
         }
 
@@ -604,7 +669,8 @@ document.addEventListener('DOMContentLoaded', () => {
     addTaskBtn.addEventListener('click', () => {
         const title = taskTitleInput.value.trim();
         const description = taskDescriptionInput.value.trim();
-        const priority = taskPriorityInput.value; // NOVO: Pega o valor da prioridade
+        const priority = taskPriorityInput.value;
+        const dueDate = taskDueDateInput.value; // NOVO: Pega o valor da data de vencimento
 
         // Limpa erros anteriores
         clearError(taskTitleInput, taskTitleError);
@@ -625,7 +691,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (taskIndex > -1) {
                     tasks[taskIndex].title = title;
                     tasks[taskIndex].description = description;
-                    tasks[taskIndex].priority = priority; // NOVO: Salva a prioridade
+                    tasks[taskIndex].priority = priority;
+                    tasks[taskIndex].dueDate = dueDate; // NOVO: Salva a data de vencimento
                     tasks[taskIndex].subtasks = [...currentSubtasks];
                     tasks[taskIndex].imageUrl = currentImageBase64;
                     saveTasks(tasks);
@@ -638,7 +705,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     id: Date.now(),
                     title,
                     description,
-                    priority, // NOVO: Inclui a prioridade na nova tarefa
+                    priority,
+                    dueDate, // NOVO: Inclui a data de vencimento na nova tarefa
                     imageUrl: currentImageBase64,
                     subtasks: [...currentSubtasks],
                     createdAt: new Date().toISOString()
@@ -712,7 +780,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Garante que a tarefa tenha um createdAt e ID único
                         importedTask.createdAt = importedTask.createdAt || new Date().toISOString();
                         // Garante que a tarefa tenha uma prioridade padrão se ausente
-                        importedTask.priority = importedTask.priority || 'medium'; // NOVO: Define prioridade padrão
+                        importedTask.priority = importedTask.priority || 'medium';
+                        // Garante que a tarefa tenha uma data de vencimento se ausente (NOVO)
+                        importedTask.dueDate = importedTask.dueDate || ''; 
 
                         // Verifica se o ID já existe para evitar conflitos ao importar no mesmo ID
                         if (existingTasks.some(existingTask => existingTask.id === importedTask.id)) {
@@ -751,7 +821,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTaskList();
     });
 
-    // Adiciona listener para o filtro de prioridade (NOVO)
+    // Adiciona listener para o filtro de prioridade
     filterPrioritySelect.addEventListener('change', () => {
         localStorage.setItem('filterPriority', filterPrioritySelect.value); // Salva o filtro de prioridade
         renderTaskList();
@@ -786,7 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeButton.addEventListener('click', () => {
         taskIdToDeleteConfirmed = null; // Reseta o ID
-        confirmationModal.style.display = 'none'; // Esconde o modal
+        confirmationModal.style.display = 'none';
     });
 
     // Fecha o modal se clicar fora dele

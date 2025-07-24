@@ -29,6 +29,11 @@
                 </select>
             </div>
 
+            <div class="input-group">
+                <label for="taskDueDate"><i class="fas fa-calendar-alt"></i> Data de Vencimento:</label>
+                <input type="date" id="taskDueDate">
+            </div>
+
             <label for="taskImage" class="file-upload-btn"><i class="fas fa-image"></i> Anexar Imagem</label>
             <input type="file" id="taskImage" accept="image/*">
             <div id="imagePreviewContainer"></div> <div id="subtasksContainer">
@@ -73,6 +78,8 @@
                         <option value="titleDesc">Título (Z-A)</option>
                         <option value="completionAsc">Conclusão (0-100%)</option>
                         <option value="completionDesc">Conclusão (100-0%)</option>
+                        <option value="dueDateAsc">Vencimento (Mais Próximo)</option>
+                        <option value="dueDateDesc">Vencimento (Mais Distante)</option>
                     </select>
                 </div>
                 <div class="display-options">

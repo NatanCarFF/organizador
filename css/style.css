@@ -164,7 +164,7 @@ select { /* Adicionado select aqui */
     resize: vertical; /* Permite redimensionar verticalmente */
 }
 
-/* Estilo para o grupo de input (para prioridade) */
+/* Estilo para o grupo de input (para prioridade e data de vencimento) */
 .input-group {
     display: flex;
     align-items: center;
@@ -178,12 +178,14 @@ select { /* Adicionado select aqui */
     display: flex;
     align-items: center;
     gap: 5px;
+    white-space: nowrap; /* Impede que o texto do label quebre a linha */
 }
 
 .input-group label .fas {
     color: #007bff;
 }
 
+/* Estilos para selects (Prioridade) */
 #taskPriority {
     flex-grow: 1; /* Permite que o select ocupe o espaço restante */
     padding: 10px 12px;
@@ -198,6 +200,18 @@ select { /* Adicionado select aqui */
     background-repeat: no-repeat;
     background-position: right 10px top 50%;
     background-size: 12px auto;
+}
+
+/* Estilos para input de Data de Vencimento */
+input[type="date"] {
+    flex-grow: 1; /* Permite que o input ocupe o espaço restante */
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+    /* Ajustes para o ícone de calendário padrão em alguns navegadores */
+    padding-right: 30px; /* Espaço para o ícone padrão */
 }
 
 
@@ -348,8 +362,8 @@ button:active {
 
 #addTaskSection button#addTaskBtn,
 #ioSection button {
-    margin-top: 20px; /* Mais espaço acima dos botões de ação principal */
-    width: fit-content; /* Ajusta a largura ao conteúdo */
+    margin-top: 20px; /* Más espacio arriba de los botones de acción principal */
+    width: fit-content; /* Ajusta la anchura al contenido */
 }
 
 /* Estilo para o botão de salvar alterações */
@@ -397,11 +411,13 @@ button.save-changes-btn:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-left: 5px solid #007bff; /* Destaque azul padrão para itens de tarefa (pode ser sobrescrito por prioridade) */
     position: relative; /* Para posicionar botões de ação */
+    transition: all 0.2s ease-in-out; /* Transição para mudanças de estado */
 }
 
 /* Estilo para tarefa completa (borda verde) */
 .task-item.task-complete {
     border-left: 5px solid #28a745; /* Verde para tarefas completas */
+    opacity: 0.8; /* Suaviza tarefas completas */
 }
 
 /* Estilos de borda para prioridade */
@@ -417,6 +433,30 @@ button.save-changes-btn:hover {
     border-left-color: #dc3545; /* Vermelho para alta prioridade */
 }
 
+/* Estilos para status de vencimento */
+.task-item.due-today {
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.4); /* Sombra laranja */
+    border-color: #ffa500 !important; /* Laranja para vencer hoje */
+}
+
+.task-item.overdue {
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); /* Sombra vermelha */
+    border-color: #dc3545 !important; /* Vermelho para vencida */
+    animation: pulseRed 1.5s infinite; /* Pulsação para vencidas */
+}
+
+.task-item.due-soon {
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3); /* Sombra amarela suave */
+    border-color: #ffc107 !important; /* Amarelo para vencer em breve */
+}
+
+/* Animação de pulsação para tarefas vencidas */
+@keyframes pulseRed {
+    0% { transform: scale(1); box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); }
+    50% { transform: scale(1.005); box-shadow: 0 0 20px rgba(220, 53, 69, 0.6); }
+    100% { transform: scale(1); box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); }
+}
+
 
 .task-item > h3 {
     margin-top: 0;
@@ -429,6 +469,10 @@ button.save-changes-btn:hover {
     font-size: 0.9em;
     line-height: 1.4;
     margin-bottom: 10px;
+}
+
+.task-item p strong {
+    color: #343a40;
 }
 
 /* Estilos para o termômetro de status da tarefa */
@@ -854,14 +898,15 @@ footer .fas {
         box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.2);
     }
 
-    /* Ajuste para o grupo de input de prioridade em telas menores */
+    /* Ajuste para o grupo de input de prioridade e data em telas menores */
     .input-group {
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
     }
 
-    .input-group select {
+    .input-group select,
+    .input-group input[type="date"] {
         width: 100%;
     }
 
