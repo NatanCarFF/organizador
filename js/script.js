@@ -3,9 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskTitleInput = document.getElementById('taskTitle');
     const taskDescriptionInput = document.getElementById('taskDescription');
     const taskImageInput = document.getElementById('taskImage');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer'); // NOVO: Contêiner para o preview da imagem
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskList = document.getElementById('taskList');
-    const taskListSection = document.getElementById('taskListSection'); // Adicionado para controlar a classe de imagem
+    const taskListSection = document.getElementById('taskListSection');
 
     const exportBtn = document.getElementById('exportBtn');
     const importFile = document.getElementById('importFile');
@@ -26,11 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Seletores para as mensagens de erro (Validação de Formulário Mais Visível)
     const taskTitleError = document.getElementById('taskTitleError');
-    const taskDescriptionError = document.getElementById('taskDescriptionError'); // Embora não obrigatório, pode ser útil para futuras validações
+    const taskDescriptionError = document.getElementById('taskDescriptionError');
     const subtaskInputError = document.getElementById('subtaskInputError');
 
     let currentSubtasks = [];
     let editingTaskId = null;
+    let currentImageBase64 = null; // Variável para armazenar a imagem em base64 no modo de edição/criação
 
     // --- FUNÇÕES AUXILIARES ---
 
@@ -79,6 +81,34 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearError(inputElement, errorElement) {
         inputElement.classList.remove('input-error');
         errorElement.textContent = '';
+    }
+
+    // Função para exibir o preview da imagem
+    function displayImagePreview(file) {
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreviewContainer.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview da Imagem">
+                    <button type="button" class="remove-image-preview-btn"><i class="fas fa-times"></i> Remover Imagem</button>
+                `;
+                imagePreviewContainer.style.display = 'block';
+                currentImageBase64 = e.target.result; // Armazena a imagem em base64
+                // Adiciona listener ao novo botão de remover
+                imagePreviewContainer.querySelector('.remove-image-preview-btn').addEventListener('click', clearImagePreview);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            clearImagePreview();
+        }
+    }
+
+    // Função para limpar o preview da imagem
+    function clearImagePreview() {
+        imagePreviewContainer.innerHTML = '';
+        imagePreviewContainer.style.display = 'none';
+        taskImageInput.value = ''; // Limpa o input file
+        currentImageBase64 = null; // Zera a imagem em base64
     }
 
     // Função auxiliar para salvar o array de tarefas no LocalStorage
@@ -142,7 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearForm() {
         taskTitleInput.value = '';
         taskDescriptionInput.value = '';
-        taskImageInput.value = '';
+        taskImageInput.value = ''; // Garante que o input file esteja limpo
+        clearImagePreview(); // Limpa o preview da imagem
         currentSubtasks = [];
         renderCurrentSubtasks();
         editingTaskId = null;
@@ -159,9 +190,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateFormForEdit(task) {
         taskTitleInput.value = task.title;
         taskDescriptionInput.value = task.description;
-        // Não podemos preencher diretamente o input de tipo 'file' por segurança,
-        // mas o usuário terá que selecionar uma nova imagem se quiser alterá-la.
-        taskImageInput.value = ''; 
+        
+        // Exibe a imagem existente no preview se houver
+        if (task.imageUrl) {
+            imagePreviewContainer.innerHTML = `
+                <img src="${task.imageUrl}" alt="Preview da Imagem Atual">
+                <button type="button" class="remove-image-preview-btn"><i class="fas fa-times"></i> Remover Imagem</button>
+            `;
+            imagePreviewContainer.style.display = 'block';
+            currentImageBase64 = task.imageUrl; // Define a imagem atual para a edição
+            imagePreviewContainer.querySelector('.remove-image-preview-btn').addEventListener('click', clearImagePreview);
+        } else {
+            clearImagePreview();
+        }
+
         currentSubtasks = task.subtasks ? [...task.subtasks] : [];
         renderCurrentSubtasks();
         editingTaskId = task.id;
@@ -354,6 +396,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carrega as tarefas salvas ao iniciar
     loadTasks();
 
+    // Listener para o input de imagem para exibir preview
+    taskImageInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        displayImagePreview(file);
+    });
+
     // Adiciona listener para o botão de adicionar subtarefa
     addSubtaskBtn.addEventListener('click', () => {
         const subtaskText = subtaskInput.value.trim();
@@ -379,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addTaskBtn.addEventListener('click', () => {
         const title = taskTitleInput.value.trim();
         const description = taskDescriptionInput.value.trim();
-        const imageFile = taskImageInput.files && taskImageInput.files.length > 0 ? taskImageInput.files[0] : null;
+        // A imagem já está em currentImageBase64 se selecionada/presente
 
         // Limpa erros anteriores
         clearError(taskTitleInput, taskTitleError);
@@ -393,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const handleTaskSave = (imageUrl = null) => {
+        const handleTaskSave = () => {
             let tasks = getTasks();
             if (editingTaskId) {
                 const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
@@ -401,15 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tasks[taskIndex].title = title;
                     tasks[taskIndex].description = description;
                     tasks[taskIndex].subtasks = [...currentSubtasks];
-                    if (imageUrl !== undefined) { // Se uma nova imagem foi selecionada ou explicitamente definida como null
-                        tasks[taskIndex].imageUrl = imageUrl;
-                    } else if (!imageFile && tasks[taskIndex].imageUrl) {
-                        // Se não foi selecionada nova imagem e já tinha uma, mantém a existente
-                    } else if (!imageFile) {
-                        // Se não foi selecionada nova imagem e não tinha, garante que não haja imagem
-                        tasks[taskIndex].imageUrl = null;
-                    }
-
+                    tasks[taskIndex].imageUrl = currentImageBase64; // Usa a imagem em base64 atual
                     saveTasks(tasks);
                     showNotification('Tarefa atualizada com sucesso!', 'success');
                 } else {
@@ -420,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     id: Date.now(),
                     title,
                     description,
-                    imageUrl,
+                    imageUrl: currentImageBase64, // Usa a imagem em base64 atual
                     subtasks: [...currentSubtasks],
                     createdAt: new Date().toISOString()
                 };
@@ -432,20 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clearForm();
         };
 
-        if (imageFile) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                handleTaskSave(reader.result);
-            };
-            reader.onerror = () => {
-                showNotification('Erro ao ler a imagem.', 'error');
-                console.error('Erro ao ler a imagem:', reader.error);
-                handleTaskSave(undefined);
-            };
-            reader.readAsDataURL(imageFile);
-        } else {
-            handleTaskSave(undefined);
-        }
+        handleTaskSave(); // Chama a função para salvar a tarefa, com a imagem já em currentImageBase64
     });
 
     // Adiciona um listener para o botão de exportar tarefas
@@ -542,7 +569,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('showImages', toggleImagesCheckbox.checked);
     });
 
-    // Esta mensagem é agora tratada dentro de renderTaskList, mas este check garante que se não houver tarefas, a mensagem padrão é exibida.
     if (getTasks().length === 0 && taskList.innerHTML === '') {
         // Nada a fazer aqui, renderTaskList já cuida disso.
     }
