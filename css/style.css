@@ -194,7 +194,7 @@ textarea.input-error {
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Sombra sutil vermelha */
 }
 
-/* NOVO: Estilos para o contêiner de preview da imagem */
+/* Estilos para o contêiner de preview da imagem */
 #imagePreviewContainer {
     display: none; /* Inicia oculto, será mostrado via JS */
     margin-top: 15px;
@@ -476,7 +476,7 @@ button.save-changes-btn:hover {
     color: #888;
 }
 
-/* NOVO: Estilos para o input de edição de subtarefa */
+/* Estilos para o input de edição de subtarefa */
 .subtask-edit-input {
     flex-grow: 1;
     padding: 5px 8px;
@@ -486,14 +486,14 @@ button.save-changes-btn:hover {
     margin-right: 10px; /* Espaço entre o input e os botões de ação */
 }
 
-/* NOVO: Contêiner para os botões de ação da subtarefa */
+/* Contêiner para os botões de ação da subtarefa */
 .subtask-actions {
     display: flex;
     gap: 5px; /* Espaçamento entre os botões */
     margin-left: 10px; /* Espaço entre o texto/input e os botões */
 }
 
-/* NOVO: Botões de editar/salvar/cancelar subtarefa */
+/* Botões de editar/salvar/cancelar subtarefa */
 .edit-subtask-btn,
 .save-subtask-btn,
 .cancel-subtask-btn {
@@ -603,11 +603,11 @@ footer .fas {
     margin-left: 5px;
 }
 
-/* --- Estilos para Filtros e Ordenação --- */
+/* --- Estilos para Filtros e Ordenação e Busca --- */
 .controls-container {
     display: flex;
     flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
-    gap: 20px; /* Espaçamento entre os grupos de filtro/ordenação */
+    gap: 20px; /* Espaçamento entre os grupos */
     margin-bottom: 25px; /* Espaço abaixo dos controles */
     background-color: #f9f9f9;
     padding: 15px;
@@ -616,24 +616,35 @@ footer .fas {
     justify-content: center; /* Centraliza os grupos */
 }
 
+.search-group, /* NOVO */
 .filter-sort-group,
-.display-options { /* Adicionado .display-options aqui */
+.display-options {
     display: flex;
     align-items: center;
-    gap: 10px; /* Espaçamento entre label e select/checkbox */
+    gap: 10px; /* Espaçamento entre label e input/select/checkbox */
 }
 
-.filter-sort-group label,
-.display-options label { /* Estilo para os labels dos controles */
-    font-weight: bold;
-    color: #555;
-    white-space: nowrap; /* Impede que o texto quebre a linha */
-}
-
+.search-group label .fas, /* NOVO */
 .filter-sort-group label .fas,
 .display-options label .fas { /* Estilo para os ícones nos labels */
     margin-right: 5px;
     color: #007bff;
+}
+
+.search-group input[type="text"] { /* NOVO: Estilo para o input de busca */
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    min-width: 180px; /* Largura mínima para o campo de busca */
+}
+
+.filter-sort-group label,
+.display-options label,
+.search-group label { /* Estilo para os labels dos controles */
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap; /* Impede que o texto quebre a linha */
 }
 
 .filter-sort-group select {
@@ -659,7 +670,7 @@ footer .fas {
     cursor: pointer;
 }
 
-/* NOVO: Estilos para o Modal de Confirmação */
+/* Estilos para o Modal de Confirmação */
 .modal {
     display: none; /* Oculto por padrão */
     position: fixed; /* Fixa na tela */
@@ -793,7 +804,7 @@ footer .fas {
     }
 
     #subtasksContainer h3 {
-        font-size: 1em;
+        font-size: 1.1em;
         margin-top: 20px;
         margin-bottom: 10px;
     }
@@ -853,16 +864,22 @@ footer .fas {
     /* Responsividade para filtros e ordenação e opção de imagem */
     .controls-container {
         flex-direction: column; /* Empilha os grupos verticalmente */
-        align-items: flex-start; /* Alinha à esquerda */
+        align-items: flex-start;
         gap: 15px;
         padding: 10px;
     }
 
+    .search-group, /* NOVO */
     .filter-sort-group,
     .display-options {
-        flex-direction: column; /* Empilha label e select/checkbox */
+        flex-direction: column; /* Empilha label e input/select/checkbox */
         align-items: flex-start;
         width: 100%; /* Ocupa a largura total */
+    }
+
+    .search-group input[type="text"] { /* NOVO */
+        width: 100%; /* Ocupa a largura total */
+        min-width: unset;
     }
 
     .filter-sort-group select {

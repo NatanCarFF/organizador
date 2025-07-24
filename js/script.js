@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterStatusSelect = document.getElementById('filterStatus');
     const sortBySelect = document.getElementById('sortBy');
 
+    // Seletores para busca (NOVO)
+    const searchInput = document.getElementById('searchInput');
+
     // Seletor para ocultar/exibir imagens
     const toggleImagesCheckbox = document.getElementById('toggleImages');
 
@@ -225,9 +228,18 @@ document.addEventListener('DOMContentLoaded', () => {
         clearError(subtaskInput, subtaskInputError);
     }
 
-    // Função para aplicar filtro e ordenação antes de renderizar
+    // Função para aplicar filtro, busca e ordenação antes de renderizar (ATUALIZADA)
     function applyFiltersAndSorting(tasks) {
         let filteredTasks = [...tasks];
+        const currentSearchQuery = searchInput.value.toLowerCase().trim(); // Pega o termo de busca
+
+        // 0. Aplica a busca
+        if (currentSearchQuery) {
+            filteredTasks = filteredTasks.filter(task =>
+                task.title.toLowerCase().includes(currentSearchQuery) ||
+                (task.description && task.description.toLowerCase().includes(currentSearchQuery))
+            );
+        }
 
         // 1. Aplica o filtro de status
         const filterStatus = filterStatusSelect.value;
@@ -264,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         taskList.innerHTML = '';
         if (tasksToDisplay.length === 0) {
-            taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa encontrada com os filtros e ordenação atuais.</p>';
+            taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa encontrada com os filtros, busca e ordenação atuais.</p>';
             return;
         }
 
@@ -351,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // NOVO: Adiciona event listeners para os botões de editar subtarefas
+        // Adiciona event listeners para os botões de editar subtarefas
         document.querySelectorAll('.edit-subtask-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const li = this.closest('li');
@@ -390,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // NOVO: Adiciona event listeners para os botões de salvar subtarefas
+        // Adiciona event listeners para os botões de salvar subtarefas
         document.querySelectorAll('.save-subtask-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const li = this.closest('li');
@@ -419,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // NOVO: Adiciona event listeners para os botões de cancelar edição de subtarefas
+        // Adiciona event listeners para os botões de cancelar edição de subtarefas
         document.querySelectorAll('.cancel-subtask-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const li = this.closest('li');
@@ -466,7 +478,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-
 
         // Aplica o estado de visibilidade da imagem ao renderizar
         applyImageVisibility();
@@ -515,12 +526,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Carrega as preferências de filtro e ordenação
         const savedFilterStatus = localStorage.getItem('filterStatus');
         const savedSortBy = localStorage.getItem('sortBy');
+        // Carrega o termo de busca (NOVO)
+        const savedSearchQuery = localStorage.getItem('searchQuery');
+
 
         if (savedFilterStatus) {
             filterStatusSelect.value = savedFilterStatus;
         }
         if (savedSortBy) {
             sortBySelect.value = savedSortBy;
+        }
+        if (savedSearchQuery) { // NOVO
+            searchInput.value = savedSearchQuery;
         }
 
         renderTaskList();
@@ -710,6 +727,12 @@ document.addEventListener('DOMContentLoaded', () => {
     sortBySelect.addEventListener('change', () => {
         localStorage.setItem('sortBy', sortBySelect.value); // Salva a ordenação
         renderTaskList();
+    });
+
+    // Adiciona listener para o campo de busca (NOVO)
+    searchInput.addEventListener('input', () => {
+        localStorage.setItem('searchQuery', searchInput.value); // Salva o termo de busca
+        renderTaskList(); // Re-renderiza a lista com o novo filtro de busca
     });
 
     // Adiciona listener para o checkbox de ocultar/exibir imagens
