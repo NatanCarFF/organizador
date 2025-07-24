@@ -16,21 +16,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentSubtasks = []; // Array temporário para armazenar subtarefas enquanto a tarefa principal está sendo criada
 
-    // Carrega e exibe as tarefas salvas no LocalStorage quando a página é carregada
-    loadTasks();
+    // --- FUNÇÕES AUXILIARES ---
 
-    // Adiciona um listener para o botão de adicionar subtarefa
-    addSubtaskBtn.addEventListener('click', () => {
-        const subtaskText = subtaskInput.value.trim(); // Pega o texto do input, removendo espaços em branco
-        if (subtaskText) { // Verifica se o texto não está vazio
-            currentSubtasks.push(subtaskText); // Adiciona a subtarefa ao array temporário
-            renderCurrentSubtasks(); // Atualiza a lista de subtarefas temporárias na UI
-            subtaskInput.value = ''; // Limpa o campo de input
-            subtaskInput.focus(); // Mantém o foco no campo para facilitar a adição de múltiplas subtarefas
-        } else {
-            alert('Por favor, digite o nome da subtarefa.'); // Alerta se o campo estiver vazio
+    // Função auxiliar para salvar o array de tarefas no LocalStorage
+    function saveTasks(tasks) {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Função auxiliar para obter o array de tarefas do LocalStorage
+    function getTasks() {
+        try {
+            const tasksString = localStorage.getItem('tasks');
+            return tasksString ? JSON.parse(tasksString) : [];
+        } catch (e) {
+            console.error("Erro ao carregar tarefas do localStorage. Dados podem estar corrompidos.", e);
+            // Limpa o localStorage se houver erro para evitar loop
+            localStorage.removeItem('tasks');
+            return [];
         }
-    });
+    }
 
     // Função para renderizar as subtarefas temporárias (na seção "Adicionar Tarefa")
     function renderCurrentSubtasks() {
@@ -52,6 +56,86 @@ document.addEventListener('DOMContentLoaded', () => {
             subtaskListContainer.appendChild(li); // Adiciona o item à lista na UI
         });
     }
+
+    // Função para renderizar a lista completa de tarefas
+    function renderTaskList(tasksToRender) {
+        taskList.innerHTML = ''; // Limpa a lista de tarefas existente na UI
+        if (tasksToRender.length === 0) {
+            // Exibe uma mensagem se não houver tarefas
+            taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa adicionada ainda. Comece a organizar!</p>';
+            return;
+        }
+
+        tasksToRender.forEach(task => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('task-item'); // Adiciona a classe para estilização
+            listItem.setAttribute('data-id', task.id); // Armazena o ID da tarefa no elemento HTML
+
+            let subtasksHtml = '';
+            if (task.subtasks && task.subtasks.length > 0) {
+                // Monta o HTML para as subtarefas, se existirem
+                subtasksHtml = `
+                    <h4><i class="fas fa-tasks"></i> Subtarefas:</h4>
+                    <ul class="subtasks-list">
+                        ${task.subtasks.map(sub => `<li><i class="fas fa-circle-notch"></i> ${sub}</li>`).join('')}
+                    </ul>
+                `;
+            }
+
+            // Define o conteúdo HTML de cada item da tarefa
+            listItem.innerHTML = `
+                <h3>${task.title}</h3>
+                <p>${task.description || 'Sem descrição.'}</p>
+                ${task.imageUrl ? `<div class="task-image-container"><img src="${task.imageUrl}" alt="Imagem da tarefa" class="task-image"></div>` : ''}
+                ${subtasksHtml}
+                <button type="button" class="delete-btn" data-id="${task.id}"><i class="fas fa-trash-alt"></i> Excluir</button>
+            `;
+            taskList.appendChild(listItem); // Adiciona o item da tarefa à lista principal
+        });
+
+        // Adiciona event listeners para os botões de excluir de cada tarefa
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskIdToDelete = parseInt(this.dataset.id);
+                deleteTask(taskIdToDelete); // Chama a função para excluir a tarefa
+            });
+        });
+    }
+
+    // Função para excluir uma tarefa pelo seu ID
+    function deleteTask(id) {
+        let tasks = getTasks();
+        const initialLength = tasks.length;
+        tasks = tasks.filter(task => task.id !== id); // Filtra as tarefas, removendo a tarefa com o ID correspondente
+        if (tasks.length < initialLength) { // Verifica se alguma tarefa foi realmente removida
+            saveTasks(tasks); // Salva a lista atualizada
+            renderTaskList(tasks); // Renderiza a lista sem a tarefa excluída
+        }
+    }
+
+    // Carrega as tarefas salvas no LocalStorage e renderiza a lista
+    function loadTasks() {
+        const tasks = getTasks();
+        renderTaskList(tasks);
+    }
+
+    // --- CHAMADAS INICIAIS E LISTENERS DE EVENTOS ---
+
+    // Carrega as tarefas salvas ao iniciar (agora a função loadTasks está definida)
+    loadTasks();
+
+    // Adiciona um listener para o botão de adicionar subtarefa
+    addSubtaskBtn.addEventListener('click', () => {
+        const subtaskText = subtaskInput.value.trim(); // Pega o texto do input, removendo espaços em branco
+        if (subtaskText) { // Verifica se o texto não está vazio
+            currentSubtasks.push(subtaskText); // Adiciona a subtarefa ao array temporário
+            renderCurrentSubtasks(); // Atualiza a lista de subtarefas temporárias na UI
+            subtaskInput.value = ''; // Limpa o campo de input
+            subtaskInput.focus(); // Mantém o foco no campo para facilitar a adição de múltiplas subtarefas
+        } else {
+            alert('Por favor, digite o nome da subtarefa.'); // Alerta se o campo estiver vazio
+        }
+    });
 
     // Adiciona um listener para o botão de adicionar tarefa principal
     addTaskBtn.addEventListener('click', () => {
@@ -100,62 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
             addTask(); // Se não houver imagem, adiciona a tarefa sem ela
         }
     });
-
-    // Função para renderizar a lista completa de tarefas
-    function renderTaskList(tasksToRender) {
-        taskList.innerHTML = ''; // Limpa a lista de tarefas existente na UI
-        if (tasksToRender.length === 0) {
-            // Exibe uma mensagem se não houver tarefas
-            taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa adicionada ainda. Comece a organizar!</p>';
-            return;
-        }
-
-        tasksToRender.forEach(task => {
-            const listItem = document.createElement('li');
-            listItem.classList.add('task-item'); // Adiciona a classe para estilização
-            listItem.setAttribute('data-id', task.id); // Armazena o ID da tarefa no elemento HTML
-
-            let subtasksHtml = '';
-            if (task.subtasks && task.subtasks.length > 0) {
-                // Monta o HTML para as subtarefas, se existirem
-                subtasksHtml = `
-                    <h4><i class="fas fa-tasks"></i> Subtarefas:</h4>
-                    <ul class="subtasks-list">
-                        ${task.subtasks.map(sub => `<li><i class="fas fa-circle-notch"></i> ${sub}</li>`).join('')}
-                    </ul>
-                `;
-            }
-
-            // Define o conteúdo HTML de cada item da tarefa
-            listItem.innerHTML = `
-                <h3>${task.title}</h3>
-                <p>${task.description ? task.description : 'Sem descrição.'}</p>
-${task.imageUrl ? `<div class="task-image-container"><img src="${task.imageUrl}" alt="Imagem da tarefa" class="task-image"></div>` : ''}
-                ${subtasksHtml}
-                <button type="button" class="delete-btn" data-id="${task.id}"><i class="fas fa-trash-alt"></i> Excluir</button>
-            `;
-            taskList.appendChild(listItem); // Adiciona o item da tarefa à lista principal
-        });
-
-        // Adiciona event listeners para os botões de excluir de cada tarefa
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const taskIdToDelete = parseInt(this.dataset.id);
-                deleteTask(taskIdToDelete); // Chama a função para excluir a tarefa
-            });
-        });
-    }
-
-    // Função para excluir uma tarefa pelo seu ID
-    function deleteTask(id) {
-        let tasks = getTasks();
-        const initialLength = tasks.length;
-        tasks = tasks.filter(task => task.id !== id); // Filtra as tarefas, removendo a tarefa com o ID correspondente
-        if (tasks.length < initialLength) { // Verifica se alguma tarefa foi realmente removida
-            saveTasks(tasks); // Salva a lista atualizada
-            renderTaskList(tasks); // Renderiza a lista sem a tarefa excluída
-        }
-    }
 
     // Adiciona um listener para o botão de exportar tarefas
     exportBtn.addEventListener('click', () => {
@@ -213,30 +241,4 @@ ${task.imageUrl ? `<div class="task-image-container"><img src="${task.imageUrl}"
             };
             reader.readAsText(file); // Lê o conteúdo do arquivo como texto
         } else {
-            alert('Selecione um arquivo JSON para importar.');
-        }
-    });
-
-    // Função auxiliar para salvar o array de tarefas no LocalStorage
-    function saveTasks(tasks) {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
-
-    // Função auxiliar para obter o array de tarefas do LocalStorage
-    function getTasks() {
-        try {
-            const tasksString = localStorage.getItem('tasks');
-            return tasksString ? JSON.parse(tasksString) : [];
-        } catch (e) {
-            console.error("Erro ao carregar tarefas do localStorage. Dados podem estar corrompidos.", e);
-            // Limpa o localStorage se houver erro para evitar loop
-            localStorage.removeItem('tasks'); 
-            return [];
-        }
-    }
-
-    // Se não houver tarefas salvas inicialmente, exibe a mensagem de "nenhuma tarefa"
-    if (getTasks().length === 0) {
-        taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa adicionada ainda. Comece a organizar!</p>';
-    }
-});
+            alert('S
