@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Novo seletor para ocultar/exibir imagens
     const toggleImagesCheckbox = document.getElementById('toggleImages');
 
+    // Seletores para as mensagens de erro (Validação de Formulário Mais Visível)
+    const taskTitleError = document.getElementById('taskTitleError');
+    const taskDescriptionError = document.getElementById('taskDescriptionError'); // Embora não obrigatório, pode ser útil para futuras validações
+    const subtaskInputError = document.getElementById('subtaskInputError');
+
     let currentSubtasks = [];
     let editingTaskId = null;
 
@@ -53,6 +58,27 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             notification.remove();
         }, 3500);
+    }
+
+    /**
+     * Exibe uma mensagem de erro abaixo de um campo do formulário.
+     * @param {HTMLElement} inputElement - O elemento input/textarea associado ao erro.
+     * @param {HTMLElement} errorElement - O elemento span onde a mensagem de erro será exibida.
+     * @param {string} message - A mensagem de erro a ser exibida.
+     */
+    function displayError(inputElement, errorElement, message) {
+        inputElement.classList.add('input-error');
+        errorElement.textContent = message;
+    }
+
+    /**
+     * Limpa a mensagem de erro e remove o estilo de erro de um campo.
+     * @param {HTMLElement} inputElement - O elemento input/textarea associado ao erro.
+     * @param {HTMLElement} errorElement - O elemento span onde a mensagem de erro foi exibida.
+     */
+    function clearError(inputElement, errorElement) {
+        inputElement.classList.remove('input-error');
+        errorElement.textContent = '';
     }
 
     // Função auxiliar para salvar o array de tarefas no LocalStorage
@@ -122,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
         editingTaskId = null;
         addTaskBtn.innerHTML = '<i class="fas fa-check-circle"></i> Adicionar Tarefa';
         addTaskBtn.classList.remove('save-changes-btn');
+
+        // Limpa as mensagens de erro ao limpar o formulário
+        clearError(taskTitleInput, taskTitleError);
+        clearError(taskDescriptionInput, taskDescriptionError);
+        clearError(subtaskInput, subtaskInputError);
     }
 
     // Função para preencher o formulário para edição de tarefa
@@ -138,6 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
         addTaskBtn.classList.add('save-changes-btn');
         showNotification('Modo de edição ativado!', 'info');
         window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Limpa erros anteriores ao entrar no modo de edição
+        clearError(taskTitleInput, taskTitleError);
+        clearError(taskDescriptionInput, taskDescriptionError);
+        clearError(subtaskInput, subtaskInputError);
     }
 
     // Função para aplicar filtro e ordenação antes de renderizar
@@ -321,15 +357,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Adiciona listener para o botão de adicionar subtarefa
     addSubtaskBtn.addEventListener('click', () => {
         const subtaskText = subtaskInput.value.trim();
-        if (subtaskText) {
-            currentSubtasks.push({ name: subtaskText, completed: false });
-            renderCurrentSubtasks();
-            subtaskInput.value = '';
-            subtaskInput.focus();
-            showNotification('Subtarefa adicionada.', 'success');
-        } else {
+        
+        // Limpa qualquer erro anterior
+        clearError(subtaskInput, subtaskInputError);
+
+        if (!subtaskText) {
+            displayError(subtaskInput, subtaskInputError, 'O nome da subtarefa é obrigatório.');
             showNotification('Por favor, digite o nome da subtarefa.', 'error');
+            subtaskInput.focus();
+            return;
         }
+        
+        currentSubtasks.push({ name: subtaskText, completed: false });
+        renderCurrentSubtasks();
+        subtaskInput.value = '';
+        subtaskInput.focus();
+        showNotification('Subtarefa adicionada.', 'success');
     });
 
     // Adiciona listener para o botão de adicionar/salvar tarefa principal
@@ -338,7 +381,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const description = taskDescriptionInput.value.trim();
         const imageFile = taskImageInput.files && taskImageInput.files.length > 0 ? taskImageInput.files[0] : null;
 
+        // Limpa erros anteriores
+        clearError(taskTitleInput, taskTitleError);
+        clearError(taskDescriptionInput, taskDescriptionError); // Mesmo que não obrigatória, limpar é boa prática
+
+        // Validação principal
         if (!title) {
+            displayError(taskTitleInput, taskTitleError, 'O título da tarefa é obrigatório.');
             showNotification('O título da tarefa é obrigatório.', 'error');
             taskTitleInput.focus();
             return;

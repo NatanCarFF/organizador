@@ -150,20 +150,16 @@ select { /* Adicionado select aqui */
     font-size: 1em; /* Tamanho de fonte base para elementos de formulário */
 }
 
-#addTaskSection > input#taskTitle { /* Seletor mais específico para o input de título na seção de adicionar */
-    margin-bottom: 10px; /* Menos margem abaixo do título */
+#addTaskSection > input#taskTitle,
+#addTaskSection > textarea#taskDescription {
+    margin-bottom: 10px; /* Menos margem abaixo do título e descrição */
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 6px;
     width: calc(100% - 30px); /* Ajusta a largura com padding */
 }
 
-#addTaskSection > textarea#taskDescription { /* Seletor mais específico para a textarea de descrição */
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    margin-bottom: 20px; /* Mais margem abaixo da descrição */
-    width: calc(100% - 30px); /* Ajusta a largura com padding */
+#addTaskSection > textarea#taskDescription {
     min-height: 80px; /* Altura mínima para a descrição */
     resize: vertical; /* Permite redimensionar verticalmente */
 }
@@ -178,6 +174,26 @@ input#subtaskInput {
     display: inline-block; /* Para alinhar com o botão */
     vertical-align: middle;
 }
+
+/* Estilos para mensagens de erro */
+.error-message {
+    color: #dc3545; /* Vermelho para mensagens de erro */
+    font-size: 0.85em;
+    margin-top: -8px; /* Move para cima para ficar mais próximo do campo */
+    margin-bottom: 10px; /* Espaço abaixo da mensagem de erro */
+    display: block; /* Garante que ocupe sua própria linha */
+    height: 1.2em; /* Altura para evitar pulos de layout */
+    overflow: hidden; /* Garante que a mensagem não "empurre" outros elementos */
+    transition: all 0.3s ease-in-out;
+}
+
+/* Estilo para inputs/textareas com erro */
+input.input-error,
+textarea.input-error {
+    border-color: #dc3545 !important; /* Borda vermelha para campos com erro */
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Sombra sutil vermelha */
+}
+
 
 /* Estilos para o contêiner de subtarefas */
 #subtasksContainer h3 {
@@ -282,6 +298,7 @@ button.save-changes-btn:hover {
     display: inline-flex;
     align-items: center;
     gap: 10px;
+    margin-top: 10px; /* Espaço acima do botão de upload */
     margin-bottom: 15px;
     width: fit-content;
 }
@@ -569,6 +586,12 @@ footer .fas {
     select { /* Adicionado select aqui também */
         padding: 10px 15px;
         font-size: 0.9em;
+    }
+
+    /* Ajuste para inputs com erro em telas pequenas */
+    input.input-error,
+    textarea.input-error {
+        box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.2);
     }
 
     #subtasksContainer h3 {
