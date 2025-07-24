@@ -14,14 +14,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const subtaskInput = document.getElementById('subtaskInput'); // Input de texto para a subtarefa
     const subtaskListContainer = document.getElementById('subtaskList'); // Lista de subtarefas temporárias
 
+    const notificationContainer = document.getElementById('notificationContainer'); // Novo seletor para o contêiner de notificações
+
     let currentSubtasks = []; // Array temporário para armazenar subtarefas enquanto a tarefa principal está sendo criada
 
     // --- FUNÇÕES AUXILIARES ---
     // Funções movidas para o topo para garantir que estejam definidas antes de serem chamadas.
 
+    /**
+     * Exibe uma notificação na tela.
+     * @param {string} message - A mensagem a ser exibida.
+     * @param {string} type - O tipo da notificação ('success' ou 'error').
+     */
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.classList.add('notification', type);
+
+        let iconClass = '';
+        if (type === 'success') {
+            iconClass = 'fas fa-check-circle'; // Ícone de sucesso
+        } else if (type === 'error') {
+            iconClass = 'fas fa-exclamation-triangle'; // Ícone de erro
+        }
+
+        notification.innerHTML = `<i class="${iconClass}"></i> ${message}`;
+        notificationContainer.appendChild(notification);
+
+        // Remove a notificação após um tempo (3 segundos para fadeIn + 3s para fadeOut)
+        setTimeout(() => {
+            notification.remove();
+        }, 3500); // Ajuste o tempo conforme a duração da sua animação (0.5s fadeIn + 3s display + 0.5s fadeOut = 4s total)
+    }
+
     // Função auxiliar para salvar o array de tarefas no LocalStorage
     function saveTasks(tasks) {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
+        try {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            // showNotification('Dados salvos com sucesso!', 'success'); // Notificação para cada save (pode ser muito)
+        } catch (e) {
+            console.error("Erro ao salvar tarefas no localStorage:", e);
+            showNotification('Erro ao salvar dados!', 'error');
+        }
     }
 
     // Função auxiliar para obter o array de tarefas do LocalStorage
@@ -33,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Erro ao carregar tarefas do localStorage. Dados podem estar corrompidos.", e);
             // Limpa o localStorage se houver erro para evitar loop
             localStorage.removeItem('tasks');
+            showNotification('Erro ao carregar dados salvos. Dados antigos foram removidos.', 'error');
             return [];
         }
     }
@@ -53,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const indexToRemove = parseInt(this.dataset.index);
                 currentSubtasks.splice(indexToRemove, 1); // Remove a subtarefa do array
                 renderCurrentSubtasks(); // Renderiza novamente a lista
+                showNotification('Subtarefa removida.', 'success');
             });
             subtaskListContainer.appendChild(li); // Adiciona o item à lista na UI
         });
@@ -111,6 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tasks.length < initialLength) { // Verifica se alguma tarefa foi realmente removida
             saveTasks(tasks); // Salva a lista atualizada
             renderTaskList(tasks); // Renderiza a lista sem a tarefa excluída
+            showNotification('Tarefa excluída com sucesso!', 'success');
+        } else {
+            showNotification('Erro ao excluir tarefa. Tarefa não encontrada.', 'error');
         }
     }
 
@@ -118,23 +156,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadTasks() {
         const tasks = getTasks();
         renderTaskList(tasks);
+        // showNotification('Tarefas carregadas.', 'success'); // Pode ser muito intrusivo no carregamento inicial
     }
 
     // --- CHAMADAS INICIAIS E LISTENERS DE EVENTOS ---
 
-    // Carrega as tarefas salvas ao iniciar (agora a função loadTasks está definida)
+    // Carrega as tarefas salvas ao iniciar
     loadTasks();
 
     // Adiciona um listener para o botão de adicionar subtarefa
     addSubtaskBtn.addEventListener('click', () => {
-        const subtaskText = subtaskInput.value.trim(); // Pega o texto do input, removendo espaços em branco
-        if (subtaskText) { // Verifica se o texto não está vazio
-            currentSubtasks.push(subtaskText); // Adiciona a subtarefa ao array temporário
-            renderCurrentSubtasks(); // Atualiza a lista de subtarefas temporárias na UI
-            subtaskInput.value = ''; // Limpa o campo de input
-            subtaskInput.focus(); // Mantém o foco no campo para facilitar a adição de múltiplas subtarefas
+        const subtaskText = subtaskInput.value.trim();
+        if (subtaskText) {
+            currentSubtasks.push(subtaskText);
+            renderCurrentSubtasks();
+            subtaskInput.value = '';
+            subtaskInput.focus();
+            showNotification('Subtarefa adicionada.', 'success');
         } else {
-            alert('Por favor, digite o nome da subtarefa.'); // Alerta se o campo estiver vazio
+            alert('Por favor, digite o nome da subtarefa.'); // Mantido alerta para validação simples
+            showNotification('Não foi possível adicionar subtarefa: campo vazio.', 'error');
         }
     });
 
@@ -142,47 +183,52 @@ document.addEventListener('DOMContentLoaded', () => {
     addTaskBtn.addEventListener('click', () => {
         const title = taskTitleInput.value.trim();
         const description = taskDescriptionInput.value.trim();
-        const imageFile = taskImageInput.files[0]; // Pega o primeiro arquivo de imagem selecionado
+        const imageFile = taskImageInput.files[0];
 
-        if (!title) { // Validação: título da tarefa é obrigatório
-            alert('O título da tarefa é obrigatório.');
-            taskTitleInput.focus(); // Coloca o foco de volta no campo do título
+        if (!title) {
+            alert('O título da tarefa é obrigatório.'); // Mantido alerta para validação simples
+            showNotification('Erro: O título da tarefa é obrigatório.', 'error');
+            taskTitleInput.focus();
             return;
         }
 
-        // Função auxiliar para adicionar a tarefa à lista e salvar
         const addTask = (imageUrl = null) => {
             const task = {
-                id: Date.now(), // Gera um ID único baseado no timestamp atual
+                id: Date.now(),
                 title,
                 description,
                 imageUrl,
-                subtasks: [...currentSubtasks], // Cria uma cópia das subtarefas temporárias
-                createdAt: new Date().toISOString() // Data de criação da tarefa
+                subtasks: [...currentSubtasks],
+                createdAt: new Date().toISOString()
             };
 
-            let tasks = getTasks(); // Pega todas as tarefas existentes
-            tasks.push(task); // Adiciona a nova tarefa
-            saveTasks(tasks); // Salva o array atualizado no LocalStorage
-            renderTaskList(tasks); // Renderiza a lista completa de tarefas na UI
+            let tasks = getTasks();
+            tasks.push(task);
+            saveTasks(tasks);
+            renderTaskList(tasks);
 
             // Limpa os campos do formulário e as subtarefas temporárias
             taskTitleInput.value = '';
             taskDescriptionInput.value = '';
-            taskImageInput.value = ''; // Limpa o input de arquivo
-            currentSubtasks = []; // Limpa o array de subtarefas
-            renderCurrentSubtasks(); // Atualiza a UI para refletir as subtarefas vazias
+            taskImageInput.value = '';
+            currentSubtasks = [];
+            renderCurrentSubtasks();
+            showNotification('Tarefa adicionada com sucesso!', 'success');
         };
 
-        // Verifica se uma imagem foi selecionada
         if (imageFile) {
-            const reader = new FileReader(); // Cria um FileReader para ler o conteúdo do arquivo
+            const reader = new FileReader();
             reader.onloadend = () => {
-                addTask(reader.result); // reader.result contém a imagem em formato Base64 (URL de dados)
+                addTask(reader.result);
             };
-            reader.readAsDataURL(imageFile); // Inicia a leitura do arquivo como URL de dados
+            reader.onerror = () => {
+                showNotification('Erro ao ler a imagem.', 'error');
+                console.error('Erro ao ler a imagem:', reader.error);
+                addTask(); // Adiciona a tarefa mesmo sem a imagem se houver erro
+            };
+            reader.readAsDataURL(imageFile);
         } else {
-            addTask(); // Se não houver imagem, adiciona a tarefa sem ela
+            addTask();
         }
     });
 
@@ -190,64 +236,70 @@ document.addEventListener('DOMContentLoaded', () => {
     exportBtn.addEventListener('click', () => {
         const tasks = getTasks();
         if (tasks.length === 0) {
-            alert('Não há tarefas para exportar!');
+            showNotification('Não há tarefas para exportar!', 'error');
             return;
         }
-        // Converte o array de tarefas para uma string JSON formatada (com indentação de 2 espaços)
-        const jsonString = JSON.stringify(tasks, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' }); // Cria um Blob com o conteúdo JSON
-        const a = document.createElement('a'); // Cria um elemento <a> para o download
-        a.href = URL.createObjectURL(blob); // Define o URL do Blob como href
-        a.download = 'minhas_tarefas.json'; // Define o nome do arquivo para download
-        document.body.appendChild(a); // Adiciona o elemento <a> ao corpo (temporariamente)
-        a.click(); // Simula um clique para iniciar o download
-        document.body.removeChild(a); // Remove o elemento <a>
-        URL.revokeObjectURL(a.href); // Libera o URL do objeto para evitar vazamentos de memória
+        try {
+            const jsonString = JSON.stringify(tasks, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'minhas_tarefas.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+            showNotification('Tarefas exportadas com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao exportar tarefas:', error);
+            showNotification('Erro ao exportar tarefas para JSON.', 'error');
+        }
     });
 
     // Adiciona um listener para o botão de importar tarefas
     importBtn.addEventListener('click', () => {
-        const file = importFile.files[0]; // Pega o arquivo selecionado
+        const file = importFile.files[0];
         if (file) {
-            // Valida se o arquivo é um JSON
             if (file.type !== 'application/json') {
-                alert('Por favor, selecione um arquivo JSON válido.');
+                showNotification('Por favor, selecione um arquivo JSON válido.', 'error');
                 return;
             }
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    const importedTasks = JSON.parse(e.target.result); // Tenta fazer o parse do JSON
-                    // Validação básica do formato importado: deve ser um array e cada item deve ter um 'title'
+                    const importedTasks = JSON.parse(e.target.result);
                     if (!Array.isArray(importedTasks) || importedTasks.some(task => !task.title)) {
-                        alert('Formato de arquivo JSON inválido ou corrompido. Certifique-se de que o arquivo contém um array de tarefas com títulos.');
+                        showNotification('Formato de arquivo JSON inválido ou corrompido. Certifique-se de que o arquivo contém um array de tarefas com títulos.', 'error');
                         return;
                     }
 
                     let existingTasks = getTasks();
-                    // Filtra as tarefas importadas para não adicionar duplicatas (baseado no ID)
                     const newTasks = importedTasks.filter(importedTask =>
                         !existingTasks.some(existingTask => existingTask.id === importedTask.id)
                     );
 
-                    // Adiciona as novas tarefas importadas às existentes
                     saveTasks([...existingTasks, ...newTasks]);
-                    renderTaskList(getTasks()); // Renderiza a lista atualizada
-                    alert('Tarefas importadas com sucesso!');
+                    renderTaskList(getTasks());
+                    showNotification('Tarefas importadas com sucesso!', 'success');
                     importFile.value = ''; // Limpa o input de arquivo após a importação
                 } catch (error) {
-                    alert('Erro ao processar o arquivo JSON. Certifique-se de que é um JSON válido.');
+                    showNotification('Erro ao processar o arquivo JSON. Certifique-se de que é um JSON válido.', 'error');
                     console.error('Erro de importação:', error);
                 }
             };
-            reader.readAsText(file); // Lê o conteúdo do arquivo como texto
+            reader.onerror = () => {
+                showNotification('Erro ao ler o arquivo para importação.', 'error');
+                console.error('Erro ao ler o arquivo:', reader.error);
+            };
+            reader.readAsText(file);
         } else {
-            alert('Selecione um arquivo JSON para importar.');
+            showNotification('Selecione um arquivo JSON para importar.', 'error');
         }
     });
 
-    // Se não houver tarefas salvas inicialmente, exibe a mensagem de "nenhuma tarefa"
-    if (getTasks().length === 0) {
+    // Se não houver tarefas salvas inicialmente (e não for um erro de carregamento), exibe a mensagem de "nenhuma tarefa"
+    // Adiciona verificação para não sobrescrever a mensagem de erro de carregamento do localStorage
+    if (getTasks().length === 0 && taskList.innerHTML === '') {
         taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa adicionada ainda. Comece a organizar!</p>';
     }
 });
