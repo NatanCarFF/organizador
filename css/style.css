@@ -3,164 +3,192 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f2f5; /* Um cinza claro e suave para o fundo */
-    color: #333; /* Cor de texto principal */
+    background-color: #f4f6f8; /* Um tom de cinza mais claro e moderno */
+    color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh; /* Garante que o rodapé fique no final da página, mesmo com pouco conteúdo */
+    min-height: 100vh;
+    line-height: 1.6; /* Melhora a legibilidade do texto */
+}
+
+/* Estilos para o contêiner de notificações */
+#notificationContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Permite interagir com elementos abaixo */
+}
+
+.notification {
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateX(20px); /* Começa da direita para a animação */
+    animation: slideIn 0.5s ease-out forwards, fadeOut 0.5s ease-in forwards 3s; /* Animação de entrada e saída */
+    pointer-events: auto; /* Permite que a notificação seja clicável (se necessário) */
+}
+
+.notification.success {
+    background-color: #28a745; /* Verde */
+}
+
+.notification.error {
+    background-color: #dc3545; /* Vermelho */
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(20px);
+    }
 }
 
 /* Estilos para o cabeçalho */
 header {
-    background-color: #28a745; /* Um verde vibrante para o cabeçalho */
+    background-color: #343a40; /* Tom de cinza escuro moderno */
     color: white;
     padding: 20px 0;
     text-align: center;
     width: 100%;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidade */
+    margin-bottom: 40px; /* Mais espaço abaixo do cabeçalho */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 header h1 {
     margin: 0;
-    font-size: 2.5em;
-    display: flex; /* Para alinhar o ícone e o texto */
+    font-size: 2.2em; /* Um pouco menor para melhor encaixe */
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
 header h1 .fas {
-    margin-right: 10px; /* Espaço entre o ícone e o título */
+    margin-right: 15px;
+    font-size: 1.2em;
 }
 
 /* Estilos para o conteúdo principal */
 main {
     display: flex;
     flex-direction: column;
-    gap: 30px; /* Espaçamento entre as seções */
     width: 90%;
-    max-width: 800px; /* Largura máxima para o conteúdo */
-    padding-bottom: 50px; /* Espaçamento para o rodapé */
+    max-width: 960px; /* Largura máxima mais comum para layouts responsivos */
+    padding: 30px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra mais suave e moderna */
+    border-radius: 10px;
+    margin-bottom: 40px;
 }
 
-/* Estilos para todas as seções */
+/* Estilos para as seções */
 section {
-    background-color: white;
     padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Sombra mais pronunciada para as seções */
+    margin-bottom: 30px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0; /* Borda sutil para as seções */
+    background-color: #fff; /* Garante fundo branco consistente */
+}
+
+section:last-child {
+    margin-bottom: 0;
 }
 
 section h2 {
-    color: #28a745; /* Cor do título da seção */
+    color: #343a40; /* Cor do título da seção consistente com o header */
     margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.6em; /* Tamanho do título da seção um pouco menor */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #eee;
+}
+
+section h2 .fas {
+    font-size: 1.1em;
+    color: #343a40;
+}
+
+/* Estilos para formulários (inputs e textarea) */
+input,
+textarea,
+button,
+.file-upload-btn {
+    font-size: 1em; /* Tamanho de fonte base para elementos de formulário */
+}
+
+input#taskTitle {
+    margin-bottom: 20px; /* Mais espaço abaixo do título da tarefa */
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+textarea#taskDescription {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     margin-bottom: 20px;
-    font-size: 1.8em;
+}
+
+input#subtaskInput {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* Estilos para o contêiner de subtarefas */
+#subtasksContainer h3 {
+    font-size: 1.1em;
+    color: #555;
+    margin-top: 25px;
+    margin-bottom: 15px;
     display: flex;
     align-items: center;
     gap: 10px;
-    border-bottom: 2px solid #eee; /* Linha sutil abaixo do título */
+    border-bottom: 1px solid #eee;
     padding-bottom: 10px;
-}
-
-/* Estilos para inputs de texto e textarea */
-input[type="text"],
-textarea {
-    width: calc(100% - 20px); /* Largura total menos padding */
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-    box-sizing: border-box; /* Inclui padding e borda na largura total */
-}
-
-textarea {
-    resize: vertical; /* Permite redimensionar verticalmente */
-    min-height: 80px;
-}
-
-/* Estilo para inputs de arquivo ocultos */
-input[type="file"] {
-    display: none; /* Oculta o input de arquivo padrão */
-}
-
-/* Estilo para o botão que simula o input de arquivo */
-.file-upload-btn {
-    display: inline-block; /* Permite que o label se comporte como um botão */
-    background-color: #007bff; /* Azul para ações secundárias */
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9em;
-    margin-bottom: 15px;
-    transition: background-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    max-width: fit-content; /* Ajusta a largura ao conteúdo */
-}
-
-.file-upload-btn:hover {
-    background-color: #0056b3; /* Azul mais escuro no hover */
-    transform: translateY(-1px);
-}
-
-/* Estilo para botões */
-button {
-    background-color: #28a745; /* Verde principal para botões de ação */
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: flex; /* Para alinhar ícone e texto */
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-button:hover {
-    background-color: #218838; /* Verde mais escuro no hover */
-    transform: translateY(-2px); /* Efeito de elevação */
-}
-
-button:active {
-    transform: translateY(0); /* Retorna à posição original ao clicar */
-}
-
-/* Estilos específicos para a seção de subtarefas */
-#subtasksContainer h3 {
-    font-size: 1.2em;
-    color: #555;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-#subtasksContainer #subtaskInput {
-    margin-bottom: 10px;
 }
 
 #subtaskList {
     list-style: none;
     padding: 0;
     margin-top: 10px;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
 }
 
 #subtaskList li {
     background-color: #f9f9f9;
-    padding: 8px 12px;
+    padding: 10px 15px;
     border-radius: 5px;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -171,130 +199,169 @@ button:active {
     flex-grow: 1;
     font-size: 0.95em;
     color: #444;
+    word-break: break-word;
 }
 
 .remove-subtask-btn {
-    background-color: #ffc107; /* Amarelo para remover subtarefa */
+    background-color: #ffc107; /* Amarelo para ações de alerta/remoção */
     color: #333;
-    padding: 5px 10px;
-    font-size: 0.8em;
+    padding: 6px 10px;
+    font-size: 0.85em;
     border-radius: 4px;
     transition: background-color 0.3s ease;
-    margin-left: 10px;
+    margin-left: 15px;
+    cursor: pointer;
+    border: none;
 }
 
 .remove-subtask-btn:hover {
     background-color: #e0a800;
 }
 
-/* Estilos para a lista de tarefas principal */
+/* Estilos para botões */
+button {
+    background-color: #007bff; /* Azul vibrante para botões de ação */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#addTaskSection button#addTaskBtn,
+#ioSection button {
+    margin-top: 20px; /* Mais espaço acima dos botões de ação principal */
+    width: fit-content; /* Ajusta a largura ao conteúdo */
+}
+
+/* Estilo para o label de upload de arquivo */
+.file-upload-btn {
+    background-color: #6c757d; /* Cinza para botões de utilidade */
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: fit-content;
+}
+
+.file-upload-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Estilos para a lista de tarefas */
 #taskList {
     list-style: none;
     padding: 0;
-    margin: 0;
 }
 
 .task-item {
-    background-color: #ffffff;
+    background-color: #fff;
     padding: 20px;
     margin-bottom: 20px;
-    border-radius: 10px;
+    border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    position: relative; /* Para posicionar o botão de excluir */
-    border-left: 5px solid #28a745; /* Uma borda colorida para destaque */
+    border-left: 5px solid #007bff; /* Destaque azul para itens de tarefa */
+    display: grid;
+    grid-template-columns: 1fr auto; /* Layout em grid para o conteúdo e botão de exclusão */
+    grid-template-rows: auto auto auto 1fr; /* Define as linhas do grid */
+    gap: 15px;
+    align-items: start;
 }
 
-.task-item h3 {
-    color: #28a745;
-    margin-top: 0;
+.task-item > h3 {
+    grid-column: 1 / 3; /* O título ocupa ambas as colunas */
     margin-bottom: 10px;
-    font-size: 1.5em;
-    word-wrap: break-word; /* Quebra de texto para títulos longos */
 }
 
-.task-item p {
-    color: #555;
-    font-size: 0.95em;
-    line-height: 1.5;
-    margin-bottom: 15px;
-    word-wrap: break-word; /* Quebra de texto para descrições longas */
+.task-item > p {
+    grid-column: 1 / 3; /* A descrição ocupa ambas as colunas */
+    color: #666;
+    font-size: 0.9em;
+    line-height: 1.4;
 }
 
-/* Estilos para imagem da tarefa */
 .task-image-container {
-    margin-bottom: 15px;
-    text-align: center; /* Centraliza a imagem se ela for menor que o container */
+    grid-column: 1 / 3; /* A imagem ocupa ambas as colunas */
+    text-align: center;
 }
 
 .task-image {
-    max-width: 100%; /* Garante que a imagem não transborde o container */
-    height: auto; /* Mantém a proporção da imagem */
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos para a lista de subtarefas dentro de um item de tarefa */
-.task-item h4 {
-    font-size: 1.1em;
-    color: #666;
-    margin-top: 15px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.task-item > h4 {
+    grid-column: 1 / 3; /* Título das subtarefas ocupa ambas as colunas */
+    font-size: 0.95em;
+    color: #777;
+    margin-top: 10px;
 }
 
 .task-item .subtasks-list {
-    list-style: none;
-    padding: 0 0 0 10px; /* Recuo para os marcadores */
-    margin: 0;
+    grid-column: 1 / 3; /* Lista de subtarefas ocupa ambas as colunas */
+    padding-left: 20px;
+    list-style-type: disc;
 }
 
 .task-item .subtasks-list li {
-    color: #666;
-    font-size: 0.9em;
-    padding: 3px 0;
-    margin-bottom: 3px;
-    display: flex; /* Garante que seja um item de lista com marcador */
-    align-items: center;
-    gap: 5px;
-    box-shadow: none; /* Remove sombra dos LIs aninhados */
+    background: none;
     border: none;
-    background-color: transparent;
+    padding: 3px 0;
+    margin-bottom: 2px;
+    font-size: 0.85em;
+    color: #555;
+    display: list-item;
 }
 
-.task-item .subtasks-list li .fas {
-    color: #28a745; /* Cor do ícone da subtarefa */
-    font-size: 0.7em; /* Tamanho do ícone da subtarefa */
-}
-
-/* Botão de excluir tarefa flutuante no canto superior direito */
 .delete-btn {
-    background-color: #dc3545; /* Vermelho para excluir */
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    justify-self: end; /* Alinha o botão à direita */
+    background-color: #dc3545;
     color: white;
     border: none;
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    position: absolute; /* Posição absoluta em relação ao .task-item */
-    top: 15px;
-    right: 15px;
-    font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 0.8em;
 }
 
 .delete-btn:hover {
-    background-color: #c82333; /* Vermelho mais escuro no hover */
+    background-color: #c82333;
     transform: translateY(-1px);
 }
 
-/* Mensagem quando não há tarefas */
+/* Estilos para a seção de importar/exportar */
+#ioSection button {
+    margin-right: 10px;
+}
+
+/* Estilos para a mensagem de sem tarefas */
 .no-tasks-message {
     text-align: center;
-    color: #888;
+    color: #777;
     font-style: italic;
     padding: 20px;
     background-color: #f9f9f9;
@@ -304,107 +371,100 @@ button:active {
 
 /* Estilos para o rodapé */
 footer {
-    width: 100%;
     text-align: center;
     padding: 20px 0;
-    background-color: #333; /* Fundo escuro para o rodapé */
-    color: #ccc;
+    width: 100%;
+    background-color: #343a40;
+    color: #f8f9fa;
     font-size: 0.9em;
-    margin-top: auto; /* Empurra o rodapé para o final da página */
+    margin-top: 40px;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
 }
 
 footer .fas {
-    color: #28a745; /* Cor do ícone no rodapé */
+    color: #007bff; /* Cor do ícone do rodapé */
     margin-left: 5px;
 }
 
-/* --- ESTILOS PARA NOTIFICAÇÕES (NOVOS) --- */
-#notificationContainer {
-    position: fixed; /* Fixa a notificação na tela */
-    top: 20px;
-    right: 20px;
-    z-index: 1000; /* Garante que a notificação fique acima de outros elementos */
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Espaçamento entre múltiplas notificações */
-}
+/* --- Media Queries para Responsividade --- */
 
-.notification {
-    padding: 15px 20px;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espaçamento entre o ícone e o texto */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    opacity: 0; /* Começa invisível para a animação */
-    transform: translateY(-20px); /* Começa um pouco acima */
-    animation: fadeIn 0.5s forwards, fadeOut 0.5s forwards 3s; /* Animação de entrada e saída */
-}
-
-.notification.success {
-    background-color: #28a745; /* Verde para sucesso */
-}
-
-.notification.error {
-    background-color: #dc3545; /* Vermelho para erro */
-}
-
-@keyframes fadeIn {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-}
-
-/* --- Media Queries para responsividade --- */
+/* Para telas menores que 768px (tablets e alguns celulares) */
 @media (max-width: 768px) {
-    main {
-        width: 95%; /* Ocupa mais largura em telas menores */
+    header h1 {
+        font-size: 1.8em;
     }
 
-    header h1 {
-        font-size: 2em;
+    main {
+        width: 95%;
+        padding: 20px;
+    }
+
+    section {
+        padding: 20px;
+        margin-bottom: 20px;
     }
 
     section h2 {
-        font-size: 1.5em;
+        font-size: 1.4em;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
     }
 
-    button, .file-upload-btn {
-        width: 100%; /* Botões e labels ocupam a largura total */
-        justify-content: center;
+    input,
+    textarea,
+    .file-upload-btn,
+    button {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+
+    #subtasksContainer h3 {
+        font-size: 1em;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    #subtaskList li span {
+        font-size: 0.9em;
+    }
+
+    .task-item {
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+    }
+
+    .task-item > h3 {
+        font-size: 1.3em;
     }
 
     .delete-btn {
-        position: static; /* Botão de excluir abaixo da tarefa em telas pequenas */
-        margin-top: 15px;
-        width: auto;
-        justify-content: flex-start;
+        justify-self: start; /* Alinha o botão à esquerda em telas menores */
     }
 
-    #notificationContainer {
-        top: 10px;
-        right: 10px;
-        left: 10px; /* Ocupa a largura total em telas pequenas */
-        gap: 5px;
+    #ioSection button {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}
+
+/* Para telas menores que 576px (celulares menores) */
+@media (max-width: 576px) {
+    header h1 {
+        font-size: 1.5em;
     }
 
-    .notification {
-        padding: 10px 15px;
-        font-size: 0.9em;
+    section h2 {
+        font-size: 1.2em;
+    }
+
+    .task-item {
+        grid-template-columns: 1fr; /* Uma coluna para tudo em telas muito pequenas */
+    }
+
+    .delete-btn {
+        grid-column: 1 / 2;
+        margin-top: 10px;
+        justify-self: stretch; /* O botão ocupa a largura total */
     }
 }
