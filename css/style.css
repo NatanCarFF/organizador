@@ -346,32 +346,27 @@ textarea.input-error {
     font-size: 0.85em;
     border-radius: 4px;
     transition: background-color 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+    margin-left: 15px;
+    cursor: pointer;
+    border: none;
 }
 
 .remove-subtask-btn:hover {
     background-color: #e0a800;
 }
 
-
 /* Estilos para botões */
 button {
-    background-color: #007bff; /* Azul primário */
+    background-color: #007bff; /* Azul vibrante para botões de ação */
     color: white;
-    padding: 12px 20px;
     border: none;
+    padding: 12px 20px;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 1em;
-    margin-top: 20px;
     transition: background-color 0.3s ease, transform 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    justify-content: center; /* Centraliza conteúdo do botão */
 }
 
 button:hover {
@@ -383,28 +378,25 @@ button:active {
     transform: translateY(0);
 }
 
-/* Estilos específicos para o botão de "Salvar Alterações" */
-.save-changes-btn {
-    background-color: #28a745; /* Verde para salvar */
+#addTaskSection button#addTaskBtn,
+#ioSection button {
+    margin-top: 20px; /* Más espacio arriba de los botones de acción principal */
+    width: fit-content; /* Ajusta la anchura al contenido */
 }
 
-.save-changes-btn:hover {
+/* Estilo para o botão de salvar alterações */
+button.save-changes-btn {
+    background-color: #28a745; /* Verde para salvar alterações */
+}
+
+button.save-changes-btn:hover {
     background-color: #218838;
 }
 
-/* Estilos para o botão "Limpar Formulário" */
-.clear-btn {
-    background-color: #6c757d; /* Cinza para limpar */
-    margin-left: 10px; /* Espaçamento entre Adicionar e Limpar */
-}
 
-.clear-btn:hover {
-    background-color: #5a6268;
-}
-
-/* Estilo para o botão de upload de arquivo (personalizado) */
+/* Estilo para o label de upload de arquivo */
 .file-upload-btn {
-    background-color: #6c757d; /* Cinza escuro para upload */
+    background-color: #6c757d; /* Cinza para botões de utilidade */
     color: white;
     padding: 12px 20px;
     border-radius: 6px;
@@ -422,12 +414,6 @@ button:active {
     background-color: #5a6268;
     transform: translateY(-2px);
 }
-
-/* Oculta o input de arquivo real, usando o label estilizado */
-input[type="file"] {
-    display: none;
-}
-
 
 /* Estilos para a lista de tarefas */
 #taskList {
@@ -465,57 +451,49 @@ input[type="file"] {
     border-left-color: #dc3545; /* Vermelho para alta prioridade */
 }
 
-/* Estilos para informações da tarefa */
-.task-item h3 {
+/* Estilos para status de vencimento */
+.task-item.due-today {
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.4); /* Sombra laranja */
+    border-color: #ffa500 !important; /* Laranja para vencer hoje */
+}
+
+.task-item.overdue {
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); /* Sombra vermelha */
+    border-color: #dc3545 !important; /* Vermelho para vencida */
+    animation: pulseRed 1.5s infinite; /* Pulsação para vencidas */
+}
+
+.task-item.due-soon {
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3); /* Sombra amarela suave */
+    border-color: #ffc107 !important; /* Amarelo para vencer em breve */
+}
+
+/* Animação de pulsação para tarefas vencidas */
+@keyframes pulseRed {
+    0% { transform: scale(1); box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); }
+    50% { transform: scale(1.005); box-shadow: 0 0 20px rgba(220, 53, 69, 0.6); }
+    100% { transform: scale(1); box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); }
+}
+
+
+.task-item > h3 {
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     color: #343a40;
-    font-size: 1.4em;
 }
 
-.task-item p {
-    margin-bottom: 8px;
-    color: #555;
+.task-item > p {
+    color: #666;
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin-bottom: 10px;
 }
 
-.task-item strong {
-    color: #333;
+.task-item p strong {
+    color: #343a40;
 }
 
-/* Estilos para status de prioridade em texto */
-.priority-text {
-    font-weight: bold;
-}
-
-.priority-low { color: #28a745; } /* Verde */
-.priority-medium { color: #007bff; } /* Azul */
-.priority-high { color: #dc3545; } /* Vermelho */
-
-
-/* Estilos para status de data de vencimento */
-.due-date-status.overdue {
-    color: #dc3545; /* Vermelho */
-    font-weight: bold;
-}
-
-.due-date-status.due-today {
-    color: #ffc107; /* Amarelo */
-    font-weight: bold;
-}
-
-.due-date-status.due-soon {
-    color: #17a2b8; /* Azul claro */
-    font-weight: bold;
-}
-
-/* Checkbox de conclusão da tarefa */
-.task-completion-checkbox {
-    margin-right: 10px;
-    transform: scale(1.3); /* Aumenta o tamanho do checkbox */
-    cursor: pointer;
-}
-
-/* Estilos para o termômetro de conclusão da subtarefa */
+/* Estilos para o termômetro de status da tarefa */
 .task-status-thermometer {
     background-color: #e0e0e0;
     border-radius: 5px;
@@ -561,61 +539,67 @@ input[type="file"] {
     opacity: 0; /* Torna transparente */
     margin-bottom: 0; /* Remove margem para não ocupar espaço */
     transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-    overflow: hidden; /* Garante que o conteúdo oculto não seja visível */
+    overflow: hidden;
 }
 
 
-/* Estilos para subtarefas dentro de um item da lista */
-.subtasks-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
-}
-
-.subtasks-list h4 {
-    font-size: 1em;
-    color: #444;
-    margin-top: 0;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.subtasks-list li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #fcfcfc;
-    padding: 8px 12px;
-    border-radius: 4px;
+.task-item > h4 {
+    font-size: 0.95em;
+    color: #777;
+    margin-top: 15px;
     margin-bottom: 5px;
-    border: 1px solid #f0f0f0;
-    font-size: 0.9em;
 }
 
-.subtasks-list li.completed {
-    text-decoration: line-through;
-    color: #888;
-    background-color: #e9ecef;
+.task-item .subtasks-list {
+    padding-left: 20px;
+    list-style-type: none;
+    margin-bottom: 10px;
 }
 
-.subtasks-list li input[type="checkbox"] {
+.task-item .subtasks-list li {
+    background: none;
+    border: none;
+    padding: 5px 0;
+    margin-bottom: 3px;
+    font-size: 0.85em;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Alinha o conteúdo e os botões */
+    flex-wrap: wrap; /* Permite que os itens quebrem a linha */
+}
+
+.task-item .subtasks-list li > div { /* Contêiner para checkbox e label */
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Permite que o checkbox/label ocupe o espaço */
+}
+
+.task-item .subtasks-list li input[type="checkbox"] {
     margin-right: 8px;
     transform: scale(1.1);
     cursor: pointer;
 }
 
-/* Input de edição para subtarefa */
+.task-item .subtasks-list li label {
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+/* Estilo para subtarefas concluídas */
+.task-item .subtasks-list li.completed label {
+    text-decoration: line-through;
+    color: #888;
+}
+
+/* Estilos para o input de edição de subtarefa */
 .subtask-edit-input {
     flex-grow: 1;
     padding: 5px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 0.9em;
-    margin-right: 5px;
+    font-size: 0.85em;
+    margin-right: 10px; /* Espaço entre o input e os botões de ação */
 }
 
 /* Contêiner para os botões de ação da subtarefa */
@@ -626,7 +610,9 @@ input[type="file"] {
 }
 
 /* Botões de editar/salvar/cancelar subtarefa */
-.edit-subtask-btn, .save-subtask-btn, .cancel-subtask-btn {
+.edit-subtask-btn,
+.save-subtask-btn,
+.cancel-subtask-btn {
     padding: 5px 8px;
     font-size: 0.75em;
     border-radius: 4px;
@@ -665,7 +651,6 @@ input[type="file"] {
     background-color: #5a6268;
 }
 
-
 /* Contêiner para botões de ação da tarefa (Excluir e Editar) */
 .task-actions {
     position: absolute;
@@ -691,7 +676,7 @@ input[type="file"] {
 }
 
 .edit-btn {
-    background-color: #ffc107;
+    background-color: #ffc107; /* Amarelo para editar */
     color: #333;
 }
 
@@ -700,17 +685,51 @@ input[type="file"] {
 }
 
 
-/* Estilos para filtros e ordenação */
+/* Estilos para a seção de importar/exportar */
+#ioSection button {
+    margin-right: 10px;
+}
+
+/* Estilos para a mensagem de sem tarefas */
+.no-tasks-message,
+.no-subtasks-message {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+/* Estilos para o rodapé */
+footer {
+    text-align: center;
+    padding: 20px 0;
+    width: 100%;
+    background-color: #343a40;
+    color: #f8f9fa;
+    font-size: 0.9em;
+    margin-top: 40px;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+footer .fas {
+    color: #007bff;
+    margin-left: 5px;
+}
+
+/* --- Estilos para Filtros e Ordenação e Busca --- */
 .controls-container {
     display: flex;
-    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
-    gap: 20px; /* Espaçamento entre os grupos de controle */
-    margin-bottom: 25px;
-    padding: 20px;
-    background-color: #f0f3f6; /* Fundo leve para os controles */
+    flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
+    gap: 20px; /* Espaçamento entre os grupos */
+    margin-bottom: 25px; /* Espaço abaixo dos controles */
+    background-color: #f9f9f9;
+    padding: 15px;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    align-items: flex-end; /* Alinha os grupos na parte inferior */
+    border: 1px solid #eee;
+    justify-content: center; /* Centraliza os grupos */
 }
 
 .search-group,
@@ -718,17 +737,11 @@ input[type="file"] {
 .display-options {
     display: flex;
     align-items: center;
-    gap: 10px; /* Espaçamento entre os elementos dentro de cada grupo */
-    flex-wrap: wrap; /* Permite que os itens quebrem dentro do grupo */
+    gap: 10px; /* Espaçamento entre label e input/select/checkbox */
 }
 
-.filter-sort-group {
-    flex-grow: 1; /* Permite que o grupo de filtro/ordenação ocupe mais espaço */
-    justify-content: flex-start;
-}
-
-.filter-sort-group label .fas,
 .search-group label .fas,
+.filter-sort-group label .fas,
 .display-options label .fas { /* Estilo para os ícones nos labels */
     margin-right: 5px;
     color: #007bff;
@@ -763,107 +776,84 @@ input[type="file"] {
     background-repeat: no-repeat;
     background-position: right 10px top 50%;
     background-size: 12px auto;
+    min-width: 120px; /* Largura mínima para os selects */
 }
 
-/* Estilos para o grupo de opções de exibição (checkboxes) */
-.display-options {
-    gap: 20px; /* Mais espaço entre os checkboxes */
-}
-
+/* Estilo específico para o checkbox de exibir imagens */
 .display-options input[type="checkbox"] {
-    transform: scale(1.2);
+    transform: scale(1.3); /* Aumenta o tamanho do checkbox */
+    margin-right: 5px; /* Espaçamento entre checkbox e label */
     cursor: pointer;
-    margin-right: 5px;
 }
 
-
-/* Estilos para Importar/Exportar */
-#ioSection button,
-#ioSection .file-upload-btn {
-    width: auto; /* Permite que o botão se ajuste ao conteúdo */
-    margin-right: 15px;
-    margin-bottom: 15px; /* Espaço entre os botões */
-}
-
-#ioSection input[type="file"] {
-    display: none; /* Oculta o input de arquivo real */
-}
-
-
-/* Estilos para o rodapé */
-footer {
-    width: 100%;
-    text-align: center;
-    padding: 20px 0;
-    background-color: #343a40;
-    color: white;
-    font-size: 0.9em;
-    margin-top: auto; /* Empurra o rodapé para o final da página */
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-}
-
-footer .fas {
-    color: #dc3545; /* Coração vermelho */
-    margin: 0 5px;
-}
-
-/* Estilos para o modal de confirmação */
+/* Estilos para o Modal de Confirmação */
 .modal {
     display: none; /* Oculto por padrão */
-    position: fixed; /* Fixo na tela */
-    z-index: 1001; /* Acima de tudo */
+    position: fixed; /* Fixa na tela */
+    z-index: 1001; /* Fica acima de tudo, incluindo notificações */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; /* Habilita rolagem se necessário */
-    background-color: rgba(0,0,0,0.5); /* Fundo semi-transparente */
-    justify-content: center;
-    align-items: center;
+    overflow: auto; /* Permite rolagem se o conteúdo for muito grande */
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo escurecido */
+    display: flex;
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: auto;
+    margin: auto; /* Centraliza o modal na tela */
     padding: 30px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px; /* Largura máxima do modal */
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 450px; /* Largura máxima do modal */
     text-align: center;
+    position: relative; /* Para posicionar o botão de fechar */
+}
+
+.modal-content h2 {
+    color: #343a40;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.modal-content p {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 30px;
 }
 
 .close-button {
     color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
     position: absolute;
     top: 10px;
     right: 15px;
+    font-size: 28px;
+    font-weight: bold;
     cursor: pointer;
+    transition: color 0.3s ease;
 }
 
 .close-button:hover,
 .close-button:focus {
-    color: #000;
+    color: #333;
     text-decoration: none;
-    cursor: pointer;
 }
 
 .modal-buttons {
-    margin-top: 25px;
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 15px; /* Espaçamento entre os botões */
 }
 
 .modal-buttons button {
-    padding: 10px 20px;
-    font-size: 1em;
+    padding: 10px 25px;
     border-radius: 6px;
+    font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
     border: none;
@@ -887,11 +877,6 @@ footer .fas {
 .cancel-btn:hover {
     background-color: #5a6268;
     transform: translateY(-2px);
-}
-
-/* --- Nova classe para ocultar elementos --- */
-.hidden {
-    display: none !important;
 }
 
 
@@ -921,18 +906,76 @@ footer .fas {
 
     input,
     textarea,
-    button,
     .file-upload-btn,
-    select {
-        font-size: 0.95em;
+    button,
+    select { /* Adicionado select aqui também */
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+
+    /* Ajuste para inputs com erro em telas pequenas */
+    input.input-error,
+    textarea.input-error {
+        box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.2);
+    }
+
+    /* Ajuste para o grupo de input de prioridade e data em telas menores */
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .input-group select,
+    .input-group input[type="date"] {
+        width: 100%;
+    }
+
+    #subtasksContainer h3 {
+        font-size: 1.1em;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+
+    #subtaskList li span {
+        font-size: 0.9em;
+    }
+
+    /* Subtarefas responsivas */
+    .task-item .subtasks-list li {
+        flex-direction: column; /* Empilha o checkbox/label e os botões */
+        align-items: flex-start;
+        gap: 8px; /* Espaçamento entre os itens empilhados */
+    }
+
+    .task-item .subtasks-list li > div {
+        width: 100%; /* Ocupa a largura total */
+    }
+
+    .subtask-edit-input {
+        width: calc(100% - 16px); /* Ajusta largura com padding */
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+
+    .subtask-actions {
+        width: 100%;
+        justify-content: flex-end; /* Alinha os botões da subtarefa à direita */
+        margin-left: 0;
+    }
+
+
+    .task-item {
+        padding: 15px; /* Reduz o padding */
+        margin-bottom: 15px; /* Reduz a margem inferior */
     }
 
     .task-actions {
-        position: static; /* Remove posicionamento absoluto */
+        position: static; /* Volta para posicionamento estático */
         display: flex;
-        justify-content: flex-end; /* Alinha à direita */
-        margin-top: 15px; /* Espaço acima dos botões */
-        gap: 8px; /* Reduz espaço entre os botões */
+        justify-content: flex-end; /* Alinha os botões à direita */
+        margin-top: 10px; /* Espaço acima dos botões */
+        gap: 8px; /* Reduz o gap */
     }
 
     .task-actions button {
@@ -977,52 +1020,25 @@ footer .fas {
         padding: 20px;
         max-width: 95%;
     }
+    .modal-content h2 {
+        font-size: 1.5em;
+    }
+    .modal-content p {
+        font-size: 1em;
+    }
+    .modal-buttons button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
 }
 
-/* Para telas muito pequenas (celulares em modo retrato) */
-@media (max-width: 480px) {
+/* Para telas menores que 576px (celulares menores) */
+@media (max-width: 576px) {
     header h1 {
         font-size: 1.5em;
     }
 
-    main {
-        padding: 15px;
-    }
-
-    section {
-        padding: 15px;
-    }
-
     section h2 {
         font-size: 1.2em;
-        margin-bottom: 10px;
-    }
-
-    button {
-        padding: 10px 15px;
-        font-size: 0.9em;
-    }
-
-    .input-group {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .input-group label {
-        margin-bottom: 5px;
-    }
-
-    .input-group select,
-    .input-group input[type="date"] {
-        width: 100%;
-    }
-
-    .modal-buttons {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .modal-buttons button {
-        width: 100%;
     }
 }

@@ -31,10 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Seletor para ocultar/exibir imagens
     const toggleImagesCheckbox = document.getElementById('toggleImages');
 
-    // NOVO: Seletor para ocultar/exibir seção de adicionar tarefa
-    const toggleAddTaskSectionCheckbox = document.getElementById('toggleAddTaskSection');
-    const addTaskSection = document.getElementById('addTaskSection'); // Referência à seção "Adicionar Tarefa"
-
     // Seletores para as mensagens de erro (Validação de Formulário Mais Visível)
     const taskTitleError = document.getElementById('taskTitleError');
     const taskDescriptionError = document.getElementById('taskDescriptionError');
@@ -340,30 +336,22 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Aplica o filtro de status
         const filterStatus = filterStatusSelect.value;
         if (filterStatus === 'pending') {
-            filteredTasks = filteredTasks.filter(task => !task.completed);
+            filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) < 100);
         } else if (filterStatus === 'completed') {
-            filteredTasks = filteredTasks.filter(task => task.completed);
+            filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) === 100 && task.subtasks.length > 0);
         }
 
         // 2. Aplica o filtro de prioridade
         const filterPriority = filterPrioritySelect.value;
         if (filterPriority !== 'all') {
-            filteredTasks = filteredTasks.filter(task => task.priority === filterPriority);
+            filteredTasks = filteredTasks.filter(task => (task.priority || 'medium') === filterPriority);
         }
 
         // 3. Aplica a ordenação
         const sortBy = sortBySelect.value;
         filteredTasks.sort((a, b) => {
-            if (sortBy === 'addedAsc') {
+            if (sortBy === 'createdAt') {
                 return new Date(a.createdAt) - new Date(b.createdAt);
-            } else if (sortBy === 'addedDesc') {
-                return new Date(b.createdAt) - new Date(a.createdAt);
-            } else if (sortBy === 'priorityHigh') {
-                const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
-                return priorityOrder[b.priority] - priorityOrder[a.priority];
-            } else if (sortBy === 'priorityLow') {
-                const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
-                return priorityOrder[a.priority] - priorityOrder[b.priority];
             } else if (sortBy === 'titleAsc') {
                 return a.title.localeCompare(b.title);
             } else if (sortBy === 'titleDesc') {
@@ -375,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (sortBy === 'dueDateAsc') {
                 const dateA = a.dueDate ? new Date(a.dueDate) : null;
                 const dateB = b.dueDate ? new Date(b.dueDate) : null;
+
                 if (dateA && dateB) {
                     return dateA - dateB;
                 } else if (dateA) {
@@ -386,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (sortBy === 'dueDateDesc') {
                 const dateA = a.dueDate ? new Date(a.dueDate) : null;
                 const dateB = b.dueDate ? new Date(b.dueDate) : null;
+
                 if (dateA && dateB) {
                     return dateB - dateA;
                 } else if (dateA) {
@@ -397,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return 0;
         });
+
         return filteredTasks;
     }
 
@@ -404,47 +395,51 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatDate(dateString) {
         if (!dateString) return 'Não definida';
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR', options);
+        return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR', options); // Adiciona T00:00:00 para evitar problemas de fuso horário
     }
 
-    // Função principal para renderizar a lista de tarefas
+    // Função para renderizar a lista completa de tarefas (ATUALIZADA para exibir múltiplas imagens)
     function renderTaskList() {
-        const tasks = getTasks();
-        const filteredAndSortedTasks = applyFiltersAndSorting(tasks);
-        taskList.innerHTML = ''; // Limpa a lista existente
+        const allTasks = getTasks();
+        const tasksToDisplay = applyFiltersAndSorting(allTasks);
 
-        if (filteredAndSortedTasks.length === 0) {
-            taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa encontrada. Comece adicionando uma!</p>';
+        taskList.innerHTML = '';
+        if (tasksToDisplay.length === 0) {
+            taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa encontrada com os filtros, busca e ordenação atuais.</p>';
             return;
         }
 
-        filteredAndSortedTasks.forEach(task => {
+        tasksToDisplay.forEach(task => {
             const listItem = document.createElement('li');
             listItem.classList.add('task-item');
-            listItem.dataset.id = task.id; // Armazena o ID da tarefa no elemento HTML
+            listItem.setAttribute('data-id', task.id);
 
-            // Adiciona classe de status de conclusão
-            if (task.completed) {
+            const completionPercentage = calculateCompletionPercentage(task);
+            const isTaskComplete = completionPercentage === 100 && task.subtasks.length > 0;
+            if (isTaskComplete) {
                 listItem.classList.add('task-complete');
+            } else {
+                listItem.classList.remove('task-complete');
             }
 
             // Adiciona classe de prioridade
             listItem.classList.add(`priority-${task.priority || 'medium'}`);
 
-            const dueDateStatusClass = getDueDateStatus(task.dueDate);
-            const dueDateText = formatDate(task.dueDate);
+            // Adiciona classe de status de vencimento
+            const dueDateStatus = getDueDateStatus(task.dueDate);
+            if (dueDateStatus) {
+                listItem.classList.add(dueDateStatus);
+            }
 
-            // Calcula a porcentagem de conclusão das subtarefas
-            const completionPercentage = calculateCompletionPercentage(task);
-
-            // ATUALIZADO: Renderiza MÚLTIPLAS imagens
+            // ATUALIZADO: Renderização de múltiplas imagens
             let imagesHtml = '';
-            // A classe 'hide-images' é aplicada no #taskListSection, não aqui
             if (task.imageUrls && task.imageUrls.length > 0) {
-                const imageElements = task.imageUrls.map(url =>
-                    ` <img src="${url}" alt="Imagem da tarefa" class="task-image"> `).join('');
+                const imageElements = task.imageUrls.map(url => `
+                    <img src="${url}" alt="Imagem da tarefa" class="task-image">
+                `).join('');
                 imagesHtml = `<div class="task-image-container multiple-images-display">${imageElements}</div>`;
             }
+
 
             let subtasksHtml = '';
             if (task.subtasks && task.subtasks.length > 0) {
@@ -473,93 +468,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>${task.title}</h3>
                 <p>${task.description || 'Sem descrição.'}</p>
                 <p><strong>Prioridade:</strong> <span class="priority-text">${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Média'}</span></p>
-                <p><strong>Vencimento:</strong> <span class="due-date-status ${dueDateStatusClass}">${dueDateText}</span></p>
-                
-                ${imagesHtml}
-
+                <p><strong>Vencimento:</strong> <span class="due-date-text">${formatDate(task.dueDate)}</span></p>
                 <div class="task-status-thermometer">
-                    <div class="thermometer-fill" style="width: ${completionPercentage.toFixed(0)}%;"></div>
+                    <div class="thermometer-fill" style="width: ${completionPercentage}%;"></div>
                 </div>
-                <p><strong>Progresso:</strong> ${completionPercentage.toFixed(0)}% concluído</p>
-                
+                ${imagesHtml}
                 ${subtasksHtml}
-
-                <div class="task-meta">
-                    <p>Criado em: ${formatDate(task.createdAt)}</p>
-                    <label for="task-complete-${task.id}">
-                        <input type="checkbox" id="task-complete-${task.id}" class="task-completion-checkbox" ${task.completed ? 'checked' : ''}>
-                        Marcar como Concluída
-                    </label>
-                </div>
-
                 <div class="task-actions">
-                    <button type="button" class="edit-btn"><i class="fas fa-edit"></i> Editar</button>
-                    <button type="button" class="delete-btn"><i class="fas fa-trash-alt"></i> Excluir</button>
+                    <button type="button" class="edit-btn" data-id="${task.id}"><i class="fas fa-edit"></i> Editar</button>
+                    <button type="button" class="delete-btn" data-id="${task.id}"><i class="fas fa-trash-alt"></i> Excluir</button>
                 </div>
             `;
             taskList.appendChild(listItem);
         });
 
-        // Adiciona event listeners para os botões de exclusão
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const taskId = parseInt(this.closest('.task-item').dataset.id);
-                taskIdToDeleteConfirmed = taskId; // Armazena o ID
-                confirmationModal.style.display = 'flex'; // Exibe o modal
+        // Adiciona event listeners para os botões de excluir de cada tarefa
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                taskIdToDeleteConfirmed = parseInt(this.dataset.id);
+                confirmationModal.style.display = 'flex'; // Mostra o modal
             });
         });
 
-        // Adiciona event listeners para os botões de edição
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const taskId = parseInt(this.closest('.task-item').dataset.id);
+        // Adiciona event listeners para os botões de editar de cada tarefa
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskIdToEdit = parseInt(this.dataset.id);
                 const tasks = getTasks();
-                const taskToEdit = tasks.find(task => task.id === taskId);
+                const taskToEdit = tasks.find(t => t.id === taskIdToEdit);
                 if (taskToEdit) {
                     populateFormForEdit(taskToEdit);
                 } else {
-                    showNotification('Erro: Tarefa não encontrada para edição.', 'error');
+                    showNotification('Tarefa não encontrada para edição.', 'error');
                 }
             });
         });
 
-        // Adiciona event listeners para os checkboxes de conclusão da tarefa principal
-        document.querySelectorAll('.task-completion-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const taskId = parseInt(this.closest('.task-item').dataset.id);
-                const isCompleted = this.checked;
-                updateTaskCompletionStatus(taskId, isCompleted);
-            });
-        });
-
-        // Adiciona event listeners para os checkboxes de subtarefas
+        // Adiciona event listeners para os checkboxes das subtarefas
         document.querySelectorAll('.subtasks-list input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
-                const listItem = this.closest('li');
-                const taskId = parseInt(listItem.dataset.taskId);
-                const subtaskIndex = parseInt(listItem.dataset.subtaskIndex);
-                const isCompleted = this.checked;
-                updateSubtaskCompletionStatus(taskId, subtaskIndex, isCompleted);
-            });
-        });
-
-        // Adiciona event listeners para os botões de remover subtarefas na lista de tarefas
-        document.querySelectorAll('.subtasks-list .remove-subtask-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const li = this.closest('li');
-                const taskId = parseInt(li.dataset.taskId);
-                const subtaskIndex = parseInt(li.dataset.subtaskIndex);
-
-                let tasks = getTasks();
-                const task = tasks.find(t => t.id === taskId);
-                if (task && task.subtasks) {
-                    task.subtasks.splice(subtaskIndex, 1);
-                    saveTasks(tasks);
-                    renderTaskList(); // Re-renderiza toda a lista para aplicar as mudanças
-                    showNotification('Subtarefa removida.', 'success');
-                } else {
-                    showNotification('Erro ao remover subtarefa.', 'error');
-                }
+                const taskId = parseInt(this.closest('li').dataset.taskId);
+                const subtaskIndex = parseInt(this.closest('li').dataset.subtaskIndex);
+                toggleSubtaskCompletion(taskId, subtaskIndex, this.checked);
             });
         });
 
@@ -569,27 +519,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 const li = this.closest('li');
                 const taskId = parseInt(li.dataset.taskId);
                 const subtaskIndex = parseInt(li.dataset.subtaskIndex);
-
-                let tasks = getTasks();
+                const tasks = getTasks();
                 const task = tasks.find(t => t.id === taskId);
+                const subtask = task ? task.subtasks[subtaskIndex] : null;
 
-                if (task && task.subtasks && task.subtasks[subtaskIndex]) {
-                    const subtask = task.subtasks[subtaskIndex];
-                    const label = li.querySelector('label');
-                    const currentName = label.textContent;
+                if (subtask) {
+                    const label = li.querySelector('div > label'); // O label é o que exibe o nome
+                    const checkbox = li.querySelector('div > input[type="checkbox"]');
+                    const originalName = subtask.name;
 
+                    // Cria o input de edição
                     const editInput = document.createElement('input');
                     editInput.type = 'text';
                     editInput.classList.add('subtask-edit-input');
-                    editInput.value = currentName;
+                    editInput.value = originalName;
+                    editInput.dataset.originalName = originalName; // Guarda o nome original para 'cancelar'
 
-                    label.style.display = 'none'; // Esconde o label
+                    // Esconde o checkbox e o label, mostra o input
+                    checkbox.style.display = 'none';
+                    label.style.display = 'none';
                     li.querySelector('div').insertBefore(editInput, label); // Insere antes do label
 
                     // Esconde editar, mostra salvar/cancelar
                     this.style.display = 'none';
                     li.querySelector('.save-subtask-btn').style.display = 'inline-flex';
                     li.querySelector('.cancel-subtask-btn').style.display = 'inline-flex';
+
                     editInput.focus();
                 } else {
                     showNotification('Erro: Subtarefa não encontrada para edição.', 'error');
@@ -614,6 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let tasks = getTasks();
                 const task = tasks.find(t => t.id === taskId);
+
                 if (task && task.subtasks && task.subtasks[subtaskIndex]) {
                     task.subtasks[subtaskIndex].name = newName;
                     saveTasks(tasks);
@@ -629,38 +585,59 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.cancel-subtask-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const li = this.closest('li');
-                const label = li.querySelector('label');
                 const editInput = li.querySelector('.subtask-edit-input');
+                const originalName = editInput.dataset.originalName; // Recupera o nome original
 
-                editInput.remove(); // Remove o input
-                label.style.display = 'inline'; // Exibe o label novamente
+                const label = li.querySelector('div > label');
+                const checkbox = li.querySelector('div > input[type="checkbox"]');
+
+                // Volta o label e checkbox
+                label.style.display = 'inline'; // Ou 'flex' dependendo do seu display do label
+                checkbox.style.display = 'inline';
+                label.textContent = originalName; // Restaura o nome original no label
+
+                // Remove o input
+                editInput.remove();
 
                 // Esconde salvar/cancelar, mostra editar
+                li.querySelector('.edit-subtask-btn').style.display = 'inline-flex';
                 this.style.display = 'none';
                 li.querySelector('.save-subtask-btn').style.display = 'none';
-                li.querySelector('.edit-subtask-btn').style.display = 'inline-flex';
+
+                showNotification('Edição de subtarefa cancelada.', 'info');
             });
         });
+
+        // Adiciona event listeners para os botões de remover subtarefas (dentro da lista de tarefas)
+        document.querySelectorAll('.task-item .remove-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const taskId = parseInt(li.dataset.taskId);
+                const subtaskIndex = parseInt(li.dataset.subtaskIndex);
+
+                let tasks = getTasks();
+                const task = tasks.find(t => t.id === taskId);
+
+                if (task && task.subtasks && task.subtasks[subtaskIndex]) {
+                    task.subtasks.splice(subtaskIndex, 1);
+                    saveTasks(tasks);
+                    renderTaskList(); // Re-renderiza para atualizar a lista e porcentagem
+                    showNotification('Subtarefa removida da tarefa principal.', 'success');
+                } else {
+                    showNotification('Erro ao remover subtarefa.', 'error');
+                }
+            });
+        });
+
+        // Aplica o estado de visibilidade da imagem ao renderizar
+        applyImageVisibility();
     }
 
-    // Função para atualizar o status de conclusão da tarefa principal
-    function updateTaskCompletionStatus(id, isCompleted) {
-        let tasks = getTasks();
-        const task = tasks.find(t => t.id === id);
-        if (task) {
-            task.completed = isCompleted;
-            saveTasks(tasks);
-            renderTaskList();
-            showNotification(`Tarefa marcada como ${isCompleted ? 'concluída' : 'pendente'}!`, 'success');
-        } else {
-            showNotification('Erro ao atualizar status da tarefa.', 'error');
-        }
-    }
-
-    // Função para atualizar o status de conclusão de uma subtarefa
-    function updateSubtaskCompletionStatus(taskId, subtaskIndex, isCompleted) {
+    // Função para alternar o status de conclusão de uma subtarefa
+    function toggleSubtaskCompletion(taskId, subtaskIndex, isCompleted) {
         let tasks = getTasks();
         const task = tasks.find(t => t.id === taskId);
+
         if (task && task.subtasks && task.subtasks[subtaskIndex]) {
             task.subtasks[subtaskIndex].completed = isCompleted;
             saveTasks(tasks);
@@ -694,16 +671,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // NOVO: Função para aplicar/remover a classe que oculta a seção "Adicionar Tarefa"
-    function applyAddTaskSectionVisibility() {
-        if (!toggleAddTaskSectionCheckbox.checked) {
-            addTaskSection.classList.add('hidden');
-        } else {
-            addTaskSection.classList.remove('hidden');
-        }
-    }
-
-
     // Carrega as tarefas salvas no LocalStorage e renderiza a lista
     function loadTasks() {
         // Carrega as preferências de filtro e ordenação
@@ -725,41 +692,58 @@ document.addEventListener('DOMContentLoaded', () => {
             filterPrioritySelect.value = savedFilterPriority;
         }
 
-        // Carrega a preferência de exibição de imagens
+        renderTaskList();
+        // Define o estado inicial do checkbox baseado na preferência salva ou padrão
         const savedImageVisibility = localStorage.getItem('showImages');
-        if (savedImageVisibility !== null) {
-            toggleImagesCheckbox.checked = JSON.parse(savedImageVisibility);
-        }
-        applyImageVisibility(); // Aplica a visibilidade inicial das imagens
-
-        // NOVO: Carrega a preferência de exibição da seção "Adicionar Tarefa"
-        const savedAddTaskSectionVisibility = localStorage.getItem('showAddTaskSection');
-        if (savedAddTaskSectionVisibility !== null) {
-            toggleAddTaskSectionCheckbox.checked = JSON.parse(savedAddTaskSectionVisibility);
+        if (savedImageVisibility === 'false') {
+            toggleImagesCheckbox.checked = false;
         } else {
-            // Define o padrão como visível se não houver preferência salva
-            toggleAddTaskSectionCheckbox.checked = true;
+            toggleImagesCheckbox.checked = true; // Padrão é mostrar
         }
-        applyAddTaskSectionVisibility(); // Aplica a visibilidade inicial da seção
-
-        renderCurrentSubtasks(); // Renderiza subtarefas vazias inicialmente
-        renderTaskList(); // Renderiza a lista de tarefas
+        applyImageVisibility(); // Aplica o estado inicial
     }
 
+    // --- CHAMADAS INICIAIS E LISTENERS DE EVENTOS ---
 
-    // --- LISTENERS DE EVENTOS ---
+    // Carrega as tarefas salvas ao iniciar
+    loadTasks();
 
-    // Adiciona listener para o botão "Adicionar Tarefa" / "Salvar Alterações"
+    // Listener para o input de imagem para exibir preview (ATUALIZADO)
+    taskImagesInput.addEventListener('change', handleImageUpload);
+
+    // Adiciona listener para o botão de adicionar subtarefa
+    addSubtaskBtn.addEventListener('click', () => {
+        const subtaskText = subtaskInput.value.trim();
+        
+        // Limpa qualquer erro anterior
+        clearError(subtaskInput, subtaskInputError);
+
+        if (!subtaskText) {
+            displayError(subtaskInput, subtaskInputError, 'O nome da subtarefa é obrigatório.');
+            showNotification('Por favor, digite o nome da subtarefa.', 'error');
+            subtaskInput.focus();
+            return;
+        }
+        
+        currentSubtasks.push({ name: subtaskText, completed: false });
+        renderCurrentSubtasks();
+        subtaskInput.value = '';
+        subtaskInput.focus();
+        showNotification('Subtarefa adicionada.', 'success');
+    });
+
+    // Adiciona listener para o botão de adicionar/salvar tarefa principal
     addTaskBtn.addEventListener('click', () => {
-        clearError(taskTitleInput, taskTitleError); // Limpa erros anteriores
-        clearError(taskDescriptionInput, taskDescriptionError);
-
         const title = taskTitleInput.value.trim();
         const description = taskDescriptionInput.value.trim();
         const priority = taskPriorityInput.value;
         const dueDate = taskDueDateInput.value;
 
-        // Validação básica: Título da tarefa é obrigatório
+        // Limpa erros anteriores
+        clearError(taskTitleInput, taskTitleError);
+        clearError(taskDescriptionInput, taskDescriptionError); // Mesmo que não obrigatória, limpar é boa prática
+
+        // Validação principal
         if (!title) {
             displayError(taskTitleInput, taskTitleError, 'O título da tarefa é obrigatório.');
             showNotification('O título da tarefa é obrigatório.', 'error');
@@ -770,7 +754,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const handleTaskSave = () => {
             let tasks = getTasks();
             if (editingTaskId) {
-                // Modo de Edição
                 const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
                 if (taskIndex > -1) {
                     tasks[taskIndex].title = title;
@@ -785,17 +768,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification('Erro: Tarefa a ser editada não encontrada.', 'error');
                 }
             } else {
-                // Modo de Adição
                 const task = {
-                    id: Date.now(), // ID único baseado no timestamp
+                    id: Date.now(),
                     title,
                     description,
                     priority,
                     dueDate,
                     imageUrls: [...currentImagesBase64], // ATUALIZADO: Inclui o array de URLs na nova tarefa
                     subtasks: [...currentSubtasks],
-                    completed: false, // Nova tarefa sempre começa como não concluída
-                    createdAt: new Date().toISOString() // Data de criação
+                    createdAt: new Date().toISOString()
                 };
                 tasks.push(task);
                 saveTasks(tasks);
@@ -808,137 +789,114 @@ document.addEventListener('DOMContentLoaded', () => {
         handleTaskSave();
     });
 
-    // Adiciona listener para o botão "Limpar Formulário"
-    document.getElementById('clearFormBtn').addEventListener('click', clearForm);
-
-
-    // Listener para adicionar subtarefa
-    addSubtaskBtn.addEventListener('click', () => {
-        clearError(subtaskInput, subtaskInputError); // Limpa erros anteriores
-        const subtaskName = subtaskInput.value.trim();
-        if (subtaskName) {
-            currentSubtasks.push({ name: subtaskName, completed: false });
-            subtaskInput.value = '';
-            renderCurrentSubtasks();
-            showNotification('Subtarefa adicionada temporariamente.', 'info');
-        } else {
-            displayError(subtaskInput, subtaskInputError, 'O nome da subtarefa não pode ser vazio.');
-            showNotification('O nome da subtarefa é obrigatório!', 'error');
-        }
-    });
-
-    // Listener para o input de imagens (ATUALIZADO para múltiplos arquivos)
-    taskImagesInput.addEventListener('change', handleImageUpload);
-
-
     // Adiciona um listener para o botão de exportar tarefas
     exportBtn.addEventListener('click', () => {
         const tasks = getTasks();
         if (tasks.length === 0) {
-            showNotification('Não há tarefas para exportar.', 'info');
+            showNotification('Não há tarefas para exportar!', 'error');
             return;
         }
-        const dataStr = JSON.stringify(tasks, null, 2); // Formata com indentação
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'painel_natan_tasks.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showNotification('Tarefas exportadas com sucesso!', 'success');
+        try {
+            const jsonString = JSON.stringify(tasks, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'minhas_tarefas.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+            showNotification('Tarefas exportadas com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao exportar tarefas:', error);
+            showNotification('Erro ao exportar tarefas para JSON.', 'error');
+        }
     });
 
     // Adiciona um listener para o botão de importar tarefas
     importBtn.addEventListener('click', () => {
-        const files = importFile.files;
-        if (files.length === 0) {
-            showNotification('Por favor, selecione um arquivo JSON para importar.', 'info');
-            return;
-        }
-
-        const file = files[0];
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            try {
-                const importedTasks = JSON.parse(e.target.result);
-                if (!Array.isArray(importedTasks)) {
-                    showNotification('O arquivo JSON não contém uma lista de tarefas válida.', 'error');
-                    return;
-                }
-
-                let existingTasks = getTasks();
-                let newTasksAdded = 0;
-                let tasksUpdated = 0;
-
-                importedTasks.forEach(importedTask => {
-                    // Garante que a tarefa importada tenha um createdAt e ID único
-                    importedTask.createdAt = importedTask.createdAt || new Date().toISOString();
-                    importedTask.id = importedTask.id || Date.now() + Math.floor(Math.random() * 1000); // Garante ID se ausente
-
-                    // Garante que a tarefa tenha uma prioridade padrão se ausente
-                    importedTask.priority = importedTask.priority || 'medium';
-                    // Garante que a tarefa tenha uma data de vencimento se ausente
-                    importedTask.dueDate = importedTask.dueDate || '';
-                    // ATUALIZADO: Garante que a tarefa tenha um array de imagens (mesmo que vazio)
-                    importedTask.imageUrls = importedTask.imageUrls || [];
-                    // Garante que a tarefa tenha um status de conclusão
-                    importedTask.completed = importedTask.hasOwnProperty('completed') ? importedTask.completed : false;
-                    // Garante que a tarefa tenha subtarefas
-                    importedTask.subtasks = importedTask.subtasks || [];
-
-
-                    // Verifica se o ID já existe para evitar conflitos ao importar no mesmo ID
-                    // ATUALIZADO: Prefere atualizar tarefa existente se o ID for o mesmo
-                    const existingTaskIndex = existingTasks.findIndex(t => t.id === importedTask.id);
-                    if (existingTaskIndex > -1) {
-                        existingTasks[existingTaskIndex] = importedTask; // Sobrescreve a tarefa existente
-                        tasksUpdated++;
-                    } else {
-                        existingTasks.push(importedTask); // Adiciona como nova tarefa
-                        newTasksAdded++;
-                    }
-                });
-
-                saveTasks(existingTasks);
-                renderTaskList();
-                showNotification(`Importação concluída: ${newTasksAdded} novas tarefas, ${tasksUpdated} tarefas atualizadas.`, 'success');
-
-            } catch (error) {
-                console.error("Erro ao importar tarefas:", error);
-                showNotification('Erro ao processar o arquivo JSON. Verifique o formato.', 'error');
+        const file = importFile.files[0];
+        if (file) {
+            if (file.type !== 'application/json') {
+                showNotification('Por favor, selecione um arquivo JSON válido.', 'error');
+                return;
             }
-        };
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedTasks = JSON.parse(e.target.result);
+                    if (!Array.isArray(importedTasks) || importedTasks.some(task => !task.title || !Array.isArray(task.subtasks))) {
+                        showNotification('Formato de arquivo JSON inválido ou corrompido. Certifique-se de que o arquivo contém um array de tarefas com títulos e subtarefas.', 'error');
+                        return;
+                    }
 
-        reader.onerror = () => {
-            showNotification('Erro ao ler o arquivo.', 'error');
-        };
+                    let existingTasks = getTasks();
+                    const newTasks = [];
+                    importedTasks.forEach(importedTask => {
+                        if (importedTask.subtasks) {
+                            importedTask.subtasks = importedTask.subtasks.map(sub => {
+                                if (typeof sub === 'string') {
+                                    return { name: sub, completed: false };
+                                }
+                                return { name: sub.name, completed: sub.completed || false };
+                            });
+                        } else {
+                            importedTask.subtasks = [];
+                        }
 
-        reader.readAsText(file);
+                        // Garante que a tarefa tenha um createdAt e ID único
+                        importedTask.createdAt = importedTask.createdAt || new Date().toISOString();
+                        // Garante que a tarefa tenha uma prioridade padrão se ausente
+                        importedTask.priority = importedTask.priority || 'medium';
+                        // Garante que a tarefa tenha uma data de vencimento se ausente
+                        importedTask.dueDate = importedTask.dueDate || ''; 
+                        // ATUALIZADO: Garante que a tarefa tenha um array de imagens (mesmo que vazio)
+                        importedTask.imageUrls = importedTask.imageUrls || []; 
+
+                        // Verifica se o ID já existe para evitar conflitos ao importar no mesmo ID
+                        if (existingTasks.some(existingTask => existingTask.id === importedTask.id)) {
+                             importedTask.id = Date.now() + Math.floor(Math.random() * 1000); // Gera um novo ID único
+                        }
+
+                        newTasks.push(importedTask);
+                    });
+
+                    saveTasks([...existingTasks, ...newTasks]);
+                    renderTaskList();
+                    showNotification('Tarefas importadas com sucesso!', 'success');
+                    importFile.value = '';
+                } catch (error) {
+                    showNotification('Erro ao processar o arquivo JSON. Certifique-se de que é um JSON válido.', 'error');
+                    console.error('Erro de importação:', error);
+                }
+            };
+            reader.onerror = () => {
+                showNotification('Erro ao ler o arquivo para importação.', 'error');
+                console.error('Erro ao ler o arquivo:', reader.error);
+            };
+            reader.readAsText(file);
+        } else {
+            showNotification('Selecione um arquivo JSON para importar.', 'error');
+        }
     });
 
-    // Listener para filtros de status
+    // Adiciona listeners para os selects de filtro e ordenação
     filterStatusSelect.addEventListener('change', () => {
-        localStorage.setItem('filterStatus', filterStatusSelect.value); // Salva a preferência
+        localStorage.setItem('filterStatus', filterStatusSelect.value); // Salva o filtro
         renderTaskList();
     });
-
-    // Listener para filtros de prioridade
-    filterPrioritySelect.addEventListener('change', () => {
-        localStorage.setItem('filterPriority', filterPrioritySelect.value); // Salva a preferência
-        renderTaskList();
-    });
-
-    // Listener para ordenação
     sortBySelect.addEventListener('change', () => {
-        localStorage.setItem('sortBy', sortBySelect.value); // Salva a preferência
+        localStorage.setItem('sortBy', sortBySelect.value); // Salva a ordenação
         renderTaskList();
     });
 
-    // Listener para busca
+    // Adiciona listener para o filtro de prioridade
+    filterPrioritySelect.addEventListener('change', () => {
+        localStorage.setItem('filterPriority', filterPrioritySelect.value); // Salva o filtro de prioridade
+        renderTaskList();
+    });
+
+    // Adiciona listener para o campo de busca
     searchInput.addEventListener('input', () => {
         localStorage.setItem('searchQuery', searchInput.value); // Salva o termo de busca
         renderTaskList();
@@ -949,13 +907,6 @@ document.addEventListener('DOMContentLoaded', () => {
         applyImageVisibility();
         // Salva a preferência do usuário no localStorage
         localStorage.setItem('showImages', toggleImagesCheckbox.checked);
-    });
-
-    // NOVO: Adiciona listener para o checkbox de ocultar/exibir seção de adicionar tarefa
-    toggleAddTaskSectionCheckbox.addEventListener('change', () => {
-        applyAddTaskSectionVisibility();
-        // Salva a preferência do usuário no localStorage
-        localStorage.setItem('showAddTaskSection', toggleAddTaskSectionCheckbox.checked);
     });
 
     // Listeners para os botões do modal de confirmação de exclusão de tarefa
@@ -985,6 +936,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Carrega as tarefas e as preferências salvas ao iniciar a aplicação
-    loadTasks();
 });
