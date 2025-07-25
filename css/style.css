@@ -245,44 +245,62 @@ textarea.input-error {
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Sombra sutil vermelha */
 }
 
-/* Estilos para o contêiner de preview da imagem */
-#imagePreviewContainer {
-    display: none; /* Inicia oculto, será mostrado via JS */
+/* Estilos para o contêiner de preview de MÚLTIPLAS imagens */
+.multiple-images-preview {
+    display: flex; /* Para exibir imagens lado a lado */
+    flex-wrap: wrap; /* Permite que as imagens quebrem para a próxima linha */
+    gap: 10px; /* Espaçamento entre as imagens */
     margin-top: 15px;
     margin-bottom: 20px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 10px;
     background-color: #f9f9f9;
-    text-align: center;
     max-width: 100%;
-    overflow: hidden; /* Garante que a imagem não vaze */
+    overflow: hidden; /* Garante que o contêiner não cresça indefinidamente */
+    /* Por padrão, começa oculto. O JS vai mudar para 'flex' quando houver imagens. */
+    display: none; 
 }
 
-#imagePreviewContainer img {
-    max-width: 100%;
-    height: auto;
+.image-preview-item {
+    position: relative;
+    width: 128px; /* Tamanho fixo para o item de preview */
+    height: 128px;
+    flex-shrink: 0; /* Impede que o item encolha */
+}
+
+.multiple-images-preview img {
+    width: 100%; /* Imagem preenche o contêiner do item */
+    height: 100%;
+    object-fit: cover; /* Mantém a proporção e cobre o espaço */
     border-radius: 6px;
-    display: block; /* Remove espaço extra abaixo da imagem */
-    margin: 0 auto; /* Centraliza a imagem */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-#imagePreviewContainer .remove-image-preview-btn {
+.image-preview-item .remove-image-preview-btn {
+    position: absolute;
+    top: -8px; /* Ajusta para ficar um pouco fora da imagem */
+    right: -8px; /* Ajusta para ficar um pouco fora da imagem */
     background-color: #ffc107; /* Amarelo para remover */
     color: #333;
-    padding: 6px 10px;
-    font-size: 0.8em;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    padding: 0; /* Remove padding padrão */
+    font-size: 0.7em;
+    border-radius: 50%; /* Transforma em círculo */
+    width: 24px; /* Largura do círculo */
+    height: 24px; /* Altura do círculo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-#imagePreviewContainer .remove-image-preview-btn:hover {
+.image-preview-item .remove-image-preview-btn:hover {
     background-color: #e0a800;
+    transform: scale(1.1);
 }
-
 
 /* Estilos para o contêiner de subtarefas */
 #subtasksContainer h3 {
@@ -497,28 +515,31 @@ button.save-changes-btn:hover {
     background-color: #28a745; /* Verde para termômetro completo */
 }
 
-.task-image-container {
-    text-align: center;
+/* Contêiner para exibição de MÚLTIPLAS imagens na lista de tarefas */
+.multiple-images-display {
+    display: flex;
+    gap: 5px; /* Espaçamento entre as imagens */
+    overflow-x: auto; /* Permite rolagem horizontal se houver muitas imagens */
     margin-bottom: 10px;
-    /* Transição para ocultar/exibir suavemente */
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-    max-height: 500px; /* Altura máxima para transição */
-    overflow: hidden; /* Garante que a transição de altura seja visível */
-    opacity: 1; /* Padrão visível */
+    padding-bottom: 5px; /* Espaço para a barra de rolagem */
 }
 
-.task-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.multiple-images-display .task-image {
+    width: 128px;
+    height: 128px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* Impede que as imagens encolham */
 }
 
-/* Classe para ocultar imagens */
+/* Estilo para ocultar todas as imagens na lista (checkbox "Exibir Imagens") */
 .hide-images .task-image-container {
     max-height: 0; /* Oculta a imagem */
     opacity: 0; /* Torna transparente */
     margin-bottom: 0; /* Remove margem para não ocupar espaço */
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    overflow: hidden;
 }
 
 

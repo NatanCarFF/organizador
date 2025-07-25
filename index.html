@@ -6,14 +6,17 @@
     <title>Organizador de Tarefas</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="icon" type="image/png" href="icons/favicon.png">
+    
+    <link rel="icon" type="image/png" href="images/favicon.png"> 
 </head>
 <body>
     <header>
         <h1><i class="fas fa-clipboard-list"></i> Organizador de Tarefas</h1>
     </header>
     <main>
-        <section id="notificationContainer"></section> <section id="addTaskSection">
+        <section id="notificationContainer"></section> 
+
+        <section id="addTaskSection">
             <h2><i class="fas fa-plus-circle"></i> Adicionar Tarefa</h2>
             <input type="text" id="taskTitle" placeholder="Título da Tarefa" required>
             <span class="error-message" id="taskTitleError"></span>
@@ -35,9 +38,11 @@
                 <input type="date" id="taskDueDate">
             </div>
 
-            <label for="taskImage" class="file-upload-btn"><i class="fas fa-image"></i> Anexar Imagem</label>
-            <input type="file" id="taskImage" accept="image/*">
-            <div id="imagePreviewContainer"></div> <div id="subtasksContainer">
+            <label for="taskImages" class="file-upload-btn"><i class="fas fa-images"></i> Anexar Imagens (até 5)</label>
+            <input type="file" id="taskImages" accept="image/*" multiple>
+            <div id="imagePreviewContainer" class="multiple-images-preview"></div> 
+
+            <div id="subtasksContainer">
                 <h3><i class="fas fa-tasks"></i> Subtarefas</h3>
                 <input type="text" id="subtaskInput" placeholder="Nome da subtarefa">
                 <button type="button" id="addSubtaskBtn"><i class="fas fa-plus"></i> Adicionar Subtarefa</button>
@@ -102,7 +107,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Natanael Carvalho da Silva - Belém do Pará - Brasil. Desenvolvido com <i class="fas fa-heart"></i></p>
+        <p>&copy; 2024 Organizador de Tarefas. Desenvolvido com <i class="fas fa-heart"></i></p>
     </footer>
 
     <div id="confirmationModal" class="modal">

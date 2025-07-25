@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskTitleInput = document.getElementById('taskTitle');
     const taskDescriptionInput = document.getElementById('taskDescription');
     const taskPriorityInput = document.getElementById('taskPriority');
-    const taskDueDateInput = document.getElementById('taskDueDate'); // NOVO
-    const taskImageInput = document.getElementById('taskImage');
+    const taskDueDateInput = document.getElementById('taskDueDate');
+    const taskImagesInput = document.getElementById('taskImages'); // ATUALIZADO: ID para múltiplos arquivos
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskList = document.getElementById('taskList');
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentSubtasks = [];
     let editingTaskId = null;
-    let currentImageBase64 = null; // Variável para armazenar a imagem em base64 no modo de edição/criação
+    let currentImagesBase64 = []; // ATUALIZADO: Array para armazenar múltiplas imagens em base64
     let taskIdToDeleteConfirmed = null; // Armazena o ID da tarefa a ser excluída após confirmação
 
     // --- FUNÇÕES AUXILIARES ---
@@ -97,33 +97,78 @@ document.addEventListener('DOMContentLoaded', () => {
         errorElement.textContent = '';
     }
 
-    // Função para exibir o preview da imagem
-    function displayImagePreview(file) {
-        if (file) {
+    // Função para lidar com o upload de MÚLTIPLAS imagens e exibir preview
+    function handleImageUpload(event) {
+        const files = Array.from(event.target.files).slice(0, 5); // Limita a 5 arquivos
+        currentImagesBase64 = []; // Zera o array de imagens no upload de novos arquivos
+        imagePreviewContainer.innerHTML = ''; // Limpa previews anteriores
+
+        if (files.length > 0) {
+            imagePreviewContainer.style.display = 'flex'; // Exibe o contêiner de preview
+        } else {
+            imagePreviewContainer.style.display = 'none'; // Oculta se não houver arquivos
+        }
+
+        files.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (e) => {
-                imagePreviewContainer.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview da Imagem">
-                    <button type="button" class="remove-image-preview-btn"><i class="fas fa-times"></i> Remover Imagem</button>
-                `;
-                imagePreviewContainer.style.display = 'block';
-                currentImageBase64 = e.target.result; // Armazena a imagem em base64
-                // Adiciona listener ao novo botão de remover
-                imagePreviewContainer.querySelector('.remove-image-preview-btn').addEventListener('click', clearImagePreview);
+                const imgContainer = document.createElement('div');
+                imgContainer.classList.add('image-preview-item');
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = `Preview da Imagem ${index + 1}`;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.classList.add('remove-image-preview-btn');
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.dataset.index = currentImagesBase64.length; // Usa o tamanho atual como índice
+                removeBtn.addEventListener('click', removeImagePreview);
+
+                imgContainer.appendChild(img);
+                imgContainer.appendChild(removeBtn);
+                imagePreviewContainer.appendChild(imgContainer);
+                currentImagesBase64.push(e.target.result); // Adiciona ao array principal
             };
             reader.readAsDataURL(file);
-        } else {
-            clearImagePreview();
+        });
+    }
+
+    // Função para remover uma imagem do preview
+    function removeImagePreview(event) {
+        const clickedButton = event.currentTarget; // Usa currentTarget para garantir que pega o botão, não o ícone
+        const indexToRemove = Array.from(imagePreviewContainer.children).indexOf(clickedButton.parentNode);
+
+        if (indexToRemove > -1) {
+            currentImagesBase64.splice(indexToRemove, 1); // Remove do array de base64
+            clickedButton.parentNode.remove(); // Remove o elemento do DOM
+
+            // Se não houver mais imagens, ocultar o container de preview
+            if (currentImagesBase64.length === 0) {
+                imagePreviewContainer.style.display = 'none';
+                taskImagesInput.value = ''; // Limpa o input file
+            }
+            
+            // Reajusta os data-index dos botões de remoção restantes
+            Array.from(imagePreviewContainer.children).forEach((item, idx) => {
+                const btn = item.querySelector('.remove-image-preview-btn');
+                if (btn) btn.dataset.index = idx;
+            });
+            showNotification('Imagem removida.', 'success');
         }
     }
 
-    // Função para limpar o preview da imagem
+    // Função para limpar TODO o preview de imagem
     function clearImagePreview() {
         imagePreviewContainer.innerHTML = '';
         imagePreviewContainer.style.display = 'none';
-        taskImageInput.value = ''; // Limpa o input file
-        currentImageBase664 = null; // Zera a imagem em base64
+        currentImagesBase64 = []; // Limpa o array de imagens
+        if (taskImagesInput) { // Verifica se o elemento existe antes de tentar limpar
+            taskImagesInput.value = ''; // Limpa o input file
+        }
     }
+
 
     // Função auxiliar para salvar o array de tarefas no LocalStorage
     function saveTasks(tasks) {
@@ -187,9 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
         taskTitleInput.value = '';
         taskDescriptionInput.value = '';
         taskPriorityInput.value = 'medium'; // Volta para o padrão
-        taskDueDateInput.value = ''; // NOVO: Limpa a data de vencimento
-        taskImageInput.value = ''; // Garante que o input file esteja limpo
-        clearImagePreview(); // Limpa o preview da imagem
+        taskDueDateInput.value = '';
+        clearImagePreview(); // Limpa o preview e o array de imagens
         currentSubtasks = [];
         renderCurrentSubtasks();
         editingTaskId = null;
@@ -206,20 +250,36 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateFormForEdit(task) {
         taskTitleInput.value = task.title;
         taskDescriptionInput.value = task.description;
-        taskPriorityInput.value = task.priority || 'medium'; // Define a prioridade ou padrão
-        taskDueDateInput.value = task.dueDate || ''; // NOVO: Define a data de vencimento ou vazio
+        taskPriorityInput.value = task.priority || 'medium';
+        taskDueDateInput.value = task.dueDate || '';
 
-        // Exibe a imagem existente no preview se houver
-        if (task.imageUrl) {
-            imagePreviewContainer.innerHTML = `
-                <img src="${task.imageUrl}" alt="Preview da Imagem Atual">
-                <button type="button" class="remove-image-preview-btn"><i class="fas fa-times"></i> Remover Imagem</button>
-            `;
-            imagePreviewContainer.style.display = 'block';
-            currentImageBase64 = task.imageUrl; // Define a imagem atual para a edição
-            imagePreviewContainer.querySelector('.remove-image-preview-btn').addEventListener('click', clearImagePreview);
+        // ATUALIZADO: Preenche e exibe as múltiplas imagens
+        imagePreviewContainer.innerHTML = ''; // Limpa qualquer preview existente
+        currentImagesBase64 = task.imageUrls ? [...task.imageUrls] : []; // Carrega as URLs da tarefa
+
+        if (currentImagesBase64.length > 0) {
+            imagePreviewContainer.style.display = 'flex'; // Garante que o contêiner esteja visível
+            currentImagesBase64.forEach((url, index) => {
+                const imgContainer = document.createElement('div');
+                imgContainer.classList.add('image-preview-item');
+
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = `Imagem da Tarefa ${index + 1}`;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.classList.add('remove-image-preview-btn');
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.dataset.index = index; // Armazena o índice original da imagem
+                removeBtn.addEventListener('click', removeImagePreview);
+
+                imgContainer.appendChild(img);
+                imgContainer.appendChild(removeBtn);
+                imagePreviewContainer.appendChild(imgContainer);
+            });
         } else {
-            clearImagePreview();
+            clearImagePreview(); // Oculta e limpa se não houver imagens
         }
 
         currentSubtasks = task.subtasks ? [...task.subtasks] : [];
@@ -260,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return ''; // Sem status especial
     }
 
-    // Função para aplicar filtro, busca e ordenação antes de renderizar (ATUALIZADA com Prioridade e Data de Vencimento)
+    // Função para aplicar filtro, busca e ordenação antes de renderizar
     function applyFiltersAndSorting(tasks) {
         let filteredTasks = [...tasks];
         const currentSearchQuery = searchInput.value.toLowerCase().trim();
@@ -287,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
             filteredTasks = filteredTasks.filter(task => (task.priority || 'medium') === filterPriority);
         }
 
-        // 3. Aplica a ordenação (ATUALIZADA para considerar data de vencimento)
+        // 3. Aplica a ordenação
         const sortBy = sortBySelect.value;
         filteredTasks.sort((a, b) => {
             if (sortBy === 'createdAt') {
@@ -300,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return calculateCompletionPercentage(a) - calculateCompletionPercentage(b);
             } else if (sortBy === 'completionDesc') {
                 return calculateCompletionPercentage(b) - calculateCompletionPercentage(a);
-            } else if (sortBy === 'dueDateAsc') { // NOVO: Ordena por data de vencimento (mais próxima primeiro)
+            } else if (sortBy === 'dueDateAsc') {
                 const dateA = a.dueDate ? new Date(a.dueDate) : null;
                 const dateB = b.dueDate ? new Date(b.dueDate) : null;
 
@@ -312,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return 1; // B tem data, A não, então B vem antes
                 }
                 return 0; // Ambos sem data
-            } else if (sortBy === 'dueDateDesc') { // NOVO: Ordena por data de vencimento (mais distante primeiro)
+            } else if (sortBy === 'dueDateDesc') {
                 const dateA = a.dueDate ? new Date(a.dueDate) : null;
                 const dateB = b.dueDate ? new Date(b.dueDate) : null;
 
@@ -338,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR', options); // Adiciona T00:00:00 para evitar problemas de fuso horário
     }
 
-    // Função para renderizar a lista completa de tarefas (ATUALIZADA para exibir prioridade e data de vencimento)
+    // Função para renderizar a lista completa de tarefas (ATUALIZADA para exibir múltiplas imagens)
     function renderTaskList() {
         const allTasks = getTasks();
         const tasksToDisplay = applyFiltersAndSorting(allTasks);
@@ -365,10 +425,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // Adiciona classe de prioridade
             listItem.classList.add(`priority-${task.priority || 'medium'}`);
 
-            // Adiciona classe de status de vencimento (NOVO)
+            // Adiciona classe de status de vencimento
             const dueDateStatus = getDueDateStatus(task.dueDate);
             if (dueDateStatus) {
                 listItem.classList.add(dueDateStatus);
+            }
+
+            // ATUALIZADO: Renderização de múltiplas imagens
+            let imagesHtml = '';
+            if (task.imageUrls && task.imageUrls.length > 0) {
+                const imageElements = task.imageUrls.map(url => `
+                    <img src="${url}" alt="Imagem da tarefa" class="task-image">
+                `).join('');
+                imagesHtml = `<div class="task-image-container multiple-images-display">${imageElements}</div>`;
             }
 
 
@@ -403,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="task-status-thermometer">
                     <div class="thermometer-fill" style="width: ${completionPercentage}%;"></div>
                 </div>
-                ${task.imageUrl ? `<div class="task-image-container"><img src="${task.imageUrl}" alt="Imagem da tarefa" class="task-image"></div>` : ''}
+                ${imagesHtml}
                 ${subtasksHtml}
                 <div class="task-actions">
                     <button type="button" class="edit-btn" data-id="${task.id}"><i class="fas fa-edit"></i> Editar</button>
@@ -455,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const subtask = task ? task.subtasks[subtaskIndex] : null;
 
                 if (subtask) {
-                    const span = li.querySelector('div > label'); // O label é o que exibe o nome
+                    const label = li.querySelector('div > label'); // O label é o que exibe o nome
                     const checkbox = li.querySelector('div > input[type="checkbox"]');
                     const originalName = subtask.name;
 
@@ -468,8 +537,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Esconde o checkbox e o label, mostra o input
                     checkbox.style.display = 'none';
-                    span.style.display = 'none';
-                    li.querySelector('div').insertBefore(editInput, span); // Insere antes do label
+                    label.style.display = 'none';
+                    li.querySelector('div').insertBefore(editInput, label); // Insere antes do label
 
                     // Esconde editar, mostra salvar/cancelar
                     this.style.display = 'none';
@@ -519,13 +588,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const editInput = li.querySelector('.subtask-edit-input');
                 const originalName = editInput.dataset.originalName; // Recupera o nome original
 
-                const span = li.querySelector('div > label');
+                const label = li.querySelector('div > label');
                 const checkbox = li.querySelector('div > input[type="checkbox"]');
 
                 // Volta o label e checkbox
-                span.style.display = 'inline'; // Ou 'flex' dependendo do seu display do label
+                label.style.display = 'inline'; // Ou 'flex' dependendo do seu display do label
                 checkbox.style.display = 'inline';
-                span.textContent = originalName; // Restaura o nome original no label
+                label.textContent = originalName; // Restaura o nome original no label
 
                 // Remove o input
                 editInput.remove();
@@ -639,11 +708,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carrega as tarefas salvas ao iniciar
     loadTasks();
 
-    // Listener para o input de imagem para exibir preview
-    taskImageInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        displayImagePreview(file);
-    });
+    // Listener para o input de imagem para exibir preview (ATUALIZADO)
+    taskImagesInput.addEventListener('change', handleImageUpload);
 
     // Adiciona listener para o botão de adicionar subtarefa
     addSubtaskBtn.addEventListener('click', () => {
@@ -671,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = taskTitleInput.value.trim();
         const description = taskDescriptionInput.value.trim();
         const priority = taskPriorityInput.value;
-        const dueDate = taskDueDateInput.value; // NOVO: Pega o valor da data de vencimento
+        const dueDate = taskDueDateInput.value;
 
         // Limpa erros anteriores
         clearError(taskTitleInput, taskTitleError);
@@ -693,9 +759,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     tasks[taskIndex].title = title;
                     tasks[taskIndex].description = description;
                     tasks[taskIndex].priority = priority;
-                    tasks[taskIndex].dueDate = dueDate; // NOVO: Salva a data de vencimento
+                    tasks[taskIndex].dueDate = dueDate;
                     tasks[taskIndex].subtasks = [...currentSubtasks];
-                    tasks[taskIndex].imageUrl = currentImageBase64;
+                    tasks[taskIndex].imageUrls = [...currentImagesBase64]; // ATUALIZADO: Salva o array de URLs
                     saveTasks(tasks);
                     showNotification('Tarefa atualizada com sucesso!', 'success');
                 } else {
@@ -707,8 +773,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     title,
                     description,
                     priority,
-                    dueDate, // NOVO: Inclui a data de vencimento na nova tarefa
-                    imageUrl: currentImageBase64,
+                    dueDate,
+                    imageUrls: [...currentImagesBase64], // ATUALIZADO: Inclui o array de URLs na nova tarefa
                     subtasks: [...currentSubtasks],
                     createdAt: new Date().toISOString()
                 };
@@ -782,8 +848,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         importedTask.createdAt = importedTask.createdAt || new Date().toISOString();
                         // Garante que a tarefa tenha uma prioridade padrão se ausente
                         importedTask.priority = importedTask.priority || 'medium';
-                        // Garante que a tarefa tenha uma data de vencimento se ausente (NOVO)
+                        // Garante que a tarefa tenha uma data de vencimento se ausente
                         importedTask.dueDate = importedTask.dueDate || ''; 
+                        // ATUALIZADO: Garante que a tarefa tenha um array de imagens (mesmo que vazio)
+                        importedTask.imageUrls = importedTask.imageUrls || []; 
 
                         // Verifica se o ID já existe para evitar conflitos ao importar no mesmo ID
                         if (existingTasks.some(existingTask => existingTask.id === importedTask.id)) {
@@ -868,8 +936,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-    if (getTasks().length === 0 && taskList.innerHTML === '') {
-        // Nada a fazer aqui, renderTaskList já cuida disso.
-    }
 });
