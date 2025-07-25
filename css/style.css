@@ -141,6 +141,51 @@ section h2 .fas {
     color: #343a40;
 }
 
+/* Estilos para os toggles de seção (ocultar/exibir) */
+.section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #555;
+}
+
+.section-toggle input[type="checkbox"] {
+    transform: scale(1.3);
+    cursor: pointer;
+}
+
+.section-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.section-toggle label .fas {
+    color: #007bff;
+}
+
+/* Estilo para o conteúdo da seção que será ocultado/exibido */
+.section-content {
+    /* Por padrão, está visível */
+    transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+    overflow: hidden;
+}
+
+/* Estilo para ocultar o conteúdo da seção */
+.section-content.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border: none; /* Remove a borda quando oculto para não ocupar espaço */
+}
+
+
 /* Estilos para formulários (inputs e textarea) */
 input,
 textarea,
@@ -150,8 +195,8 @@ select { /* Adicionado select aqui */
     font-size: 1em; /* Tamanho de fonte base para elementos de formulário */
 }
 
-#addTaskSection > input#taskTitle,
-#addTaskSection > textarea#taskDescription {
+#addTaskSection .section-content > input#taskTitle,
+#addTaskSection .section-content > textarea#taskDescription {
     margin-bottom: 10px; /* Menos margem abaixo do título e descrição */
     padding: 15px;
     border: 1px solid #ccc;
@@ -159,7 +204,7 @@ select { /* Adicionado select aqui */
     width: calc(100% - 30px); /* Ajusta a largura com padding */
 }
 
-#addTaskSection > textarea#taskDescription {
+#addTaskSection .section-content > textarea#taskDescription {
     min-height: 80px; /* Altura mínima para a descrição */
     resize: vertical; /* Permite redimensionar verticalmente */
 }
@@ -215,7 +260,7 @@ input[type="date"] {
 }
 
 
-input#subtaskInput {
+#subtaskInput {
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -378,7 +423,7 @@ button:active {
     transform: translateY(0);
 }
 
-#addTaskSection button#addTaskBtn,
+#addTaskSection .section-content button#addTaskBtn,
 #ioSection button {
     margin-top: 20px; /* Más espacio arriba de los botones de acción principal */
     width: fit-content; /* Ajusta la anchura al contenido */
@@ -902,6 +947,17 @@ footer .fas {
         font-size: 1.4em;
         margin-bottom: 15px;
         padding-bottom: 10px;
+    }
+
+    /* Ajuste para o toggle de seção em telas menores */
+    .section-toggle {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+    .section-toggle label {
+        margin-top: 5px;
     }
 
     input,
