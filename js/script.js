@@ -1,58 +1,52 @@
-// Garante que o script só seja executado após o DOM estar completamente carregado.
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Seletores de elementos HTML ---
-    // Através do `getElementById`, obtém referências para elementos chave do formulário de adição de tarefas.
+    // Seletores de elementos HTML para fácil acesso
     const taskTitleInput = document.getElementById('taskTitle');
     const taskDescriptionInput = document.getElementById('taskDescription');
     const taskPriorityInput = document.getElementById('taskPriority');
     const taskDueDateInput = document.getElementById('taskDueDate');
-    const taskImagesInput = document.getElementById('taskImages'); // Campo para múltiplos arquivos de imagem
-    const imagePreviewContainer = document.getElementById('imagePreviewContainer'); // Contêiner para pré-visualização de imagens
-    const addTaskBtn = document.getElementById('addTaskBtn'); // Botão para adicionar/salvar tarefa
-    const taskList = document.getElementById('taskList'); // Lista onde as tarefas são exibidas
-    const taskListSection = document.getElementById('taskListSection'); // Seção que contém a lista de tarefas
+    const taskImagesInput = document.getElementById('taskImages'); // ATUALIZADO: ID para múltiplos arquivos
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const taskList = document.getElementById('taskList');
+    const taskListSection = document.getElementById('taskListSection');
 
-    // Seletores para os botões de importação/exportação.
     const exportBtn = document.getElementById('exportBtn');
-    const importFile = document.getElementById('importFile'); // Input de arquivo para importação
+    const importFile = document.getElementById('importFile');
     const importBtn = document.getElementById('importBtn');
 
-    // Seletores para elementos relacionados às subtarefas.
-    const addSubtaskBtn = document.getElementById('addSubtaskBtn'); // Botão para adicionar subtarefa
-    const subtaskInput = document.getElementById('subtaskInput'); // Input para o nome da subtarefa
-    const subtaskListContainer = document.getElementById('subtaskList'); // Contêiner da lista de subtarefas temporárias
+    const addSubtaskBtn = document.getElementById('addSubtaskBtn');
+    const subtaskInput = document.getElementById('subtaskInput');
+    const subtaskListContainer = document.getElementById('subtaskList');
 
-    // Seletor para o contêiner de notificações.
     const notificationContainer = document.getElementById('notificationContainer');
 
-    // Seletores para os filtros e ordenação da lista de tarefas.
+    // Seletores para filtros e ordenação
     const filterStatusSelect = document.getElementById('filterStatus');
     const sortBySelect = document.getElementById('sortBy');
     const filterPrioritySelect = document.getElementById('filterPriority');
 
-    // Seletor para o campo de busca.
+    // Seletores para busca
     const searchInput = document.getElementById('searchInput');
 
-    // Seletor para o checkbox de ocultar/exibir imagens.
+    // Seletor para ocultar/exibir imagens
     const toggleImagesCheckbox = document.getElementById('toggleImages');
 
-    // Seletores para as mensagens de erro de validação.
+    // Seletores para as mensagens de erro (Validação de Formulário Mais Visível)
     const taskTitleError = document.getElementById('taskTitleError');
     const taskDescriptionError = document.getElementById('taskDescriptionError');
     const subtaskInputError = document.getElementById('subtaskInputError');
 
-    // Seletores para o modal de confirmação de exclusão.
+    // Seletores para o modal de confirmação
     const confirmationModal = document.getElementById('confirmationModal');
     confirmationModal.style.display = 'none'; // Garante que o modal esteja oculto ao carregar a página
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const closeButton = document.querySelector('.close-button'); // Botão 'x' do modal
 
-    // --- Variáveis de estado globais ---
-    let currentSubtasks = []; // Armazena subtarefas temporárias antes de adicionar a tarefa principal
-    let editingTaskId = null; // Armazena o ID da tarefa que está sendo editada (null se não estiver editando)
-    let currentImagesBase64 = []; // Armazena as imagens em formato Base64 para a tarefa atual
-    let taskIdToDeleteConfirmed = null; // Armazena o ID da tarefa a ser excluída após a confirmação do modal
+    let currentSubtasks = [];
+    let editingTaskId = null;
+    let currentImagesBase64 = []; // ATUALIZADO: Array para armazenar múltiplas imagens em base64
+    let taskIdToDeleteConfirmed = null; // Armazena o ID da tarefa a ser excluída após confirmação
 
     // --- FUNÇÕES AUXILIARES ---
 
@@ -62,13 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} type - O tipo da notificação ('success', 'error', 'info').
      */
     function showNotification(message, type) {
-        // Cria um novo elemento div para a notificação.
         const notification = document.createElement('div');
-        // Adiciona classes CSS para estilização e tipo da notificação.
         notification.classList.add('notification', type);
 
         let iconClass = '';
-        // Define o ícone com base no tipo de notificação.
         if (type === 'success') {
             iconClass = 'fas fa-check-circle';
         } else if (type === 'error') {
@@ -77,12 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
             iconClass = 'fas fa-info-circle';
         }
 
-        // Define o conteúdo HTML da notificação, incluindo o ícone e a mensagem.
         notification.innerHTML = `<i class="${iconClass}"></i> ${message}`;
-        // Adiciona a notificação ao contêiner de notificações no DOM.
         notificationContainer.appendChild(notification);
 
-        // Define um temporizador para remover a notificação após 3.5 segundos.
         setTimeout(() => {
             notification.remove();
         }, 3500);
@@ -95,9 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} message - A mensagem de erro a ser exibida.
      */
     function displayError(inputElement, errorElement, message) {
-        // Adiciona a classe CSS 'input-error' ao campo para destacá-lo (borda vermelha, etc.).
         inputElement.classList.add('input-error');
-        // Define o texto da mensagem de erro no elemento span.
         errorElement.textContent = message;
     }
 
@@ -107,104 +93,86 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLElement} errorElement - O elemento span onde a mensagem de erro foi exibida.
      */
     function clearError(inputElement, errorElement) {
-        // Remove a classe CSS 'input-error' do campo.
         inputElement.classList.remove('input-error');
-        // Limpa o texto da mensagem de erro.
         errorElement.textContent = '';
     }
 
-    // Função para lidar com o upload de MÚLTIPLAS imagens e exibir preview.
+    // Função para lidar com o upload de MÚLTIPLAS imagens e exibir preview
     function handleImageUpload(event) {
-        // Obtém os arquivos selecionados e limita a um máximo de 5.
-        const files = Array.from(event.target.files).slice(0, 5);
-        currentImagesBase64 = []; // Zera o array de imagens ao fazer um novo upload.
-        imagePreviewContainer.innerHTML = ''; // Limpa previews anteriores.
+        const files = Array.from(event.target.files).slice(0, 5); // Limita a 5 arquivos
+        currentImagesBase64 = []; // Zera o array de imagens no upload de novos arquivos
+        imagePreviewContainer.innerHTML = ''; // Limpa previews anteriores
 
-        // Exibe ou oculta o contêiner de pré-visualização com base na existência de arquivos.
         if (files.length > 0) {
-            imagePreviewContainer.style.display = 'flex';
+            imagePreviewContainer.style.display = 'flex'; // Exibe o contêiner de preview
         } else {
-            imagePreviewContainer.style.display = 'none';
+            imagePreviewContainer.style.display = 'none'; // Oculta se não houver arquivos
         }
 
-        // Itera sobre cada arquivo para criar o preview.
         files.forEach((file, index) => {
-            const reader = new FileReader(); // Cria um novo FileReader para ler o conteúdo do arquivo.
+            const reader = new FileReader();
             reader.onload = (e) => {
-                // Cria um contêiner para cada imagem de preview.
                 const imgContainer = document.createElement('div');
                 imgContainer.classList.add('image-preview-item');
 
-                // Cria o elemento <img> e define sua origem (src) como o resultado da leitura do arquivo (Base64).
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.alt = `Preview da Imagem ${index + 1}`;
 
-                // Cria o botão de remover imagem do preview.
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.classList.add('remove-image-preview-btn');
                 removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                // Armazena o índice da imagem no dataset do botão para fácil remoção.
-                removeBtn.dataset.index = currentImagesBase64.length;
-                // Adiciona um listener para a função de remover imagem.
+                removeBtn.dataset.index = currentImagesBase64.length; // Usa o tamanho atual como índice
                 removeBtn.addEventListener('click', removeImagePreview);
 
-                // Adiciona a imagem e o botão ao contêiner da imagem.
                 imgContainer.appendChild(img);
                 imgContainer.appendChild(removeBtn);
-                // Adiciona o contêiner da imagem ao contêiner principal de previews.
                 imagePreviewContainer.appendChild(imgContainer);
-                // Adiciona a imagem em Base64 ao array principal.
-                currentImagesBase64.push(e.target.result);
+                currentImagesBase64.push(e.target.result); // Adiciona ao array principal
             };
-            // Lê o conteúdo do arquivo como uma URL de dados (Base64).
             reader.readAsDataURL(file);
         });
     }
 
-    // Função para remover uma imagem do preview.
+    // Função para remover uma imagem do preview
     function removeImagePreview(event) {
-        // Obtém o botão que foi clicado.
-        const clickedButton = event.currentTarget;
-        // Encontra o índice da imagem a ser removida no array `currentImagesBase64`.
+        const clickedButton = event.currentTarget; // Usa currentTarget para garantir que pega o botão, não o ícone
         const indexToRemove = Array.from(imagePreviewContainer.children).indexOf(clickedButton.parentNode);
 
         if (indexToRemove > -1) {
-            // Remove a imagem do array de Base64.
-            currentImagesBase64.splice(indexToRemove, 1);
-            // Remove o elemento HTML do preview.
-            clickedButton.parentNode.remove();
+            currentImagesBase64.splice(indexToRemove, 1); // Remove do array de base64
+            clickedButton.parentNode.remove(); // Remove o elemento do DOM
 
-            // Se não houver mais imagens, oculta o contêiner de preview e limpa o input de arquivo.
+            // Se não houver mais imagens, ocultar o container de preview
             if (currentImagesBase64.length === 0) {
                 imagePreviewContainer.style.display = 'none';
-                taskImagesInput.value = '';
+                taskImagesInput.value = ''; // Limpa o input file
             }
             
-            // Reajusta os `data-index` dos botões de remoção restantes para manter a consistência.
+            // Reajusta os data-index dos botões de remoção restantes
             Array.from(imagePreviewContainer.children).forEach((item, idx) => {
                 const btn = item.querySelector('.remove-image-preview-btn');
                 if (btn) btn.dataset.index = idx;
             });
-            showNotification('Imagem removida.', 'success'); // Exibe notificação de sucesso.
+            showNotification('Imagem removida.', 'success');
         }
     }
 
-    // Função para limpar TODO o preview de imagem.
+    // Função para limpar TODO o preview de imagem
     function clearImagePreview() {
-        imagePreviewContainer.innerHTML = ''; // Limpa o HTML interno do contêiner.
-        imagePreviewContainer.style.display = 'none'; // Oculta o contêiner.
-        currentImagesBase64 = []; // Limpa o array de imagens.
-        if (taskImagesInput) { // Verifica se o elemento do input de arquivo existe.
-            taskImagesInput.value = ''; // Limpa o valor do input de arquivo.
+        imagePreviewContainer.innerHTML = '';
+        imagePreviewContainer.style.display = 'none';
+        currentImagesBase64 = []; // Limpa o array de imagens
+        if (taskImagesInput) { // Verifica se o elemento existe antes de tentar limpar
+            taskImagesInput.value = ''; // Limpa o input file
         }
     }
 
-    // Função auxiliar para salvar o array de tarefas no LocalStorage.
+
+    // Função auxiliar para salvar o array de tarefas no LocalStorage
     function saveTasks(tasks) {
         try {
-            // Converte o array de tarefas para uma string JSON e salva no LocalStorage.
             localStorage.setItem('tasks', JSON.stringify(tasks));
         } catch (e) {
             console.error("Erro ao salvar tarefas no localStorage:", e);
@@ -212,41 +180,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Função auxiliar para obter o array de tarefas do LocalStorage.
+    // Função auxiliar para obter o array de tarefas do LocalStorage
     function getTasks() {
         try {
-            // Tenta obter a string de tarefas do LocalStorage.
             const tasksString = localStorage.getItem('tasks');
-            // Se existir, parseia a string JSON para um array, caso contrário, retorna um array vazio.
             return tasksString ? JSON.parse(tasksString) : [];
         } catch (e) {
             console.error("Erro ao carregar tarefas do localStorage. Dados podem estar corrompidos.", e);
-            localStorage.removeItem('tasks'); // Remove dados corrompidos.
+            localStorage.removeItem('tasks');
             showNotification('Erro ao carregar dados salvos. Dados antigos foram removidos.', 'error');
             return [];
         }
     }
 
-    // Função para calcular a porcentagem de conclusão de uma tarefa.
+    // Função para calcular a porcentagem de conclusão de uma tarefa
     function calculateCompletionPercentage(task) {
-        // Se não houver subtarefas, a porcentagem é 0.
         if (!task.subtasks || task.subtasks.length === 0) {
             return 0;
         }
-        // Conta quantas subtarefas estão marcadas como concluídas.
         const completedSubtasks = task.subtasks.filter(sub => sub.completed).length;
-        // Calcula a porcentagem.
         return (completedSubtasks / task.subtasks.length) * 100;
     }
 
-    // Função para renderizar as subtarefas temporárias (na seção "Adicionar Tarefa").
+    // Função para renderizar as subtarefas temporárias (na seção "Adicionar Tarefa")
     function renderCurrentSubtasks() {
-        subtaskListContainer.innerHTML = ''; // Limpa a lista existente de subtarefas.
+        subtaskListContainer.innerHTML = '';
         if (currentSubtasks.length === 0) {
-            // Exibe mensagem se não houver subtarefas.
             subtaskListContainer.innerHTML = '<p class="no-subtasks-message">Nenhuma subtarefa adicionada.</p>';
         } else {
-            // Itera sobre as subtarefas e cria os elementos HTML.
             currentSubtasks.forEach((subtask, index) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
@@ -255,50 +216,49 @@ document.addEventListener('DOMContentLoaded', () => {
                         <i class="fas fa-times-circle"></i> Remover
                     </button>
                 `;
-                // Adiciona listener para o botão de remover subtarefa.
                 li.querySelector('.remove-subtask-btn').addEventListener('click', function() {
                     const indexToRemove = parseInt(this.dataset.index);
-                    currentSubtasks.splice(indexToRemove, 1); // Remove a subtarefa do array.
-                    renderCurrentSubtasks(); // Re-renderiza a lista de subtarefas.
+                    currentSubtasks.splice(indexToRemove, 1);
+                    renderCurrentSubtasks();
                     showNotification('Subtarefa removida.', 'success');
                 });
-                subtaskListContainer.appendChild(li); // Adiciona o item da lista ao contêiner.
+                subtaskListContainer.appendChild(li);
             });
         }
     }
 
-    // Função para limpar o formulário e reverter para o modo "Adicionar Tarefa".
+    // Função para limpar o formulário e reverter para o modo "Adicionar Tarefa"
     function clearForm() {
-        taskTitleInput.value = ''; // Limpa o campo do título.
-        taskDescriptionInput.value = ''; // Limpa o campo da descrição.
-        taskPriorityInput.value = 'medium'; // Volta a prioridade para o padrão.
-        taskDueDateInput.value = ''; // Limpa a data de vencimento.
-        clearImagePreview(); // Limpa o preview e o array de imagens.
-        currentSubtasks = []; // Limpa as subtarefas temporárias.
-        renderCurrentSubtasks(); // Re-renderiza as subtarefas.
-        editingTaskId = null; // Reseta o ID da tarefa em edição.
-        addTaskBtn.innerHTML = '<i class="fas fa-check-circle"></i> Adicionar Tarefa'; // Altera o texto do botão.
-        addTaskBtn.classList.remove('save-changes-btn'); // Remove a classe de estilo de "salvar alterações".
+        taskTitleInput.value = '';
+        taskDescriptionInput.value = '';
+        taskPriorityInput.value = 'medium'; // Volta para o padrão
+        taskDueDateInput.value = '';
+        clearImagePreview(); // Limpa o preview e o array de imagens
+        currentSubtasks = [];
+        renderCurrentSubtasks();
+        editingTaskId = null;
+        addTaskBtn.innerHTML = '<i class="fas fa-check-circle"></i> Adicionar Tarefa';
+        addTaskBtn.classList.remove('save-changes-btn');
 
-        // Limpa as mensagens de erro ao limpar o formulário.
+        // Limpa as mensagens de erro ao limpar o formulário
         clearError(taskTitleInput, taskTitleError);
         clearError(taskDescriptionInput, taskDescriptionError);
         clearError(subtaskInput, subtaskInputError);
     }
 
-    // Função para preencher o formulário para edição de tarefa.
+    // Função para preencher o formulário para edição de tarefa
     function populateFormForEdit(task) {
-        taskTitleInput.value = task.title; // Preenche o título.
-        taskDescriptionInput.value = task.description; // Preenche a descrição.
-        taskPriorityInput.value = task.priority || 'medium'; // Preenche a prioridade (com padrão se não existir).
-        taskDueDateInput.value = task.dueDate || ''; // Preenche a data de vencimento.
+        taskTitleInput.value = task.title;
+        taskDescriptionInput.value = task.description;
+        taskPriorityInput.value = task.priority || 'medium';
+        taskDueDateInput.value = task.dueDate || '';
 
-        imagePreviewContainer.innerHTML = ''; // Limpa qualquer preview existente.
-        currentImagesBase64 = task.imageUrls ? [...task.imageUrls] : []; // Carrega as URLs das imagens da tarefa.
+        // ATUALIZADO: Preenche e exibe as múltiplas imagens
+        imagePreviewContainer.innerHTML = ''; // Limpa qualquer preview existente
+        currentImagesBase64 = task.imageUrls ? [...task.imageUrls] : []; // Carrega as URLs da tarefa
 
         if (currentImagesBase64.length > 0) {
-            imagePreviewContainer.style.display = 'flex'; // Garante que o contêiner esteja visível.
-            // Itera sobre as URLs das imagens e cria os previews.
+            imagePreviewContainer.style.display = 'flex'; // Garante que o contêiner esteja visível
             currentImagesBase64.forEach((url, index) => {
                 const imgContainer = document.createElement('div');
                 imgContainer.classList.add('image-preview-item');
@@ -311,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 removeBtn.type = 'button';
                 removeBtn.classList.add('remove-image-preview-btn');
                 removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                removeBtn.dataset.index = index; // Armazena o índice original da imagem.
+                removeBtn.dataset.index = index; // Armazena o índice original da imagem
                 removeBtn.addEventListener('click', removeImagePreview);
 
                 imgContainer.appendChild(img);
@@ -319,53 +279,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 imagePreviewContainer.appendChild(imgContainer);
             });
         } else {
-            clearImagePreview(); // Oculta e limpa se não houver imagens.
+            clearImagePreview(); // Oculta e limpa se não houver imagens
         }
 
-        currentSubtasks = task.subtasks ? [...task.subtasks] : []; // Carrega as subtarefas da tarefa.
-        renderCurrentSubtasks(); // Renderiza as subtarefas no formulário.
-        editingTaskId = task.id; // Define o ID da tarefa em edição.
-        addTaskBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Alterações'; // Altera o texto do botão para "Salvar".
-        addTaskBtn.classList.add('save-changes-btn'); // Adiciona classe de estilo para "salvar".
-        showNotification('Modo de edição ativado!', 'info'); // Exibe notificação.
-        window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola para o topo da página suavemente.
+        currentSubtasks = task.subtasks ? [...task.subtasks] : [];
+        renderCurrentSubtasks();
+        editingTaskId = task.id;
+        addTaskBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Alterações';
+        addTaskBtn.classList.add('save-changes-btn');
+        showNotification('Modo de edição ativado!', 'info');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Limpa erros anteriores ao entrar no modo de edição.
+        // Limpa erros anteriores ao entrar no modo de edição
         clearError(taskTitleInput, taskTitleError);
         clearError(taskDescriptionInput, taskDescriptionError);
         clearError(subtaskInput, subtaskInputError);
     }
 
-    // Função para determinar o status da data de vencimento (vencida, vence hoje, vence em breve).
+    // Função para determinar o status da data de vencimento
     function getDueDateStatus(dueDate) {
-        if (!dueDate) return ''; // Se não houver data de vencimento, retorna vazio.
+        if (!dueDate) return '';
 
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas a data.
+        today.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas a data
 
         const due = new Date(dueDate);
-        due.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas a data.
+        due.setHours(0, 0, 0, 0);
 
         if (due < today) {
-            return 'overdue'; // Vencida.
+            return 'overdue'; // Vencida
         } else if (due.getTime() === today.getTime()) {
-            return 'due-today'; // Vence hoje.
+            return 'due-today'; // Vence hoje
         } else {
             const diffTime = Math.abs(due.getTime() - today.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Calcula a diferença em dias.
-            if (diffDays <= 3) { // Vence em 3 dias ou menos.
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays <= 3) { // Vence em 3 dias ou menos
                 return 'due-soon';
             }
         }
-        return ''; // Sem status especial.
+        return ''; // Sem status especial
     }
 
-    // Função para aplicar filtro, busca e ordenação antes de renderizar a lista de tarefas.
+    // Função para aplicar filtro, busca e ordenação antes de renderizar
     function applyFiltersAndSorting(tasks) {
-        let filteredTasks = [...tasks]; // Cria uma cópia do array de tarefas para não modificar o original.
-        const currentSearchQuery = searchInput.value.toLowerCase().trim(); // Obtém o termo de busca, em minúsculas e sem espaços extras.
+        let filteredTasks = [...tasks];
+        const currentSearchQuery = searchInput.value.toLowerCase().trim();
 
-        // 0. Aplica a busca (filtra por título ou descrição).
+        // 0. Aplica a busca
         if (currentSearchQuery) {
             filteredTasks = filteredTasks.filter(task =>
                 task.title.toLowerCase().includes(currentSearchQuery) ||
@@ -373,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
 
-        // 1. Aplica o filtro de status (pendente/completa).
+        // 1. Aplica o filtro de status
         const filterStatus = filterStatusSelect.value;
         if (filterStatus === 'pending') {
             filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) < 100);
@@ -381,29 +341,29 @@ document.addEventListener('DOMContentLoaded', () => {
             filteredTasks = filteredTasks.filter(task => calculateCompletionPercentage(task) === 100 && task.subtasks.length > 0);
         }
 
-        // 2. Aplica o filtro de prioridade.
+        // 2. Aplica o filtro de prioridade
         const filterPriority = filterPrioritySelect.value;
         if (filterPriority !== 'all') {
             filteredTasks = filteredTasks.filter(task => (task.priority || 'medium') === filterPriority);
         }
 
-        // 3. Aplica a ordenação com base na opção selecionada.
+        // 3. Aplica a ordenação
         const sortBy = sortBySelect.value;
         filteredTasks.sort((a, b) => {
             if (sortBy === 'createdAt') {
-                return new Date(a.createdAt) - new Date(b.createdAt); // Mais recentes primeiro
+                return new Date(a.createdAt) - new Date(b.createdAt);
             } else if (sortBy === 'titleAsc') {
-                return a.title.localeCompare(b.title); // Ordem alfabética A-Z
+                return a.title.localeCompare(b.title);
             } else if (sortBy === 'titleDesc') {
-                return b.title.localeCompare(a.title); // Ordem alfabética Z-A
+                return b.title.localeCompare(a.title);
             } else if (sortBy === 'completionAsc') {
-                return calculateCompletionPercentage(a) - calculateCompletionPercentage(b); // Conclusão crescente
+                return calculateCompletionPercentage(a) - calculateCompletionPercentage(b);
             } else if (sortBy === 'completionDesc') {
-                return calculateCompletionPercentage(b) - calculateCompletionPercentage(a); // Conclusão decrescente
+                return calculateCompletionPercentage(b) - calculateCompletionPercentage(a);
             } else if (sortBy === 'dueDateAsc') {
-                // Ordena por data de vencimento crescente, tratando datas nulas.
                 const dateA = a.dueDate ? new Date(a.dueDate) : null;
                 const dateB = b.dueDate ? new Date(b.dueDate) : null;
+
                 if (dateA && dateB) {
                     return dateA - dateB;
                 } else if (dateA) {
@@ -413,9 +373,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return 0; // Ambos sem data
             } else if (sortBy === 'dueDateDesc') {
-                // Ordena por data de vencimento decrescente, tratando datas nulas.
                 const dateA = a.dueDate ? new Date(a.dueDate) : null;
                 const dateB = b.dueDate ? new Date(b.dueDate) : null;
+
                 if (dateA && dateB) {
                     return dateB - dateA;
                 } else if (dateA) {
@@ -425,65 +385,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return 0; // Ambos sem data
             }
-            return 0; // Se não houver critério de ordenação específico, mantém a ordem original
+            return 0;
         });
-        return filteredTasks; // Retorna o array de tarefas filtradas e ordenadas.
+
+        return filteredTasks;
     }
 
-    // Função para formatar a data para exibição.
+    // Função para formatar a data para exibição
     function formatDate(dateString) {
-        if (!dateString) return 'Não definida'; // Se a string de data for vazia, retorna "Não definida".
-        // Cria um objeto Date, adicionando "T00:00:00" para evitar problemas de fuso horário.
+        if (!dateString) return 'Não definida';
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR', options); // Formata a data para o local pt-BR.
+        return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR', options); // Adiciona T00:00:00 para evitar problemas de fuso horário
     }
 
-    // Função para renderizar a lista completa de tarefas (ATUALIZADA para exibir múltiplas imagens).
+    // Função para renderizar a lista completa de tarefas (ATUALIZADA para exibir múltiplas imagens)
     function renderTaskList() {
-        const allTasks = getTasks(); // Obtém todas as tarefas do LocalStorage.
-        const tasksToDisplay = applyFiltersAndSorting(allTasks); // Aplica filtros, busca e ordenação.
-        taskList.innerHTML = ''; // Limpa a lista de tarefas existente no DOM.
+        const allTasks = getTasks();
+        const tasksToDisplay = applyFiltersAndSorting(allTasks);
 
+        taskList.innerHTML = '';
         if (tasksToDisplay.length === 0) {
-            // Exibe mensagem se não houver tarefas para exibir.
             taskList.innerHTML = '<p class="no-tasks-message">Nenhuma tarefa encontrada com os filtros, busca e ordenação atuais.</p>';
             return;
         }
 
-        // Itera sobre cada tarefa a ser exibida.
         tasksToDisplay.forEach(task => {
-            const listItem = document.createElement('li'); // Cria um novo item de lista para a tarefa.
-            listItem.classList.add('task-item'); // Adiciona a classe CSS 'task-item'.
-            listItem.setAttribute('data-id', task.id); // Define um atributo 'data-id' com o ID da tarefa.
+            const listItem = document.createElement('li');
+            listItem.classList.add('task-item');
+            listItem.setAttribute('data-id', task.id);
 
-            const completionPercentage = calculateCompletionPercentage(task); // Calcula a porcentagem de conclusão.
-            const isTaskComplete = completionPercentage === 100 && task.subtasks.length > 0; // Verifica se a tarefa está completa.
+            const completionPercentage = calculateCompletionPercentage(task);
+            const isTaskComplete = completionPercentage === 100 && task.subtasks.length > 0;
             if (isTaskComplete) {
-                listItem.classList.add('task-complete'); // Adiciona classe se a tarefa estiver completa.
+                listItem.classList.add('task-complete');
             } else {
-                listItem.classList.remove('task-complete'); // Remove classe se não estiver.
+                listItem.classList.remove('task-complete');
             }
 
-            // Adiciona classe de prioridade para estilização.
+            // Adiciona classe de prioridade
             listItem.classList.add(`priority-${task.priority || 'medium'}`);
 
-            // Adiciona classe de status de vencimento (overdue, due-today, due-soon).
+            // Adiciona classe de status de vencimento
             const dueDateStatus = getDueDateStatus(task.dueDate);
             if (dueDateStatus) {
                 listItem.classList.add(dueDateStatus);
             }
 
-            // ATUALIZADO: Renderização de múltiplas imagens.
+            // ATUALIZADO: Renderização de múltiplas imagens
             let imagesHtml = '';
             if (task.imageUrls && task.imageUrls.length > 0) {
-                // Mapeia cada URL de imagem para um elemento <img>.
                 const imageElements = task.imageUrls.map(url => `
                     <img src="${url}" alt="Imagem da tarefa" class="task-image">
-                `).join(''); // Concatena os elementos HTML das imagens.
+                `).join('');
                 imagesHtml = `<div class="task-image-container multiple-images-display">${imageElements}</div>`;
             }
 
-            // Cria o HTML para as subtarefas da tarefa.
+
             let subtasksHtml = '';
             if (task.subtasks && task.subtasks.length > 0) {
                 subtasksHtml = `
@@ -499,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <button type="button" class="edit-subtask-btn"><i class="fas fa-edit"></i></button>
                                     <button type="button" class="save-subtask-btn" style="display:none;"><i class="fas fa-save"></i></button>
                                     <button type="button" class="cancel-subtask-btn" style="display:none;"><i class="fas fa-times"></i></button>
-                                    <button type="button" class="remove-subtask-btn"><i class="fas fa-trash-alt"></i></button>
+                                    <button type="button" class="remove-subtask-btn"><i class="fas fa-times-circle"></i></button>
                                 </div>
                             </li>
                         `).join('')}
@@ -507,425 +464,476 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }
 
-            // Constrói o HTML completo para o item da tarefa.
             listItem.innerHTML = `
-                <div class="task-actions">
-                    <button type="button" class="edit-btn" title="Editar Tarefa"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="delete-btn" title="Excluir Tarefa"><i class="fas fa-trash-alt"></i></button>
-                    <button type="button" class="toggle-complete-btn" title="${isTaskComplete ? 'Reabrir Tarefa' : 'Concluir Tarefa'}">
-                        <i class="fas ${isTaskComplete ? 'fa-undo-alt' : 'fa-check'}"></i>
-                    </button>
-                </div>
                 <h3>${task.title}</h3>
-                <p>${task.description ? task.description.replace(/\n/g, '<br>') : 'Sem descrição.'}</p>
-                <div class="task-details">
-                    <span><i class="fas fa-flag"></i> Prioridade: <span class="priority-label priority-${task.priority || 'medium'}">${(task.priority || 'medium').toUpperCase()}</span></span>
-                    <span><i class="fas fa-calendar-alt"></i> Vencimento: ${formatDate(task.dueDate)}</span>
-                    <span><i class="fas fa-clock"></i> Criado em: ${formatDate(task.createdAt)}</span>
+                <p>${task.description || 'Sem descrição.'}</p>
+                <p><strong>Prioridade:</strong> <span class="priority-text">${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Média'}</span></p>
+                <p><strong>Vencimento:</strong> <span class="due-date-text">${formatDate(task.dueDate)}</span></p>
+                <div class="task-status-thermometer">
+                    <div class="thermometer-fill" style="width: ${completionPercentage}%;"></div>
                 </div>
+                ${imagesHtml}
                 ${subtasksHtml}
-                ${task.subtasks && task.subtasks.length > 0 ? `
-                    <div class="completion-bar-container">
-                        <div class="completion-bar" style="width: ${completionPercentage}%;"></div>
-                    </div>
-                    <p class="completion-text">${completionPercentage.toFixed(0)}% Concluído</p>
-                ` : ''}
-                <div class="task-footer-actions">
-                    ${imagesHtml}
+                <div class="task-actions">
+                    <button type="button" class="edit-btn" data-id="${task.id}"><i class="fas fa-edit"></i> Editar</button>
+                    <button type="button" class="delete-btn" data-id="${task.id}"><i class="fas fa-trash-alt"></i> Excluir</button>
                 </div>
             `;
-            taskList.appendChild(listItem); // Adiciona o item da tarefa à lista no DOM.
-
-            // Adiciona listeners para os botões de ação da tarefa (editar, excluir, concluir/reabrir).
-            listItem.querySelector('.edit-btn').addEventListener('click', () => populateFormForEdit(task));
-            listItem.querySelector('.delete-btn').addEventListener('click', () => {
-                taskIdToDeleteConfirmed = task.id; // Armazena o ID para confirmação.
-                confirmationModal.style.display = 'flex'; // Exibe o modal de confirmação.
-            });
-            listItem.querySelector('.toggle-complete-btn').addEventListener('click', () => toggleTaskCompletion(task.id));
-
-            // Adiciona listeners para os checkboxes e botões de subtarefas.
-            if (task.subtasks && task.subtasks.length > 0) {
-                listItem.querySelectorAll('.subtasks-list input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.addEventListener('change', (event) => toggleSubtaskCompletion(task.id, event.target.id.split('-')[2]));
-                });
-
-                listItem.querySelectorAll('.subtasks-list .remove-subtask-btn').forEach(button => {
-                    button.addEventListener('click', (event) => removeSubtaskFromTask(task.id, event.currentTarget.parentNode.parentNode.dataset.subtaskIndex));
-                });
-
-                listItem.querySelectorAll('.subtasks-list .edit-subtask-btn').forEach(button => {
-                    button.addEventListener('click', (event) => editSubtaskInTask(task.id, event.currentTarget.parentNode.parentNode.dataset.subtaskIndex, event.currentTarget.parentNode.previousElementSibling.querySelector('label')));
-                });
-
-                listItem.querySelectorAll('.subtasks-list .save-subtask-btn').forEach(button => {
-                    button.addEventListener('click', (event) => saveEditedSubtask(task.id, event.currentTarget.parentNode.parentNode.dataset.subtaskIndex, event.currentTarget.parentNode.previousElementSibling.querySelector('input[type="text"]')));
-                });
-
-                listItem.querySelectorAll('.subtasks-list .cancel-subtask-btn').forEach(button => {
-                    button.addEventListener('click', (event) => cancelEditSubtask(task.id, event.currentTarget.parentNode.parentNode.dataset.subtaskIndex, event.currentTarget.parentNode.previousElementSibling.querySelector('label')));
-                });
-            }
+            taskList.appendChild(listItem);
         });
 
-        // Aplica a visibilidade das imagens com base na preferência do usuário.
+        // Adiciona event listeners para os botões de excluir de cada tarefa
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                taskIdToDeleteConfirmed = parseInt(this.dataset.id);
+                confirmationModal.style.display = 'flex'; // Mostra o modal
+            });
+        });
+
+        // Adiciona event listeners para os botões de editar de cada tarefa
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskIdToEdit = parseInt(this.dataset.id);
+                const tasks = getTasks();
+                const taskToEdit = tasks.find(t => t.id === taskIdToEdit);
+                if (taskToEdit) {
+                    populateFormForEdit(taskToEdit);
+                } else {
+                    showNotification('Tarefa não encontrada para edição.', 'error');
+                }
+            });
+        });
+
+        // Adiciona event listeners para os checkboxes das subtarefas
+        document.querySelectorAll('.subtasks-list input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const taskId = parseInt(this.closest('li').dataset.taskId);
+                const subtaskIndex = parseInt(this.closest('li').dataset.subtaskIndex);
+                toggleSubtaskCompletion(taskId, subtaskIndex, this.checked);
+            });
+        });
+
+        // Adiciona event listeners para os botões de editar subtarefas
+        document.querySelectorAll('.edit-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const taskId = parseInt(li.dataset.taskId);
+                const subtaskIndex = parseInt(li.dataset.subtaskIndex);
+                const tasks = getTasks();
+                const task = tasks.find(t => t.id === taskId);
+                const subtask = task ? task.subtasks[subtaskIndex] : null;
+
+                if (subtask) {
+                    const label = li.querySelector('div > label'); // O label é o que exibe o nome
+                    const checkbox = li.querySelector('div > input[type="checkbox"]');
+                    const originalName = subtask.name;
+
+                    // Cria o input de edição
+                    const editInput = document.createElement('input');
+                    editInput.type = 'text';
+                    editInput.classList.add('subtask-edit-input');
+                    editInput.value = originalName;
+                    editInput.dataset.originalName = originalName; // Guarda o nome original para 'cancelar'
+
+                    // Esconde o checkbox e o label, mostra o input
+                    checkbox.style.display = 'none';
+                    label.style.display = 'none';
+                    li.querySelector('div').insertBefore(editInput, label); // Insere antes do label
+
+                    // Esconde editar, mostra salvar/cancelar
+                    this.style.display = 'none';
+                    li.querySelector('.save-subtask-btn').style.display = 'inline-flex';
+                    li.querySelector('.cancel-subtask-btn').style.display = 'inline-flex';
+
+                    editInput.focus();
+                } else {
+                    showNotification('Erro: Subtarefa não encontrada para edição.', 'error');
+                }
+            });
+        });
+
+        // Adiciona event listeners para os botões de salvar subtarefas
+        document.querySelectorAll('.save-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const taskId = parseInt(li.dataset.taskId);
+                const subtaskIndex = parseInt(li.dataset.subtaskIndex);
+                const editInput = li.querySelector('.subtask-edit-input');
+                const newName = editInput.value.trim();
+
+                if (!newName) {
+                    showNotification('O nome da subtarefa não pode ser vazio!', 'error');
+                    editInput.focus();
+                    return;
+                }
+
+                let tasks = getTasks();
+                const task = tasks.find(t => t.id === taskId);
+
+                if (task && task.subtasks && task.subtasks[subtaskIndex]) {
+                    task.subtasks[subtaskIndex].name = newName;
+                    saveTasks(tasks);
+                    renderTaskList(); // Re-renderiza toda a lista para aplicar as mudanças
+                    showNotification('Subtarefa atualizada com sucesso!', 'success');
+                } else {
+                    showNotification('Erro ao salvar subtarefa.', 'error');
+                }
+            });
+        });
+
+        // Adiciona event listeners para os botões de cancelar edição de subtarefas
+        document.querySelectorAll('.cancel-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const editInput = li.querySelector('.subtask-edit-input');
+                const originalName = editInput.dataset.originalName; // Recupera o nome original
+
+                const label = li.querySelector('div > label');
+                const checkbox = li.querySelector('div > input[type="checkbox"]');
+
+                // Volta o label e checkbox
+                label.style.display = 'inline'; // Ou 'flex' dependendo do seu display do label
+                checkbox.style.display = 'inline';
+                label.textContent = originalName; // Restaura o nome original no label
+
+                // Remove o input
+                editInput.remove();
+
+                // Esconde salvar/cancelar, mostra editar
+                li.querySelector('.edit-subtask-btn').style.display = 'inline-flex';
+                this.style.display = 'none';
+                li.querySelector('.save-subtask-btn').style.display = 'none';
+
+                showNotification('Edição de subtarefa cancelada.', 'info');
+            });
+        });
+
+        // Adiciona event listeners para os botões de remover subtarefas (dentro da lista de tarefas)
+        document.querySelectorAll('.task-item .remove-subtask-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const li = this.closest('li');
+                const taskId = parseInt(li.dataset.taskId);
+                const subtaskIndex = parseInt(li.dataset.subtaskIndex);
+
+                let tasks = getTasks();
+                const task = tasks.find(t => t.id === taskId);
+
+                if (task && task.subtasks && task.subtasks[subtaskIndex]) {
+                    task.subtasks.splice(subtaskIndex, 1);
+                    saveTasks(tasks);
+                    renderTaskList(); // Re-renderiza para atualizar a lista e porcentagem
+                    showNotification('Subtarefa removida da tarefa principal.', 'success');
+                } else {
+                    showNotification('Erro ao remover subtarefa.', 'error');
+                }
+            });
+        });
+
+        // Aplica o estado de visibilidade da imagem ao renderizar
         applyImageVisibility();
     }
 
-    // Função para adicionar uma nova tarefa ou salvar alterações em uma existente.
-    function addTask() {
-        // Limpa mensagens de erro ao tentar adicionar/salvar.
-        clearError(taskTitleInput, taskTitleError);
-        clearError(taskDescriptionInput, taskDescriptionError);
+    // Função para alternar o status de conclusão de uma subtarefa
+    function toggleSubtaskCompletion(taskId, subtaskIndex, isCompleted) {
+        let tasks = getTasks();
+        const task = tasks.find(t => t.id === taskId);
 
-        const title = taskTitleInput.value.trim(); // Obtém e limpa o título da tarefa.
-        const description = taskDescriptionInput.value.trim(); // Obtém e limpa a descrição.
-        const priority = taskPriorityInput.value; // Obtém a prioridade.
-        const dueDate = taskDueDateInput.value; // Obtém a data de vencimento.
-
-        // Validação básica do título.
-        if (!title) {
-            displayError(taskTitleInput, taskTitleError, 'O título da tarefa é obrigatório.');
-            showNotification('O título da tarefa é obrigatório!', 'error');
-            return;
-        }
-
-        let tasks = getTasks(); // Obtém as tarefas atuais.
-
-        if (editingTaskId) {
-            // Se `editingTaskId` não for nulo, estamos no modo de edição.
-            tasks = tasks.map(task => {
-                if (task.id === editingTaskId) {
-                    // Atualiza a tarefa com os novos valores.
-                    return {
-                        ...task,
-                        title,
-                        description,
-                        priority,
-                        dueDate,
-                        subtasks: currentSubtasks,
-                        imageUrls: currentImagesBase64 // Salva as URLs Base64 atualizadas
-                    };
-                }
-                return task;
-            });
-            showNotification('Tarefa atualizada com sucesso!', 'success'); // Notificação de atualização.
+        if (task && task.subtasks && task.subtasks[subtaskIndex]) {
+            task.subtasks[subtaskIndex].completed = isCompleted;
+            saveTasks(tasks);
+            renderTaskList();
+            showNotification(`Subtarefa ${isCompleted ? 'concluída' : 'reaberta'}!`, 'success');
         } else {
-            // Se não estiver editando, cria uma nova tarefa.
-            const newTask = {
-                id: Date.now(), // Usa o timestamp como ID único.
-                title,
-                description,
-                priority,
-                dueDate,
-                createdAt: new Date().toISOString().split('T')[0], // Data de criação no formato YYYY-MM-DD
-                completed: false, // Nova tarefa não está completa por padrão.
-                subtasks: currentSubtasks, // Adiciona as subtarefas temporárias.
-                imageUrls: currentImagesBase64 // Adiciona as imagens em Base64.
-            };
-            tasks.push(newTask); // Adiciona a nova tarefa ao array.
-            showNotification('Tarefa adicionada com sucesso!', 'success'); // Notificação de adição.
+            showNotification('Erro ao atualizar subtarefa.', 'error');
         }
-
-        saveTasks(tasks); // Salva o array de tarefas atualizado.
-        clearForm(); // Limpa o formulário.
-        renderTaskList(); // Re-renderiza a lista de tarefas.
     }
 
-    // Função para adicionar uma subtarefa temporária ao array `currentSubtasks`.
-    function addSubtask() {
-        clearError(subtaskInput, subtaskInputError); // Limpa mensagens de erro.
-        const subtaskName = subtaskInput.value.trim(); // Obtém e limpa o nome da subtarefa.
-
-        if (!subtaskName) {
-            displayError(subtaskInput, subtaskInputError, 'O nome da subtarefa não pode ser vazio.');
-            showNotification('O nome da subtarefa é obrigatório!', 'error');
-            return;
+    // Função para realmente excluir a tarefa (chamada após confirmação)
+    function performDeleteTask(id) {
+        let tasks = getTasks();
+        const initialLength = tasks.length;
+        tasks = tasks.filter(task => task.id !== id);
+        if (tasks.length < initialLength) {
+            saveTasks(tasks);
+            renderTaskList();
+            showNotification('Tarefa excluída com sucesso!', 'success');
+        } else {
+            showNotification('Erro ao excluir tarefa. Tarefa não encontrada.', 'error');
         }
-
-        // Adiciona a nova subtarefa ao array temporário.
-        currentSubtasks.push({ name: subtaskName, completed: false });
-        subtaskInput.value = ''; // Limpa o campo de input da subtarefa.
-        renderCurrentSubtasks(); // Re-renderiza a lista de subtarefas temporárias.
-        showNotification('Subtarefa adicionada temporariamente.', 'info');
     }
 
-    // Função para alternar o status de conclusão de uma tarefa.
-    function toggleTaskCompletion(id) {
-        let tasks = getTasks(); // Obtém as tarefas.
-        tasks = tasks.map(task => {
-            if (task.id === id) {
-                // Se a tarefa já está completa e tem subtarefas, reabre.
-                // Se está pendente ou não tem subtarefas, marca como completa (se tiver subtarefas, marca todas).
-                const shouldComplete = calculateCompletionPercentage(task) < 100 || (task.subtasks && task.subtasks.length === 0);
-                return {
-                    ...task,
-                    // Se for para completar, marca todas as subtarefas como completas.
-                    subtasks: task.subtasks ? task.subtasks.map(sub => ({ ...sub, completed: shouldComplete })) : [],
-                    // O campo 'completed' da tarefa principal é mais semântico, mas a porcentagem já indica o status.
-                    // Podemos definir uma propriedade 'isCompletedManual' se houver necessidade de diferenciar
-                    // entre 100% de subtasks concluídas e uma "tarefa simples" marcada como concluída.
-                    // Por enquanto, a lógica de renderização se baseia em calculateCompletionPercentage.
-                };
-            }
-            return task;
-        });
-        saveTasks(tasks); // Salva as tarefas atualizadas.
-        renderTaskList(); // Re-renderiza a lista.
-        showNotification('Status da tarefa atualizado!', 'success');
-    }
-
-    // Função para alternar o status de conclusão de uma subtarefa.
-    function toggleSubtaskCompletion(taskId, subtaskIndex) {
-        let tasks = getTasks(); // Obtém as tarefas.
-        tasks = tasks.map(task => {
-            if (task.id === parseInt(taskId) && task.subtasks && task.subtasks[subtaskIndex]) {
-                // Alterna o status 'completed' da subtarefa específica.
-                task.subtasks[subtaskIndex].completed = !task.subtasks[subtaskIndex].completed;
-            }
-            return task;
-        });
-        saveTasks(tasks); // Salva as tarefas atualizadas.
-        renderTaskList(); // Re-renderiza a lista.
-        showNotification('Status da subtarefa atualizado!', 'info');
-    }
-
-    // Função para remover uma subtarefa de uma tarefa específica.
-    function removeSubtaskFromTask(taskId, subtaskIndex) {
-        let tasks = getTasks(); // Obtém as tarefas.
-        tasks = tasks.map(task => {
-            if (task.id === parseInt(taskId)) {
-                // Remove a subtarefa do array da tarefa.
-                task.subtasks.splice(subtaskIndex, 1);
-            }
-            return task;
-        });
-        saveTasks(tasks); // Salva as tarefas atualizadas.
-        renderTaskList(); // Re-renderiza a lista.
-        showNotification('Subtarefa removida da tarefa.', 'success');
-    }
-
-    // Função para ativar o modo de edição de uma subtarefa existente.
-    function editSubtaskInTask(taskId, subtaskIndex, labelElement) {
-        // Cria um input de texto e preenche com o nome da subtarefa.
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = labelElement.textContent; // Texto original do label.
-        input.classList.add('edit-subtask-input');
-        
-        // Substitui o label pelo input.
-        labelElement.parentNode.replaceChild(input, labelElement);
-        input.focus(); // Coloca o foco no input.
-
-        // Esconde o botão de editar, mostra os botões de salvar e cancelar.
-        const parentDiv = input.parentNode.parentNode; // O li da subtarefa
-        parentDiv.querySelector('.edit-subtask-btn').style.display = 'none';
-        parentDiv.querySelector('.save-subtask-btn').style.display = 'inline-flex';
-        parentDiv.querySelector('.cancel-subtask-btn').style.display = 'inline-flex';
-        parentDiv.querySelector('.remove-subtask-btn').style.display = 'none'; // Esconde o remover enquanto edita
-
-        // Esconde o checkbox.
-        parentDiv.querySelector('input[type="checkbox"]').style.display = 'none';
-    }
-
-    // Função para salvar uma subtarefa editada.
-    function saveEditedSubtask(taskId, subtaskIndex, inputElement) {
-        const newName = inputElement.value.trim(); // Obtém o novo nome.
-        if (!newName) {
-            showNotification('O nome da subtarefa não pode ser vazio!', 'error');
-            return;
-        }
-
-        let tasks = getTasks(); // Obtém as tarefas.
-        tasks = tasks.map(task => {
-            if (task.id === parseInt(taskId) && task.subtasks && task.subtasks[subtaskIndex]) {
-                task.subtasks[subtaskIndex].name = newName; // Atualiza o nome da subtarefa.
-            }
-            return task;
-        });
-        saveTasks(tasks); // Salva as tarefas.
-        renderTaskList(); // Re-renderiza a lista.
-        showNotification('Subtarefa editada com sucesso!', 'success');
-    }
-
-    // Função para cancelar a edição de uma subtarefa.
-    function cancelEditSubtask(taskId, subtaskIndex, labelElement) {
-        // Reverte o input de volta para o label.
-        const inputElement = labelElement.parentNode.querySelector('.edit-subtask-input');
-        if (inputElement) {
-            inputElement.parentNode.replaceChild(labelElement, inputElement);
-        }
-        
-        // Mostra o botão de editar, esconde os botões de salvar e cancelar.
-        const parentDiv = labelElement.parentNode.parentNode;
-        parentDiv.querySelector('.edit-subtask-btn').style.display = 'inline-flex';
-        parentDiv.querySelector('.save-subtask-btn').style.display = 'none';
-        parentDiv.querySelector('.cancel-subtask-btn').style.display = 'none';
-        parentDiv.querySelector('.remove-subtask-btn').style.display = 'inline-flex'; // Mostra o remover novamente
-
-        // Mostra o checkbox.
-        parentDiv.querySelector('input[type="checkbox"]').style.display = 'inline-block';
-        showNotification('Edição de subtarefa cancelada.', 'info');
-    }
-
-    // Função para exportar as tarefas para um arquivo JSON.
-    function exportTasks() {
-        const tasks = getTasks(); // Obtém as tarefas.
-        const dataStr = JSON.stringify(tasks, null, 4); // Converte para JSON formatado.
-        const blob = new Blob([dataStr], { type: 'application/json' }); // Cria um Blob de dados.
-        const url = URL.createObjectURL(blob); // Cria uma URL para o Blob.
-        const a = document.createElement('a'); // Cria um elemento <a> para download.
-        a.href = url;
-        a.download = 'tarefas.json'; // Nome do arquivo.
-        document.body.appendChild(a); // Adiciona o elemento ao DOM temporariamente.
-        a.click(); // Simula um clique para iniciar o download.
-        document.body.removeChild(a); // Remove o elemento.
-        URL.revokeObjectURL(url); // Libera a URL do objeto.
-        showNotification('Tarefas exportadas com sucesso!', 'success');
-    }
-
-    // Função para importar tarefas de um arquivo JSON.
-    function importTasks(event) {
-        const file = event.target.files[0]; // Obtém o arquivo selecionado.
-        if (!file) {
-            showNotification('Nenhum arquivo selecionado para importação.', 'info');
-            return;
-        }
-
-        const reader = new FileReader(); // Cria um FileReader.
-        reader.onload = (e) => {
-            try {
-                const importedTasks = JSON.parse(e.target.result); // Parseia o conteúdo JSON.
-                // Validação básica para garantir que é um array e contém objetos com 'id'.
-                if (Array.isArray(importedTasks) && importedTasks.every(task => typeof task === 'object' && task.id)) {
-                    saveTasks(importedTasks); // Salva as tarefas importadas, substituindo as existentes.
-                    renderTaskList(); // Re-renderiza a lista.
-                    showNotification('Tarefas importadas com sucesso!', 'success');
-                } else {
-                    showNotification('Formato de arquivo JSON inválido para tarefas.', 'error');
-                }
-            } catch (error) {
-                console.error("Erro ao importar arquivo:", error);
-                showNotification('Erro ao ler ou parsear o arquivo JSON.', 'error');
-            }
-        };
-        reader.onerror = () => {
-            showNotification('Erro ao carregar o arquivo.', 'error');
-        };
-        reader.readAsText(file); // Lê o conteúdo do arquivo como texto.
-        importFile.value = ''; // Limpa o input de arquivo para permitir nova importação do mesmo arquivo.
-    }
-
-    // Função para aplicar a visibilidade das imagens na lista de tarefas.
+    // Função para aplicar/remover a classe que oculta imagens
     function applyImageVisibility() {
-        const showImages = toggleImagesCheckbox.checked; // Verifica o estado do checkbox.
-        // Itera sobre todos os contêineres de imagem das tarefas.
-        document.querySelectorAll('.task-image-container.multiple-images-display').forEach(container => {
-            if (showImages) {
-                container.style.display = 'flex'; // Exibe as imagens.
-            } else {
-                container.style.display = 'none'; // Oculta as imagens.
-            }
-        });
+        if (!toggleImagesCheckbox.checked) {
+            taskListSection.classList.add('hide-images');
+        } else {
+            taskListSection.classList.remove('hide-images');
+        }
     }
 
-    // --- Listeners de Eventos ---
+    // Carrega as tarefas salvas no LocalStorage e renderiza a lista
+    function loadTasks() {
+        // Carrega as preferências de filtro e ordenação
+        const savedFilterStatus = localStorage.getItem('filterStatus');
+        const savedSortBy = localStorage.getItem('sortBy');
+        const savedSearchQuery = localStorage.getItem('searchQuery');
+        const savedFilterPriority = localStorage.getItem('filterPriority');
 
-    // Listener para o botão de adicionar/salvar tarefa.
-    addTaskBtn.addEventListener('click', addTask);
+        if (savedFilterStatus) {
+            filterStatusSelect.value = savedFilterStatus;
+        }
+        if (savedSortBy) {
+            sortBySelect.value = savedSortBy;
+        }
+        if (savedSearchQuery) {
+            searchInput.value = savedSearchQuery;
+        }
+        if (savedFilterPriority) {
+            filterPrioritySelect.value = savedFilterPriority;
+        }
 
-    // Listeners para os campos de input, limpando erros ao digitar.
-    taskTitleInput.addEventListener('input', () => clearError(taskTitleInput, taskTitleError));
-    taskDescriptionInput.addEventListener('input', () => clearError(taskDescriptionInput, taskDescriptionError));
-    subtaskInput.addEventListener('input', () => clearError(subtaskInput, subtaskInputError));
+        renderTaskList();
+        // Define o estado inicial do checkbox baseado na preferência salva ou padrão
+        const savedImageVisibility = localStorage.getItem('showImages');
+        if (savedImageVisibility === 'false') {
+            toggleImagesCheckbox.checked = false;
+        } else {
+            toggleImagesCheckbox.checked = true; // Padrão é mostrar
+        }
+        applyImageVisibility(); // Aplica o estado inicial
+    }
 
-    // Listener para o botão de adicionar subtarefa.
-    addSubtaskBtn.addEventListener('click', addSubtask);
+    // --- CHAMADAS INICIAIS E LISTENERS DE EVENTOS ---
 
-    // Listener para o input de imagens (quando arquivos são selecionados).
+    // Carrega as tarefas salvas ao iniciar
+    loadTasks();
+
+    // Listener para o input de imagem para exibir preview (ATUALIZADO)
     taskImagesInput.addEventListener('change', handleImageUpload);
 
-    // Listeners para os seletores de filtro e ordenação, que re-renderizam a lista.
-    filterStatusSelect.addEventListener('change', renderTaskList);
-    sortBySelect.addEventListener('change', renderTaskList);
-    filterPrioritySelect.addEventListener('change', renderTaskList);
+    // Adiciona listener para o botão de adicionar subtarefa
+    addSubtaskBtn.addEventListener('click', () => {
+        const subtaskText = subtaskInput.value.trim();
+        
+        // Limpa qualquer erro anterior
+        clearError(subtaskInput, subtaskInputError);
 
-    // Listener para o botão de exportar.
-    exportBtn.addEventListener('click', exportTasks);
-
-    // Listener para quando um arquivo é selecionado no input de importação.
-    importFile.addEventListener('change', importTasks);
-    // Listener para o botão de importar (na verdade, o `change` do input `importFile` já lida com isso).
-    // importBtn.addEventListener('click', () => importFile.click()); // Esta linha seria para simular o clique no input file
-
-    // Listener para o campo de busca (pesquisa em tempo real).
-    searchInput.addEventListener('input', () => {
-        // Salva o termo de busca no localStorage para persistência.
-        localStorage.setItem('searchQuery', searchInput.value);
-        renderTaskList(); // Re-renderiza a lista com o filtro de busca aplicado.
+        if (!subtaskText) {
+            displayError(subtaskInput, subtaskInputError, 'O nome da subtarefa é obrigatório.');
+            showNotification('Por favor, digite o nome da subtarefa.', 'error');
+            subtaskInput.focus();
+            return;
+        }
+        
+        currentSubtasks.push({ name: subtaskText, completed: false });
+        renderCurrentSubtasks();
+        subtaskInput.value = '';
+        subtaskInput.focus();
+        showNotification('Subtarefa adicionada.', 'success');
     });
 
-    // Adiciona listener para o checkbox de ocultar/exibir imagens.
+    // Adiciona listener para o botão de adicionar/salvar tarefa principal
+    addTaskBtn.addEventListener('click', () => {
+        const title = taskTitleInput.value.trim();
+        const description = taskDescriptionInput.value.trim();
+        const priority = taskPriorityInput.value;
+        const dueDate = taskDueDateInput.value;
+
+        // Limpa erros anteriores
+        clearError(taskTitleInput, taskTitleError);
+        clearError(taskDescriptionInput, taskDescriptionError); // Mesmo que não obrigatória, limpar é boa prática
+
+        // Validação principal
+        if (!title) {
+            displayError(taskTitleInput, taskTitleError, 'O título da tarefa é obrigatório.');
+            showNotification('O título da tarefa é obrigatório.', 'error');
+            taskTitleInput.focus();
+            return;
+        }
+
+        const handleTaskSave = () => {
+            let tasks = getTasks();
+            if (editingTaskId) {
+                const taskIndex = tasks.findIndex(t => t.id === editingTaskId);
+                if (taskIndex > -1) {
+                    tasks[taskIndex].title = title;
+                    tasks[taskIndex].description = description;
+                    tasks[taskIndex].priority = priority;
+                    tasks[taskIndex].dueDate = dueDate;
+                    tasks[taskIndex].subtasks = [...currentSubtasks];
+                    tasks[taskIndex].imageUrls = [...currentImagesBase64]; // ATUALIZADO: Salva o array de URLs
+                    saveTasks(tasks);
+                    showNotification('Tarefa atualizada com sucesso!', 'success');
+                } else {
+                    showNotification('Erro: Tarefa a ser editada não encontrada.', 'error');
+                }
+            } else {
+                const task = {
+                    id: Date.now(),
+                    title,
+                    description,
+                    priority,
+                    dueDate,
+                    imageUrls: [...currentImagesBase64], // ATUALIZADO: Inclui o array de URLs na nova tarefa
+                    subtasks: [...currentSubtasks],
+                    createdAt: new Date().toISOString()
+                };
+                tasks.push(task);
+                saveTasks(tasks);
+                showNotification('Tarefa adicionada com sucesso!', 'success');
+            }
+            renderTaskList();
+            clearForm();
+        };
+
+        handleTaskSave();
+    });
+
+    // Adiciona um listener para o botão de exportar tarefas
+    exportBtn.addEventListener('click', () => {
+        const tasks = getTasks();
+        if (tasks.length === 0) {
+            showNotification('Não há tarefas para exportar!', 'error');
+            return;
+        }
+        try {
+            const jsonString = JSON.stringify(tasks, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'minhas_tarefas.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+            showNotification('Tarefas exportadas com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao exportar tarefas:', error);
+            showNotification('Erro ao exportar tarefas para JSON.', 'error');
+        }
+    });
+
+    // Adiciona um listener para o botão de importar tarefas
+    importBtn.addEventListener('click', () => {
+        const file = importFile.files[0];
+        if (file) {
+            if (file.type !== 'application/json') {
+                showNotification('Por favor, selecione um arquivo JSON válido.', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedTasks = JSON.parse(e.target.result);
+                    if (!Array.isArray(importedTasks) || importedTasks.some(task => !task.title || !Array.isArray(task.subtasks))) {
+                        showNotification('Formato de arquivo JSON inválido ou corrompido. Certifique-se de que o arquivo contém um array de tarefas com títulos e subtarefas.', 'error');
+                        return;
+                    }
+
+                    let existingTasks = getTasks();
+                    const newTasks = [];
+                    importedTasks.forEach(importedTask => {
+                        if (importedTask.subtasks) {
+                            importedTask.subtasks = importedTask.subtasks.map(sub => {
+                                if (typeof sub === 'string') {
+                                    return { name: sub, completed: false };
+                                }
+                                return { name: sub.name, completed: sub.completed || false };
+                            });
+                        } else {
+                            importedTask.subtasks = [];
+                        }
+
+                        // Garante que a tarefa tenha um createdAt e ID único
+                        importedTask.createdAt = importedTask.createdAt || new Date().toISOString();
+                        // Garante que a tarefa tenha uma prioridade padrão se ausente
+                        importedTask.priority = importedTask.priority || 'medium';
+                        // Garante que a tarefa tenha uma data de vencimento se ausente
+                        importedTask.dueDate = importedTask.dueDate || ''; 
+                        // ATUALIZADO: Garante que a tarefa tenha um array de imagens (mesmo que vazio)
+                        importedTask.imageUrls = importedTask.imageUrls || []; 
+
+                        // Verifica se o ID já existe para evitar conflitos ao importar no mesmo ID
+                        if (existingTasks.some(existingTask => existingTask.id === importedTask.id)) {
+                             importedTask.id = Date.now() + Math.floor(Math.random() * 1000); // Gera um novo ID único
+                        }
+
+                        newTasks.push(importedTask);
+                    });
+
+                    saveTasks([...existingTasks, ...newTasks]);
+                    renderTaskList();
+                    showNotification('Tarefas importadas com sucesso!', 'success');
+                    importFile.value = '';
+                } catch (error) {
+                    showNotification('Erro ao processar o arquivo JSON. Certifique-se de que é um JSON válido.', 'error');
+                    console.error('Erro de importação:', error);
+                }
+            };
+            reader.onerror = () => {
+                showNotification('Erro ao ler o arquivo para importação.', 'error');
+                console.error('Erro ao ler o arquivo:', reader.error);
+            };
+            reader.readAsText(file);
+        } else {
+            showNotification('Selecione um arquivo JSON para importar.', 'error');
+        }
+    });
+
+    // Adiciona listeners para os selects de filtro e ordenação
+    filterStatusSelect.addEventListener('change', () => {
+        localStorage.setItem('filterStatus', filterStatusSelect.value); // Salva o filtro
+        renderTaskList();
+    });
+    sortBySelect.addEventListener('change', () => {
+        localStorage.setItem('sortBy', sortBySelect.value); // Salva a ordenação
+        renderTaskList();
+    });
+
+    // Adiciona listener para o filtro de prioridade
+    filterPrioritySelect.addEventListener('change', () => {
+        localStorage.setItem('filterPriority', filterPrioritySelect.value); // Salva o filtro de prioridade
+        renderTaskList();
+    });
+
+    // Adiciona listener para o campo de busca
+    searchInput.addEventListener('input', () => {
+        localStorage.setItem('searchQuery', searchInput.value); // Salva o termo de busca
+        renderTaskList();
+    });
+
+    // Adiciona listener para o checkbox de ocultar/exibir imagens
     toggleImagesCheckbox.addEventListener('change', () => {
-        applyImageVisibility(); // Aplica a visibilidade.
-        // Salva a preferência do usuário no localStorage.
+        applyImageVisibility();
+        // Salva a preferência do usuário no localStorage
         localStorage.setItem('showImages', toggleImagesCheckbox.checked);
     });
 
-    // Listeners para os botões do modal de confirmação de exclusão de tarefa.
+    // Listeners para os botões do modal de confirmação de exclusão de tarefa
     confirmDeleteBtn.addEventListener('click', () => {
         if (taskIdToDeleteConfirmed !== null) {
-            performDeleteTask(taskIdToDeleteConfirmed); // Chama a função real de exclusão.
-            taskIdToDeleteConfirmed = null; // Reseta o ID após a ação.
+            performDeleteTask(taskIdToDeleteConfirmed); // Chama a função real de exclusão
+            taskIdToDeleteConfirmed = null; // Reseta o ID
         }
-        confirmationModal.style.display = 'none'; // Esconde o modal.
+        confirmationModal.style.display = 'none'; // Esconde o modal
     });
 
     cancelDeleteBtn.addEventListener('click', () => {
-        taskIdToDeleteConfirmed = null; // Reseta o ID.
-        confirmationModal.style.display = 'none'; // Esconde o modal.
+        taskIdToDeleteConfirmed = null; // Reseta o ID
+        confirmationModal.style.display = 'none'; // Esconde o modal
     });
 
     closeButton.addEventListener('click', () => {
-        taskIdToDeleteConfirmed = null; // Reseta o ID.
-        confirmationModal.style.display = 'none'; // Esconde o modal.
+        taskIdToDeleteConfirmed = null; // Reseta o ID
+        confirmationModal.style.display = 'none';
     });
 
-    // Fecha o modal se clicar fora dele.
+    // Fecha o modal se clicar fora dele
     window.addEventListener('click', (event) => {
         if (event.target === confirmationModal) {
-            taskIdToDeleteConfirmed = null; // Reseta o ID.
+            taskIdToDeleteConfirmed = null; // Reseta o ID
             confirmationModal.style.display = 'none';
         }
     });
 
-    // --- Funções de Inicialização e Carregamento ---
-
-    // Função para deletar uma tarefa (é chamada após a confirmação do modal).
-    function performDeleteTask(id) {
-        let tasks = getTasks(); // Obtém as tarefas.
-        // Filtra o array, removendo a tarefa com o ID correspondente.
-        tasks = tasks.filter(task => task.id !== id);
-        saveTasks(tasks); // Salva o array atualizado.
-        renderTaskList(); // Re-renderiza a lista.
-        showNotification('Tarefa excluída com sucesso!', 'success');
-    }
-
-    // Função para carregar preferências do usuário (busca e visibilidade de imagens) do LocalStorage.
-    function loadUserPreferences() {
-        const savedSearchQuery = localStorage.getItem('searchQuery');
-        if (savedSearchQuery) {
-            searchInput.value = savedSearchQuery; // Restaura o termo de busca.
-        }
-
-        const savedShowImages = localStorage.getItem('showImages');
-        // Se a preferência foi salva, a converte para booleano. Caso contrário, o padrão é true.
-        toggleImagesCheckbox.checked = savedShowImages !== null ? JSON.parse(savedShowImages) : true;
-        applyImageVisibility(); // Aplica a visibilidade ao carregar.
-    }
-
-    // --- Chamadas Iniciais ---
-    loadUserPreferences(); // Carrega as preferências do usuário ao iniciar.
-    renderTaskList(); // Renderiza a lista de tarefas pela primeira vez ao carregar a página.
-    renderCurrentSubtasks(); // Renderiza as subtarefas temporárias (inicialmente vazias).
 });
