@@ -40,56 +40,67 @@
 
             <label for="taskImages" class="file-upload-btn"><i class="fas fa-images"></i> Anexar Imagens (até 5)</label>
             <input type="file" id="taskImages" accept="image/*" multiple>
-            <div id="imagePreviewContainer" class="multiple-images-preview"></div> 
-
+            <div id="imagePreviewContainer" class="multiple-images-preview"></div>
+            
             <div id="subtasksContainer">
-                <h3><i class="fas fa-tasks"></i> Subtarefas</h3>
-                <input type="text" id="subtaskInput" placeholder="Nome da subtarefa">
-                <button type="button" id="addSubtaskBtn"><i class="fas fa-plus"></i> Adicionar Subtarefa</button>
+                <h3><i class="fas fa-tasks"></i> Gerenciar Subtarefas</h3>
+                <div class="input-group-subtask">
+                    <input type="text" id="subtaskInput" placeholder="Nova Subtarefa">
+                    <button type="button" id="addSubtaskBtn"><i class="fas fa-plus"></i> Adicionar Subtarefa</button>
+                </div>
                 <span class="error-message" id="subtaskInputError"></span>
-                <ul id="subtaskList"></ul>
+                <ul id="subtaskList">
+                    <p class="no-subtasks-message">Nenhuma subtarefa adicionada.</p>
+                </ul>
             </div>
+
             <button type="button" id="addTaskBtn"><i class="fas fa-check-circle"></i> Adicionar Tarefa</button>
+            <button type="button" id="clearFormBtn" class="clear-btn"><i class="fas fa-redo"></i> Limpar Formulário</button>
         </section>
 
         <section id="taskListSection">
-            <h2><i class="fas fa-list-ul"></i> Lista de Tarefas</h2>
+            <h2><i class="fas fa-list-ul"></i> Minhas Tarefas</h2>
             <div class="controls-container">
                 <div class="search-group">
-                    <label for="searchInput"><i class="fas fa-search"></i> Buscar:</label>
-                    <input type="text" id="searchInput" placeholder="Buscar tarefas...">
+                    <label for="searchInput"><i class="fas fa-search"></i> Buscar Tarefa:</label>
+                    <input type="text" id="searchInput" placeholder="Buscar por título ou descrição...">
                 </div>
+                
                 <div class="filter-sort-group">
-                    <label for="filterStatus"><i class="fas fa-filter"></i> Filtrar por Status:</label>
+                    <label for="filterStatus"><i class="fas fa-filter"></i> Status:</label>
                     <select id="filterStatus">
                         <option value="all">Todas</option>
                         <option value="pending">Pendentes</option>
                         <option value="completed">Concluídas</option>
                     </select>
-                </div>
-                <div class="filter-sort-group">
-                    <label for="filterPriority"><i class="fas fa-flag"></i> Filtrar por Prioridade:</label>
+
+                    <label for="filterPriority"><i class="fas fa-exclamation"></i> Prioridade:</label>
                     <select id="filterPriority">
                         <option value="all">Todas</option>
                         <option value="low">Baixa</option>
                         <option value="medium">Média</option>
                         <option value="high">Alta</option>
                     </select>
-                </div>
-                <div class="filter-sort-group">
+    
                     <label for="sortBy"><i class="fas fa-sort"></i> Ordenar por:</label>
                     <select id="sortBy">
-                        <option value="createdAt">Data de Criação</option>
+                        <option value="addedDesc">Mais Recentes</option>
+                        <option value="addedAsc">Mais Antigas</option>
+                        <option value="dueDateAsc">Vencimento (Cresc.)</option>
+                        <option value="dueDateDesc">Vencimento (Decresc.)</option>
+                        <option value="priorityHigh">Prioridade (Alta)</option>
+                        <option value="priorityLow">Prioridade (Baixa)</option>
                         <option value="titleAsc">Título (A-Z)</option>
                         <option value="titleDesc">Título (Z-A)</option>
-                        <option value="completionAsc">Conclusão (0-100%)</option>
-                        <option value="completionDesc">Conclusão (100-0%)</option>
-                        <option value="dueDateAsc">Vencimento (Mais Próximo)</option>
-                        <option value="dueDateDesc">Vencimento (Mais Distante)</option>
+                        <option value="completionAsc">Conclusão (Cresc.)</option>
+                        <option value="completionDesc">Conclusão (Decresc.)</option>
                     </select>
                 </div>
+
                 <div class="display-options">
-                    <input type="checkbox" id="toggleImages" checked>
+                    <input type="checkbox" id="toggleAddTaskSection">
+                    <label for="toggleAddTaskSection"><i class="fas fa-plus-circle"></i> Exibir/Ocultar Adicionar Tarefas</label>
+                    <input type="checkbox" id="toggleImages">
                     <label for="toggleImages"><i class="fas fa-image"></i> Exibir Imagens</label>
                 </div>
             </div>
@@ -122,6 +133,6 @@
         </div>
     </div>
 
-    <script src="js/script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
