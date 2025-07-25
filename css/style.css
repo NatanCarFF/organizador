@@ -1,144 +1,145 @@
 /* Estilos gerais para o corpo da página */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f6f8; /* Um tom de cinza mais claro e moderno */
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    line-height: 1.6; /* Melhora a legibilidade do texto */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Define a fonte principal */
+    margin: 0; /* Remove margens padrão do corpo */
+    padding: 0; /* Remove preenchimento padrão do corpo */
+    background-color: #f4f6f8; /* Define uma cor de fundo clara e moderna */
+    color: #333; /* Define a cor do texto principal */
+    display: flex; /* Habilita Flexbox para layout */
+    flex-direction: column; /* Organiza os itens verticalmente */
+    align-items: center; /* Centraliza os itens horizontalmente */
+    min-height: 100vh; /* Garante que o corpo ocupe pelo menos 100% da altura da viewport */
+    line-height: 1.6; /* Melhora a legibilidade do texto com maior espaçamento entre linhas */
 }
 
 /* Estilos para o contêiner de notificações */
 #notificationContainer {
-    position: fixed; /* Fixa a notificação na tela */
-    top: 20px;
-    right: 20px;
+    position: fixed; /* Fixa a notificação na tela, independente da rolagem */
+    top: 20px; /* Distância do topo */
+    right: 20px; /* Distância da direita */
     z-index: 1000; /* Garante que a notificação fique acima de outros elementos */
-    display: flex;
-    flex-direction: column;
+    display: flex; /* Habilita Flexbox para organizar múltiplas notificações */
+    flex-direction: column; /* Organiza as notificações verticalmente */
     gap: 10px; /* Espaçamento entre múltiplas notificações */
-    pointer-events: none; /* Permite interagir com elementos abaixo */
+    pointer-events: none; /* Permite interagir com elementos abaixo da notificação (útil se não for clicável) */
 }
 
 .notification {
-    padding: 15px 20px;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
+    padding: 15px 20px; /* Preenchimento interno */
+    border-radius: 8px; /* Cantos arredondados */
+    color: white; /* Cor do texto */
+    font-weight: bold; /* Texto em negrito */
+    display: flex; /* Habilita Flexbox */
+    align-items: center; /* Alinha ícone e texto verticalmente */
     gap: 10px; /* Espaçamento entre o ícone e o texto */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    opacity: 0; /* Começa invisível para a animação */
-    transform: translateX(20px); /* Começa da direita para a animação */
-    animation: slideIn 0.5s ease-out forwards, fadeOut 0.5s ease-in forwards 3s; /* Animação de entrada e saída */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidade */
+    opacity: 0; /* Começa invisível para a animação de entrada */
+    transform: translateX(20px); /* Começa 20px à direita para a animação de deslize */
+    animation: slideIn 0.5s ease-out forwards, fadeOut 0.5s ease-in forwards 3s; /* Animações de entrada e saída. 'forwards' mantém o estado final. '3s' é o delay para fadeOut. */
     pointer-events: auto; /* Permite que a notificação seja clicável (se necessário) */
 }
 
 .notification.success {
-    background-color: #28a745; /* Verde */
+    background-color: #28a745; /* Cor de fundo verde para sucesso */
 }
 
 .notification.error {
-    background-color: #dc3545; /* Vermelho */
+    background-color: #dc3545; /* Cor de fundo vermelha para erro */
 }
 
 .notification.info {
-    background-color: #17a2b8; /* Azul claro para informações */
+    background-color: #17a2b8; /* Cor de fundo azul claro para informações */
 }
 
-
+/* Keyframe para a animação de deslize para dentro */
 @keyframes slideIn {
     from {
-        opacity: 0;
-        transform: translateX(20px);
+        opacity: 0; /* Começa totalmente transparente */
+        transform: translateX(20px); /* Começa 20px à direita */
     }
     to {
-        opacity: 1;
-        transform: translateX(0);
+        opacity: 1; /* Termina totalmente visível */
+        transform: translateX(0); /* Termina na posição original */
     }
 }
 
+/* Keyframe para a animação de fade out */
 @keyframes fadeOut {
     from {
-        opacity: 1;
-        transform: translateX(0);
+        opacity: 1; /* Começa totalmente visível */
+        transform: translateX(0); /* Começa na posição original */
     }
     to {
-        opacity: 0;
-        transform: translateX(20px);
+        opacity: 0; /* Termina totalmente transparente */
+        transform: translateX(20px); /* Desliza 20px para a direita */
     }
 }
 
 /* Estilos para o cabeçalho */
 header {
     background-color: #343a40; /* Tom de cinza escuro moderno */
-    color: white;
-    padding: 20px 0;
-    text-align: center;
-    width: 100%;
-    margin-bottom: 40px; /* Mais espaço abaixo do cabeçalho */
+    color: white; /* Cor do texto */
+    padding: 20px 0; /* Preenchimento superior e inferior */
+    text-align: center; /* Centraliza o texto */
+    width: 100%; /* Ocupa a largura total */
+    margin-bottom: 40px; /* Espaço abaixo do cabeçalho */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidade */
 }
 
 header h1 {
-    margin: 0;
-    font-size: 2.2em; /* Um pouco menor para melhor encaixe */
-    display: flex; /* Para alinhar o ícone e o texto */
-    justify-content: center;
-    align-items: center;
+    margin: 0; /* Remove margem padrão do h1 */
+    font-size: 2.2em; /* Tamanho da fonte */
+    display: flex; /* Habilita Flexbox para alinhar o ícone e o texto */
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
 }
 
 header h1 .fas {
-    margin-right: 15px;
-    font-size: 1.2em;
+    margin-right: 15px; /* Espaçamento à direita do ícone */
+    font-size: 1.2em; /* Tamanho do ícone */
 }
 
 /* Estilos para o conteúdo principal */
 main {
-    display: flex;
-    flex-direction: column;
-    width: 90%;
-    max-width: 960px; /* Largura máxima mais comum para layouts responsivos */
-    padding: 30px;
-    background-color: white;
+    display: flex; /* Habilita Flexbox */
+    flex-direction: column; /* Organiza os itens verticalmente */
+    width: 90%; /* Largura principal do conteúdo */
+    max-width: 960px; /* Largura máxima para layouts responsivos */
+    padding: 30px; /* Preenchimento interno */
+    background-color: white; /* Cor de fundo branca */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra mais suave e moderna */
-    border-radius: 10px;
-    margin-bottom: 40px;
+    border-radius: 10px; /* Cantos arredondados */
+    margin-bottom: 40px; /* Espaço abaixo do main */
 }
 
 /* Estilos para as seções */
 section {
-    padding: 30px;
-    margin-bottom: 30px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0; /* Borda sutil para as seções */
-    background-color: #fff; /* Garante fundo branco consistente */
+    padding: 30px; /* Preenchimento interno */
+    margin-bottom: 30px; /* Espaço abaixo de cada seção */
+    border-radius: 8px; /* Cantos arredondados */
+    border: 1px solid #e0e0e0; /* Borda sutil */
+    background-color: #fff; /* Fundo branco consistente */
 }
 
 section:last-child {
-    margin-bottom: 0;
+    margin-bottom: 0; /* Remove a margem da última seção */
 }
 
 section h2 {
-    color: #343a40; /* Cor do título da seção consistente com o header */
-    margin-top: 0;
-    margin-bottom: 25px;
-    font-size: 1.6em; /* Tamanho do título da seção um pouco menor */
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #eee;
+    color: #343a40; /* Cor do título da seção, consistente com o cabeçalho */
+    margin-top: 0; /* Remove margem superior padrão */
+    margin-bottom: 25px; /* Espaço abaixo do título */
+    font-size: 1.6em; /* Tamanho do título da seção */
+    display: flex; /* Habilita Flexbox para alinhar ícone e texto */
+    align-items: center; /* Centraliza verticalmente */
+    gap: 12px; /* Espaçamento entre ícone e texto */
+    padding-bottom: 15px; /* Preenchimento inferior para a linha de baixo */
+    border-bottom: 2px solid #eee; /* Linha de separação abaixo do título */
 }
 
 section h2 .fas {
-    font-size: 1.1em;
-    color: #343a40;
+    font-size: 1.1em; /* Tamanho do ícone no título da seção */
+    color: #343a40; /* Cor do ícone */
 }
 
 /* Estilos para formulários (inputs e textarea) */
@@ -146,307 +147,300 @@ input,
 textarea,
 button,
 .file-upload-btn,
-select { /* Adicionado select aqui */
-    font-size: 1em; /* Tamanho de fonte base para elementos de formulário */
+select { /* Aplica estilos base a vários elementos de formulário */
+    font-size: 1em; /* Tamanho de fonte base */
 }
 
 #addTaskSection > input#taskTitle,
 #addTaskSection > textarea#taskDescription {
     margin-bottom: 10px; /* Menos margem abaixo do título e descrição */
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    width: calc(100% - 30px); /* Ajusta a largura com padding */
+    padding: 15px; /* Preenchimento interno */
+    border: 1px solid #ccc; /* Borda */
+    border-radius: 6px; /* Cantos arredondados */
+    width: calc(100% - 30px); /* Ajusta a largura considerando o padding */
 }
 
 #addTaskSection > textarea#taskDescription {
     min-height: 80px; /* Altura mínima para a descrição */
-    resize: vertical; /* Permite redimensionar verticalmente */
+    resize: vertical; /* Permite redimensionar apenas verticalmente */
 }
 
 /* Estilo para o grupo de input (para prioridade e data de vencimento) */
 .input-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; /* Habilita Flexbox */
+    align-items: center; /* Alinha os itens verticalmente */
+    gap: 10px; /* Espaçamento entre os itens */
     margin-bottom: 15px; /* Espaço abaixo do grupo */
 }
 
 .input-group label {
-    font-weight: bold;
-    color: #555;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    font-weight: bold; /* Texto em negrito */
+    color: #555; /* Cor do texto */
+    display: flex; /* Habilita Flexbox */
+    align-items: center; /* Alinha ícone e texto verticalmente */
+    gap: 5px; /* Espaçamento entre ícone e texto */
     white-space: nowrap; /* Impede que o texto do label quebre a linha */
 }
 
 .input-group label .fas {
-    color: #007bff;
+    color: #007bff; /* Cor do ícone */
 }
 
 /* Estilos para selects (Prioridade) */
 #taskPriority {
     flex-grow: 1; /* Permite que o select ocupe o espaço restante */
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-    cursor: pointer;
-    appearance: none; /* Remove estilo padrão do sistema operacional */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-4.4-4.4-11.4-4.4-15.8%2C0L5.4%2C197.3c-4.4%2C4.4-4.4%2C11.4%2C0%2C15.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0L143%2C91.4c4.4-4.4%2C11.4-4.4%2C15.8%2C0l122.8%2C122.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0C291.4%2C208.7%2C291.4%2C201.7%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E'); /* Ícone de seta personalizado */
-    background-repeat: no-repeat;
-    background-position: right 10px top 50%;
-    background-size: 12px auto;
+    padding: 10px 12px; /* Preenchimento interno */
+    border: 1px solid #ccc; /* Borda */
+    border-radius: 5px; /* Cantos arredondados */
+    background-color: white; /* Fundo branco */
+    cursor: pointer; /* Muda o cursor ao passar por cima */
+    appearance: none; /* Remove estilo padrão do sistema operacional (para personalizar a seta) */
+    -webkit-appearance: none; /* Prefixo para navegadores WebKit (Chrome, Safari) */
+    -moz-appearance: none; /* Prefixo para navegadores Mozilla (Firefox) */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-4.4-4.4-11.4-4.4-15.8%2C0L5.4%2C197.3c-4.4%2C4.4-4.4%2C11.4%2C0%2C15.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0L143%2C91.4c4.4-4.4%2C11.4-4.4%2C15.8%2C0l122.8%2C122.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0C291.4%2C208.7%2C291.4%2C201.7%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E'); /* Ícone de seta personalizado em SVG */
+    background-repeat: no-repeat; /* Não repete a imagem de fundo */
+    background-position: right 10px top 50%; /* Posição da imagem de fundo (seta) */
+    background-size: 12px auto; /* Tamanho da imagem de fundo */
 }
 
 /* Estilos para input de Data de Vencimento */
 input[type="date"] {
     flex-grow: 1; /* Permite que o input ocupe o espaço restante */
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-    cursor: pointer;
-    /* Ajustes para o ícone de calendário padrão em alguns navegadores */
-    padding-right: 30px; /* Espaço para o ícone padrão */
+    padding: 10px 12px; /* Preenchimento interno */
+    border: 1px solid #ccc; /* Borda */
+    border-radius: 5px; /* Cantos arredondados */
+    background-color: white; /* Fundo branco */
+    cursor: pointer; /* Muda o cursor ao passar por cima */
+    padding-right: 30px; /* Espaço para o ícone de calendário padrão em alguns navegadores */
 }
 
-
+/* Estilos para o input de subtarefa */
 input#subtaskInput {
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    width: calc(100% - 24px - 10px); /* Ajusta largura para caber botão */
-    max-width: 300px; /* Limita largura do input de subtarefa */
-    display: inline-block; /* Para alinhar com o botão */
-    vertical-align: middle;
+    padding: 12px; /* Preenchimento interno */
+    border: 1px solid #ccc; /* Borda */
+    border-radius: 5px; /* Cantos arredondados */
+    margin-bottom: 10px; /* Espaço abaixo */
+    width: calc(100% - 24px - 10px); /* Ajusta a largura para caber o botão ao lado */
+    max-width: 300px; /* Limita a largura do input de subtarefa */
+    display: inline-block; /* Permite alinhar com o botão na mesma linha */
+    vertical-align: middle; /* Alinha verticalmente com outros elementos na linha */
 }
 
 /* Estilos para mensagens de erro */
 .error-message {
-    color: #dc3545; /* Vermelho para mensagens de erro */
-    font-size: 0.85em;
+    color: #dc3545; /* Cor vermelha para mensagens de erro */
+    font-size: 0.85em; /* Tamanho da fonte menor */
     margin-top: -8px; /* Move para cima para ficar mais próximo do campo */
     margin-bottom: 10px; /* Espaço abaixo da mensagem de erro */
     display: block; /* Garante que ocupe sua própria linha */
     height: 1.2em; /* Altura para evitar pulos de layout */
     overflow: hidden; /* Garante que a mensagem não "empurre" outros elementos */
-    transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out; /* Transição suave para mudanças (e.g., visibilidade) */
 }
 
 /* Estilo para inputs/textareas com erro */
 input.input-error,
 textarea.input-error {
-    border-color: #dc3545 !important; /* Borda vermelha para campos com erro */
+    border-color: #dc3545 !important; /* Borda vermelha para campos com erro (usando !important para sobrescrever) */
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Sombra sutil vermelha */
 }
 
 /* Estilos para o contêiner de preview de MÚLTIPLAS imagens */
 .multiple-images-preview {
-    display: flex; /* Para exibir imagens lado a lado */
+    display: flex; /* Habilita Flexbox para exibir imagens lado a lado */
     flex-wrap: wrap; /* Permite que as imagens quebrem para a próxima linha */
     gap: 10px; /* Espaçamento entre as imagens */
-    margin-top: 15px;
-    margin-bottom: 20px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    max-width: 100%;
+    margin-top: 15px; /* Margem superior */
+    margin-bottom: 20px; /* Margem inferior */
+    border: 1px solid #e0e0e0; /* Borda sutil */
+    border-radius: 8px; /* Cantos arredondados */
+    padding: 10px; /* Preenchimento interno */
+    background-color: #f9f9f9; /* Fundo levemente acinzentado */
+    max-width: 100%; /* Largura máxima */
     overflow: hidden; /* Garante que o contêiner não cresça indefinidamente */
-    /* Por padrão, começa oculto. O JS vai mudar para 'flex' quando houver imagens. */
-    display: none; 
+    display: none; /* Por padrão, começa oculto. O JS vai mudar para 'flex' quando houver imagens. */
 }
 
 .image-preview-item {
-    position: relative;
+    position: relative; /* Para posicionar o botão de remover */
     width: 128px; /* Tamanho fixo para o item de preview */
-    height: 128px;
+    height: 128px; /* Tamanho fixo para o item de preview */
     flex-shrink: 0; /* Impede que o item encolha */
 }
 
 .multiple-images-preview img {
     width: 100%; /* Imagem preenche o contêiner do item */
-    height: 100%;
-    object-fit: cover; /* Mantém a proporção e cobre o espaço */
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    height: 100%; /* Imagem preenche o contêiner do item */
+    object-fit: cover; /* Mantém a proporção e cobre o espaço, cortando se necessário */
+    border-radius: 6px; /* Cantos arredondados */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
 
 .image-preview-item .remove-image-preview-btn {
-    position: absolute;
+    position: absolute; /* Posicionamento absoluto dentro do item de preview */
     top: -8px; /* Ajusta para ficar um pouco fora da imagem */
     right: -8px; /* Ajusta para ficar um pouco fora da imagem */
-    background-color: #ffc107; /* Amarelo para remover */
-    color: #333;
+    background-color: #ffc107; /* Cor de fundo amarela para remover */
+    color: #333; /* Cor do texto */
     padding: 0; /* Remove padding padrão */
-    font-size: 0.7em;
+    font-size: 0.7em; /* Tamanho da fonte menor */
     border-radius: 50%; /* Transforma em círculo */
     width: 24px; /* Largura do círculo */
     height: 24px; /* Altura do círculo */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: none;
+    display: flex; /* Habilita Flexbox para centralizar o ícone */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    cursor: pointer; /* Muda o cursor */
+    border: none; /* Remove borda */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra para destacar */
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves ao interagir */
 }
 
 .image-preview-item .remove-image-preview-btn:hover {
-    background-color: #e0a800;
-    transform: scale(1.1);
+    background-color: #e0a800; /* Cor de fundo mais escura ao passar o mouse */
+    transform: scale(1.1); /* Aumenta um pouco ao passar o mouse */
 }
 
 /* Estilos para o contêiner de subtarefas */
 #subtasksContainer h3 {
-    font-size: 1.1em;
-    color: #555;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+    font-size: 1.1em; /* Tamanho da fonte */
+    color: #555; /* Cor do texto */
+    margin-top: 25px; /* Margem superior */
+    margin-bottom: 15px; /* Margem inferior */
+    display: flex; /* Habilita Flexbox */
+    align-items: center; /* Alinha ícone e texto verticalmente */
+    gap: 10px; /* Espaçamento entre ícone e texto */
+    border-bottom: 1px solid #eee; /* Linha de separação */
+    padding-bottom: 10px; /* Preenchimento inferior */
 }
 
 #subtaskList {
-    list-style: none;
-    padding: 0;
-    margin-top: 10px;
+    list-style: none; /* Remove os marcadores de lista padrão */
+    padding: 0; /* Remove padding padrão */
+    margin-top: 10px; /* Margem superior */
 }
 
 #subtaskList li {
-    background-color: #f9f9f9;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #eee;
+    background-color: #f9f9f9; /* Cor de fundo para cada item da subtarefa */
+    padding: 10px 15px; /* Preenchimento interno */
+    border-radius: 5px; /* Cantos arredondados */
+    margin-bottom: 8px; /* Espaçamento entre os itens */
+    display: flex; /* Habilita Flexbox */
+    justify-content: space-between; /* Espaço entre o nome da subtarefa e o botão */
+    align-items: center; /* Alinha verticalmente */
+    border: 1px solid #eee; /* Borda sutil */
 }
 
 #subtaskList li span {
-    flex-grow: 1;
-    font-size: 0.95em;
-    color: #444;
-    word-break: break-word;
+    flex-grow: 1; /* Permite que o span ocupe o espaço restante */
+    font-size: 0.95em; /* Tamanho da fonte */
+    color: #444; /* Cor do texto */
+    word-break: break-word; /* Quebra palavras longas para evitar overflow */
 }
 
 .remove-subtask-btn {
     background-color: #ffc107; /* Amarelo para ações de alerta/remoção */
-    color: #333;
-    padding: 6px 10px;
-    font-size: 0.85em;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-    margin-left: 15px;
-    cursor: pointer;
-    border: none;
+    color: #333; /* Cor do texto */
+    padding: 6px 10px; /* Preenchimento interno */
+    font-size: 0.85em; /* Tamanho da fonte */
+    border-radius: 4px; /* Cantos arredondados */
+    transition: background-color 0.3s ease; /* Transição suave na cor de fundo */
+    margin-left: 15px; /* Margem à esquerda */
+    cursor: pointer; /* Muda o cursor */
+    border: none; /* Remove borda */
 }
 
 .remove-subtask-btn:hover {
-    background-color: #e0a800;
+    background-color: #e0a800; /* Cor de fundo mais escura ao passar o mouse */
 }
 
 /* Estilos para botões */
 button {
     background-color: #007bff; /* Azul vibrante para botões de ação */
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
+    color: white; /* Cor do texto */
+    border: none; /* Remove borda */
+    padding: 12px 20px; /* Preenchimento interno */
+    border-radius: 6px; /* Cantos arredondados */
+    cursor: pointer; /* Muda o cursor */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
+    display: inline-flex; /* Permite alinhar ícone e texto */
+    align-items: center; /* Centraliza verticalmente ícone e texto */
+    gap: 10px; /* Espaçamento entre ícone e texto */
 }
 
 button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
+    background-color: #0056b3; /* Cor de fundo mais escura ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de "levantar" ao passar o mouse */
 }
 
 button:active {
-    transform: translateY(0);
+    transform: translateY(0); /* Retorna à posição original ao clicar */
 }
 
 #addTaskSection button#addTaskBtn,
 #ioSection button {
-    margin-top: 20px; /* Más espacio arriba de los botones de acción principal */
-    width: fit-content; /* Ajusta la anchura al contenido */
+    margin-top: 20px; /* Margem superior para botões de ação principal */
+    width: fit-content; /* Ajusta a largura ao conteúdo do botão */
 }
 
 /* Estilo para o botão de salvar alterações */
 button.save-changes-btn {
     background-color: #28a745; /* Verde para salvar alterações */
 }
-
 button.save-changes-btn:hover {
-    background-color: #218838;
+    background-color: #218838; /* Verde mais escuro ao passar o mouse */
 }
 
-
-/* Estilo para o label de upload de arquivo */
+/* Estilo para o label de upload de arquivo (estilizado como botão) */
 .file-upload-btn {
     background-color: #6c757d; /* Cinza para botões de utilidade */
-    color: white;
-    padding: 12px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
+    color: white; /* Cor do texto */
+    padding: 12px 20px; /* Preenchimento interno */
+    border-radius: 6px; /* Cantos arredondados */
+    cursor: pointer; /* Muda o cursor */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
+    display: inline-flex; /* Permite alinhar ícone e texto */
+    align-items: center; /* Centraliza verticalmente */
+    gap: 10px; /* Espaçamento entre ícone e texto */
     margin-top: 10px; /* Espaço acima do botão de upload */
-    margin-bottom: 15px;
-    width: fit-content;
+    margin-bottom: 15px; /* Espaço abaixo */
+    width: fit-content; /* Ajusta a largura ao conteúdo */
 }
-
 .file-upload-btn:hover {
-    background-color: #5a6268;
-    transform: translateY(-2px);
+    background-color: #5a6268; /* Cor de fundo mais escura ao passar o mouse */
+    transform: translateY(-2px); /* Efeito de "levantar" */
 }
 
 /* Estilos para a lista de tarefas */
 #taskList {
-    list-style: none;
-    padding: 0;
+    list-style: none; /* Remove marcadores de lista padrão */
+    padding: 0; /* Remove padding padrão */
 }
 
 .task-item {
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid #007bff; /* Destaque azul padrão para itens de tarefa (pode ser sobrescrito por prioridade) */
-    position: relative; /* Para posicionar botões de ação */
-    transition: all 0.2s ease-in-out; /* Transição para mudanças de estado */
+    background-color: #fff; /* Fundo branco para cada item de tarefa */
+    padding: 20px; /* Preenchimento interno */
+    margin-bottom: 20px; /* Espaço entre os itens */
+    border-radius: 8px; /* Cantos arredondados */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    border-left: 5px solid #007bff; /* Borda esquerda azul padrão */
+    position: relative; /* Para posicionar botões de ação dentro */
+    transition: all 0.2s ease-in-out; /* Transição suave para mudanças de estado (e.g., cor da borda) */
 }
 
 /* Estilo para tarefa completa (borda verde) */
 .task-item.task-complete {
-    border-left: 5px solid #28a745; /* Verde para tarefas completas */
-    opacity: 0.8; /* Suaviza tarefas completas */
+    border-left: 5px solid #28a745; /* Borda verde para tarefas completas */
+    opacity: 0.8; /* Suaviza a opacidade para tarefas completas */
 }
 
 /* Estilos de borda para prioridade */
 .task-item.priority-low {
     border-left-color: #28a745; /* Verde para baixa prioridade */
 }
-
 .task-item.priority-medium {
     border-left-color: #007bff; /* Azul para média prioridade */
 }
-
 .task-item.priority-high {
     border-left-color: #dc3545; /* Vermelho para alta prioridade */
 }
@@ -456,13 +450,11 @@ button.save-changes-btn:hover {
     box-shadow: 0 0 15px rgba(255, 165, 0, 0.4); /* Sombra laranja */
     border-color: #ffa500 !important; /* Laranja para vencer hoje */
 }
-
 .task-item.overdue {
     box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); /* Sombra vermelha */
     border-color: #dc3545 !important; /* Vermelho para vencida */
-    animation: pulseRed 1.5s infinite; /* Pulsação para vencidas */
+    animation: pulseRed 1.5s infinite; /* Aplica animação de pulsação */
 }
-
 .task-item.due-soon {
     box-shadow: 0 0 10px rgba(255, 193, 7, 0.3); /* Sombra amarela suave */
     border-color: #ffc107 !important; /* Amarelo para vencer em breve */
@@ -470,544 +462,428 @@ button.save-changes-btn:hover {
 
 /* Animação de pulsação para tarefas vencidas */
 @keyframes pulseRed {
-    0% { transform: scale(1); box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); }
-    50% { transform: scale(1.005); box-shadow: 0 0 20px rgba(220, 53, 69, 0.6); }
-    100% { transform: scale(1); box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); }
+    0% {
+        transform: scale(1); /* Tamanho normal */
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); /* Sombra inicial */
+    }
+    50% {
+        transform: scale(1.005); /* Levemente maior */
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.6); /* Sombra mais intensa */
+    }
+    100% {
+        transform: scale(1); /* Retorna ao tamanho normal */
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.4); /* Retorna à sombra inicial */
+    }
 }
 
-
 .task-item > h3 {
-    margin-top: 0;
-    margin-bottom: 5px;
-    color: #343a40;
+    margin-top: 0; /* Remove margem superior padrão */
+    margin-bottom: 5px; /* Espaço abaixo do título da tarefa */
+    color: #343a40; /* Cor do texto */
 }
 
 .task-item > p {
-    color: #666;
-    font-size: 0.9em;
-    line-height: 1.4;
-    margin-bottom: 10px;
+    color: #555; /* Cor do texto da descrição */
+    margin-bottom: 10px; /* Espaço abaixo da descrição */
+    font-size: 0.95em; /* Tamanho da fonte */
+    white-space: pre-wrap; /* Preserva quebras de linha e espaços no texto da descrição */
 }
 
-.task-item p strong {
-    color: #343a40;
+.task-details {
+    display: flex; /* Habilita Flexbox para detalhes da tarefa */
+    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
+    gap: 15px; /* Espaçamento entre os detalhes */
+    margin-top: 15px; /* Margem superior */
+    padding-top: 15px; /* Preenchimento superior */
+    border-top: 1px dashed #eee; /* Linha tracejada para separar detalhes */
 }
 
-/* Estilos para o termômetro de status da tarefa */
-.task-status-thermometer {
-    background-color: #e0e0e0;
-    border-radius: 5px;
-    height: 6px;
-    margin: 10px 0;
-    overflow: hidden;
+.task-details span {
+    font-size: 0.85em; /* Tamanho da fonte menor */
+    color: #666; /* Cor do texto */
+    display: flex; /* Habilita Flexbox para alinhar ícone e texto */
+    align-items: center; /* Centraliza verticalmente */
+    gap: 5px; /* Espaçamento entre ícone e texto */
 }
 
-.thermometer-fill {
-    background-color: #007bff; /* Cor do preenchimento do termômetro */
-    height: 100%;
-    border-radius: 5px;
-    width: 0%; /* Inicialmente vazio */
-    transition: width 0.3s ease-in-out;
+.task-details span .fas {
+    color: #007bff; /* Cor do ícone */
 }
 
-/* Cor do termômetro quando a tarefa está 100% completa */
-.task-item.task-complete .thermometer-fill {
-    background-color: #28a745; /* Verde para termômetro completo */
+.task-details .priority-label {
+    padding: 4px 8px; /* Preenchimento interno */
+    border-radius: 4px; /* Cantos arredondados */
+    font-weight: bold; /* Texto em negrito */
+    font-size: 0.8em; /* Tamanho da fonte menor */
+    text-transform: uppercase; /* Transforma o texto em maiúsculas */
 }
 
-/* Contêiner para exibição de MÚLTIPLAS imagens na lista de tarefas */
-.multiple-images-display {
-    display: flex;
-    gap: 5px; /* Espaçamento entre as imagens */
-    overflow-x: auto; /* Permite rolagem horizontal se houver muitas imagens */
-    margin-bottom: 10px;
-    padding-bottom: 5px; /* Espaço para a barra de rolagem */
+.priority-low .priority-label {
+    background-color: #d4edda; /* Fundo verde claro */
+    color: #155724; /* Texto verde escuro */
+}
+.priority-medium .priority-label {
+    background-color: #cce5ff; /* Fundo azul claro */
+    color: #004085; /* Texto azul escuro */
+}
+.priority-high .priority-label {
+    background-color: #f8d7da; /* Fundo vermelho claro */
+    color: #721c24; /* Texto vermelho escuro */
 }
 
-.multiple-images-display .task-image {
-    width: 128px;
-    height: 128px;
-    object-fit: cover;
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0; /* Impede que as imagens encolham */
+.completion-bar-container {
+    width: 100%; /* Ocupa a largura total */
+    background-color: #e9ecef; /* Fundo da barra de progresso */
+    border-radius: 5px; /* Cantos arredondados */
+    height: 8px; /* Altura da barra */
+    overflow: hidden; /* Garante que o preenchimento não saia dos limites */
+    margin-top: 10px; /* Margem superior */
 }
 
-/* Estilo para ocultar todas as imagens na lista (checkbox "Exibir Imagens") */
-.hide-images .task-image-container {
-    max-height: 0; /* Oculta a imagem */
-    opacity: 0; /* Torna transparente */
-    margin-bottom: 0; /* Remove margem para não ocupar espaço */
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-    overflow: hidden;
+.completion-bar {
+    height: 100%; /* Ocupa a altura total do contêiner */
+    width: 0%; /* Começa com largura zero, será ajustado via JS */
+    background-color: #28a745; /* Cor verde para o progresso */
+    border-radius: 5px; /* Cantos arredondados */
+    transition: width 0.5s ease-out; /* Transição suave na largura */
 }
 
-
-.task-item > h4 {
-    font-size: 0.95em;
-    color: #777;
-    margin-top: 15px;
-    margin-bottom: 5px;
+/* Estilos para o contêiner de imagens na lista de tarefas */
+.task-image-container.multiple-images-display {
+    display: flex; /* Habilita Flexbox */
+    flex-wrap: wrap; /* Permite que as imagens quebrem para a próxima linha */
+    gap: 10px; /* Espaçamento entre as imagens */
+    margin-top: 15px; /* Margem superior */
+    padding-top: 15px; /* Preenchimento superior */
+    border-top: 1px dashed #eee; /* Linha tracejada */
 }
 
+.task-image-container img.task-image {
+    width: 90px; /* Largura fixa para miniaturas */
+    height: 90px; /* Altura fixa para miniaturas */
+    object-fit: cover; /* Mantém a proporção e cobre o espaço */
+    border-radius: 6px; /* Cantos arredondados */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    border: 1px solid #ddd; /* Borda sutil */
+    transition: transform 0.2s ease; /* Transição suave ao passar o mouse */
+}
+
+.task-image-container img.task-image:hover {
+    transform: scale(1.05); /* Aumenta um pouco ao passar o mouse */
+}
+
+/* Estilos para a lista de subtarefas dentro de cada item de tarefa */
 .task-item .subtasks-list {
-    padding-left: 20px;
-    list-style-type: none;
-    margin-bottom: 10px;
+    list-style: none; /* Remove marcadores de lista */
+    padding: 0; /* Remove padding padrão */
+    margin-top: 15px; /* Margem superior */
+    padding-top: 15px; /* Preenchimento superior */
+    border-top: 1px dashed #eee; /* Linha tracejada */
 }
 
 .task-item .subtasks-list li {
-    background: none;
-    border: none;
-    padding: 5px 0;
-    margin-bottom: 3px;
-    font-size: 0.85em;
-    color: #555;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Alinha o conteúdo e os botões */
-    flex-wrap: wrap; /* Permite que os itens quebrem a linha */
+    display: flex; /* Habilita Flexbox */
+    align-items: center; /* Alinha verticalmente */
+    justify-content: space-between; /* Espaço entre o checkbox/label e os botões */
+    margin-bottom: 8px; /* Espaço entre os itens */
+    font-size: 0.9em; /* Tamanho da fonte */
+    color: #444; /* Cor do texto */
+    background-color: #fcfcfc; /* Fundo ligeiramente diferente */
+    padding: 8px 12px; /* Preenchimento interno */
+    border-radius: 4px; /* Cantos arredondados */
+    border: 1px solid #f0f0f0; /* Borda sutil */
 }
 
-.task-item .subtasks-list li > div { /* Contêiner para checkbox e label */
-    display: flex;
-    align-items: center;
-    flex-grow: 1; /* Permite que o checkbox/label ocupe o espaço */
+.task-item .subtasks-list li.completed {
+    text-decoration: line-through; /* Risca o texto para subtarefas completas */
+    color: #888; /* Cor do texto mais clara */
+    opacity: 0.7; /* Opacidade reduzida */
+}
+
+.task-item .subtasks-list li div {
+    display: flex; /* Habilita Flexbox para alinhar checkbox e label */
+    align-items: center; /* Centraliza verticalmente */
+    gap: 8px; /* Espaçamento */
 }
 
 .task-item .subtasks-list li input[type="checkbox"] {
-    margin-right: 8px;
-    transform: scale(1.1);
-    cursor: pointer;
+    transform: scale(1.2); /* Aumenta o tamanho do checkbox */
+    cursor: pointer; /* Muda o cursor */
 }
 
 .task-item .subtasks-list li label {
-    cursor: pointer;
-    flex-grow: 1;
+    cursor: pointer; /* Muda o cursor para o label do checkbox */
 }
 
-/* Estilo para subtarefas concluídas */
-.task-item .subtasks-list li.completed label {
-    text-decoration: line-through;
-    color: #888;
-}
-
-/* Estilos para o input de edição de subtarefa */
-.subtask-edit-input {
-    flex-grow: 1;
-    padding: 5px 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.85em;
-    margin-right: 10px; /* Espaço entre o input e os botões de ação */
-}
-
-/* Contêiner para os botões de ação da subtarefa */
-.subtask-actions {
-    display: flex;
+.task-item .subtask-actions {
+    display: flex; /* Habilita Flexbox para os botões de ação da subtarefa */
     gap: 5px; /* Espaçamento entre os botões */
-    margin-left: 10px; /* Espaço entre o texto/input e os botões */
+    margin-left: 10px; /* Margem à esquerda */
 }
 
-/* Botões de editar/salvar/cancelar subtarefa */
-.edit-subtask-btn,
-.save-subtask-btn,
-.cancel-subtask-btn {
-    padding: 5px 8px;
-    font-size: 0.75em;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+.task-item .subtask-actions button {
+    padding: 5px 8px; /* Preenchimento menor para botões de subtarefa */
+    font-size: 0.75em; /* Tamanho da fonte menor */
 }
 
-.edit-subtask-btn {
-    background-color: #17a2b8; /* Azul info */
-    color: white;
-}
-
-.edit-subtask-btn:hover {
-    background-color: #138496;
-}
-
-.save-subtask-btn {
-    background-color: #28a745; /* Verde */
-    color: white;
-}
-
-.save-subtask-btn:hover {
-    background-color: #218838;
-}
-
-.cancel-subtask-btn {
-    background-color: #6c757d; /* Cinza */
-    color: white;
-}
-
-.cancel-subtask-btn:hover {
-    background-color: #5a6268;
-}
-
-/* Contêiner para botões de ação da tarefa (Excluir e Editar) */
+/* Estilos para os botões de ação da tarefa (Editar, Excluir, Concluir/Reabrir) */
 .task-actions {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    display: flex;
-    gap: 10px; /* Espaçamento entre os botões */
+    position: absolute; /* Posicionamento absoluto dentro do item de tarefa */
+    top: 15px; /* Distância do topo */
+    right: 15px; /* Distância da direita */
+    display: flex; /* Habilita Flexbox */
+    gap: 8px; /* Espaçamento entre os botões */
 }
 
 .task-actions button {
-    padding: 6px 10px;
-    font-size: 0.8em;
-    border-radius: 4px;
+    padding: 8px 12px; /* Preenchimento interno */
+    font-size: 0.85em; /* Tamanho da fonte */
+    border-radius: 5px; /* Cantos arredondados */
+    transition: background-color 0.3s ease; /* Transição suave na cor de fundo */
 }
 
-.delete-btn {
-    background-color: #dc3545;
-    color: white;
-}
-
-.delete-btn:hover {
-    background-color: #c82333;
-}
-
-.edit-btn {
+.task-actions .edit-btn {
     background-color: #ffc107; /* Amarelo para editar */
-    color: #333;
+    color: #333; /* Cor do texto */
+}
+.task-actions .edit-btn:hover {
+    background-color: #e0a800; /* Amarelo mais escuro ao passar o mouse */
 }
 
-.edit-btn:hover {
-    background-color: #e0a800;
+.task-actions .delete-btn {
+    background-color: #dc3545; /* Vermelho para excluir */
+}
+.task-actions .delete-btn:hover {
+    background-color: #c82333; /* Vermelho mais escuro ao passar o mouse */
 }
 
-
-/* Estilos para a seção de importar/exportar */
-#ioSection button {
-    margin-right: 10px;
+.task-actions .toggle-complete-btn {
+    background-color: #17a2b8; /* Azul claro para concluir/reabrir */
 }
-
-/* Estilos para a mensagem de sem tarefas */
-.no-tasks-message,
-.no-subtasks-message {
-    text-align: center;
-    color: #777;
-    font-style: italic;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-    margin-top: 15px;
+.task-actions .toggle-complete-btn:hover {
+    background-color: #138496; /* Azul mais escuro ao passar o mouse */
 }
 
 /* Estilos para o rodapé */
 footer {
-    text-align: center;
-    padding: 20px 0;
-    width: 100%;
-    background-color: #343a40;
-    color: #f8f9fa;
-    font-size: 0.9em;
-    margin-top: 40px;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ocupa a largura total */
+    background-color: #343a40; /* Fundo escuro, igual ao cabeçalho */
+    color: white; /* Cor do texto */
+    text-align: center; /* Centraliza o texto */
+    padding: 20px 0; /* Preenchimento superior e inferior */
+    margin-top: 40px; /* Margem superior */
+    font-size: 0.9em; /* Tamanho da fonte menor */
 }
 
 footer .fas {
-    color: #007bff;
-    margin-left: 5px;
+    color: #dc3545; /* Cor vermelha para o ícone de coração */
+    margin: 0 5px; /* Margem ao redor do ícone */
 }
 
-/* --- Estilos para Filtros e Ordenação e Busca --- */
-.controls-container {
-    display: flex;
-    flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
-    gap: 20px; /* Espaçamento entre os grupos */
-    margin-bottom: 25px; /* Espaço abaixo dos controles */
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #eee;
-    justify-content: center; /* Centraliza os grupos */
-}
-
-.search-group,
-.filter-sort-group,
-.display-options {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Espaçamento entre label e input/select/checkbox */
-}
-
-.search-group label .fas,
-.filter-sort-group label .fas,
-.display-options label .fas { /* Estilo para os ícones nos labels */
-    margin-right: 5px;
-    color: #007bff;
-}
-
-.search-group input[type="text"] {
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-    min-width: 180px; /* Largura mínima para o campo de busca */
-}
-
-.filter-sort-group label,
-.display-options label,
-.search-group label { /* Estilo para os labels dos controles */
-    font-weight: bold;
-    color: #555;
-    white-space: nowrap; /* Impede que o texto quebre a linha */
-}
-
-.filter-sort-group select {
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-    cursor: pointer;
-    appearance: none; /* Remove estilo padrão do sistema operacional */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-4.4-4.4-11.4-4.4-15.8%2C0L5.4%2C197.3c-4.4%2C4.4-4.4%2C11.4%2C0%2C15.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0L143%2C91.4c4.4-4.4%2C11.4-4.4%2C15.8%2C0l122.8%2C122.8c4.4%2C4.4%2C11.4%2C4.4%2C15.8%2C0C291.4%2C208.7%2C291.4%2C201.7%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E'); /* Ícone de seta personalizado */
-    background-repeat: no-repeat;
-    background-position: right 10px top 50%;
-    background-size: 12px auto;
-    min-width: 120px; /* Largura mínima para os selects */
-}
-
-/* Estilo específico para o checkbox de exibir imagens */
-.display-options input[type="checkbox"] {
-    transform: scale(1.3); /* Aumenta o tamanho do checkbox */
-    margin-right: 5px; /* Espaçamento entre checkbox e label */
-    cursor: pointer;
-}
-
-/* Estilos para o Modal de Confirmação */
+/* Estilos para o Modal */
 .modal {
-    display: none; /* Oculto por padrão */
+    display: none; /* Por padrão, o modal fica oculto */
     position: fixed; /* Fixa na tela */
-    z-index: 1001; /* Fica acima de tudo, incluindo notificações */
+    z-index: 1001; /* Fica acima de tudo, inclusive das notificações */
     left: 0;
     top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Permite rolagem se o conteúdo for muito grande */
-    background-color: rgba(0, 0, 0, 0.6); /* Fundo escurecido */
-    display: flex;
-    align-items: center; /* Centraliza verticalmente */
+    width: 100%; /* Largura total */
+    height: 100%; /* Altura total */
+    overflow: auto; /* Adiciona scroll se o conteúdo for maior que a tela */
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo semitransparente escuro */
+    display: flex; /* Habilita Flexbox para centralizar o conteúdo */
     justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: auto; /* Centraliza o modal na tela */
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    width: 90%;
-    max-width: 450px; /* Largura máxima do modal */
-    text-align: center;
+    background-color: #fefefe; /* Fundo branco do conteúdo do modal */
+    margin: auto; /* Centraliza o modal horizontalmente */
+    padding: 30px; /* Preenchimento interno */
+    border: 1px solid #888; /* Borda */
+    width: 80%; /* Largura do conteúdo */
+    max-width: 500px; /* Largura máxima */
+    border-radius: 10px; /* Cantos arredondados */
     position: relative; /* Para posicionar o botão de fechar */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Sombra para destacar */
+    text-align: center; /* Centraliza o texto */
 }
 
 .modal-content h2 {
-    color: #343a40;
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 1.8em;
+    color: #343a40; /* Cor do título */
+    margin-top: 0; /* Remove margem superior padrão */
+    margin-bottom: 20px; /* Espaço abaixo do título */
 }
 
 .modal-content p {
-    font-size: 1.1em;
-    color: #555;
-    margin-bottom: 30px;
-}
-
-.close-button {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: #333;
-    text-decoration: none;
+    margin-bottom: 25px; /* Espaço abaixo do parágrafo */
+    font-size: 1.1em; /* Tamanho da fonte */
 }
 
 .modal-buttons {
-    display: flex;
-    justify-content: center;
+    display: flex; /* Habilita Flexbox para os botões */
+    justify-content: center; /* Centraliza os botões */
     gap: 15px; /* Espaçamento entre os botões */
 }
 
 .modal-buttons button {
-    padding: 10px 25px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    border: none;
+    flex: 1; /* Permite que os botões ocupem o espaço disponível igualmente */
+    max-width: 150px; /* Largura máxima para cada botão */
+    padding: 12px 15px; /* Preenchimento interno */
+    font-size: 1em; /* Tamanho da fonte */
+    border-radius: 6px; /* Cantos arredondados */
 }
 
-.confirm-btn {
-    background-color: #dc3545; /* Vermelho para confirmar exclusão */
-    color: white;
+.modal-buttons .confirm-btn {
+    background-color: #dc3545; /* Vermelho para confirmar */
+}
+.modal-buttons .confirm-btn:hover {
+    background-color: #c82333; /* Vermelho mais escuro ao passar o mouse */
 }
 
-.confirm-btn:hover {
-    background-color: #c82333;
-    transform: translateY(-2px);
-}
-
-.cancel-btn {
+.modal-buttons .cancel-btn {
     background-color: #6c757d; /* Cinza para cancelar */
-    color: white;
+}
+.modal-buttons .cancel-btn:hover {
+    background-color: #5a6268; /* Cinza mais escuro ao passar o mouse */
 }
 
-.cancel-btn:hover {
-    background-color: #5a6268;
-    transform: translateY(-2px);
+.close-button {
+    color: #aaa; /* Cor do ícone de fechar */
+    position: absolute; /* Posicionamento absoluto no modal-content */
+    top: 15px; /* Distância do topo */
+    right: 25px; /* Distância da direita */
+    font-size: 28px; /* Tamanho da fonte */
+    font-weight: bold; /* Negrito */
+    cursor: pointer; /* Muda o cursor */
+}
+.close-button:hover,
+.close-button:focus {
+    color: #333; /* Cor mais escura ao passar o mouse */
+    text-decoration: none; /* Remove sublinhado */
+    cursor: pointer; /* Muda o cursor */
 }
 
-
-/* --- Media Queries para Responsividade --- */
-
-/* Para telas menores que 768px (tablets e alguns celulares) */
+/* Responsividade Geral */
 @media (max-width: 768px) {
+    /* Ajustes para telas menores (tablets e smartphones) */
+    header {
+        padding: 15px 0; /* Menos preenchimento */
+        margin-bottom: 20px; /* Menos margem */
+    }
+
     header h1 {
-        font-size: 1.8em;
+        font-size: 1.8em; /* Tamanho menor para o título do cabeçalho */
     }
 
     main {
-        width: 95%;
-        padding: 20px;
+        width: 95%; /* Ocupa mais largura em telas menores */
+        padding: 20px; /* Menos preenchimento */
+        margin-bottom: 20px;
     }
 
     section {
-        padding: 20px;
+        padding: 20px; /* Menos preenchimento nas seções */
         margin-bottom: 20px;
     }
 
     section h2 {
-        font-size: 1.4em;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
+        font-size: 1.4em; /* Tamanho menor para o título da seção */
+        margin-bottom: 20px;
     }
 
-    input,
-    textarea,
-    .file-upload-btn,
-    button,
-    select { /* Adicionado select aqui também */
-        padding: 10px 15px;
-        font-size: 0.9em;
+    /* Ajustes para inputs e botões */
+    input, textarea, button, .file-upload-btn, select {
+        font-size: 0.95em; /* Fonte ligeiramente menor */
     }
 
-    /* Ajuste para inputs com erro em telas pequenas */
-    input.input-error,
-    textarea.input-error {
-        box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.2);
+    #addTaskSection > input#taskTitle,
+    #addTaskSection > textarea#taskDescription {
+        width: calc(100% - 20px); /* Ajusta largura para novo padding */
+        padding: 10px; /* Menos padding */
     }
 
-    /* Ajuste para o grupo de input de prioridade e data em telas menores */
     .input-group {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
+        flex-direction: column; /* Empilha label e input verticalmente */
+        align-items: flex-start; /* Alinha os itens ao início */
+        gap: 5px; /* Menos espaçamento */
     }
 
-    .input-group select,
-    .input-group input[type="date"] {
-        width: 100%;
-    }
-
-    #subtasksContainer h3 {
-        font-size: 1.1em;
-        margin-top: 20px;
-        margin-bottom: 10px;
-    }
-
-    #subtaskList li span {
-        font-size: 0.9em;
-    }
-
-    /* Subtarefas responsivas */
-    .task-item .subtasks-list li {
-        flex-direction: column; /* Empilha o checkbox/label e os botões */
-        align-items: flex-start;
-        gap: 8px; /* Espaçamento entre os itens empilhados */
-    }
-
-    .task-item .subtasks-list li > div {
+    .input-group label {
         width: 100%; /* Ocupa a largura total */
     }
 
-    .subtask-edit-input {
-        width: calc(100% - 16px); /* Ajusta largura com padding */
-        margin-right: 0;
-        margin-bottom: 8px;
+    #taskPriority, input[type="date"] {
+        width: 100%; /* Ocupa a largura total */
+        min-width: unset; /* Remove largura mínima */
     }
 
-    .subtask-actions {
-        width: 100%;
-        justify-content: flex-end; /* Alinha os botões da subtarefa à direita */
-        margin-left: 0;
+    input#subtaskInput {
+        width: calc(100% - 20px - 10px); /* Ajusta a largura */
+        margin-bottom: 10px; /* Espaço abaixo */
+        min-width: unset; /* Remove largura mínima */
     }
 
+    #addSubtaskBtn {
+        width: 100%; /* Ocupa a largura total */
+    }
 
+    .multiple-images-preview {
+        flex-direction: row; /* Mantém em linha, mas quebra */
+        justify-content: center; /* Centraliza as imagens */
+    }
+
+    .image-preview-item {
+        width: 100px; /* Tamanho menor para o item de preview */
+        height: 100px;
+    }
+
+    /* Ajustes para a lista de tarefas */
     .task-item {
-        padding: 15px; /* Reduz o padding */
-        margin-bottom: 15px; /* Reduz a margem inferior */
+        padding: 15px; /* Menos preenchimento */
+        margin-bottom: 15px;
     }
 
     .task-actions {
-        position: static; /* Volta para posicionamento estático */
-        display: flex;
-        justify-content: flex-end; /* Alinha os botões à direita */
-        margin-top: 10px; /* Espaço acima dos botões */
-        gap: 8px; /* Reduz o gap */
+        position: static; /* Remove posicionamento absoluto */
+        margin-top: 15px; /* Adiciona margem superior */
+        justify-content: space-around; /* Distribui os botões */
+        width: 100%; /* Ocupa a largura total */
+        flex-wrap: wrap; /* Permite que os botões quebrem linha */
     }
 
     .task-actions button {
-        padding: 5px 8px; /* Botões menores */
-        font-size: 0.75em;
+        flex: 1 1 auto; /* Permite que os botões cresçam e encolham */
+        margin: 5px; /* Espaçamento entre botões */
+        font-size: 0.8em;
     }
 
-    #ioSection button {
-        width: 100%;
-        margin-right: 0;
-        margin-bottom: 10px;
+    #ioSection button,
+    .file-upload-btn {
+        width: 100%; /* Ocupa a largura total */
+        margin-right: 0; /* Remove margem direita */
+        margin-bottom: 10px; /* Adiciona margem inferior */
     }
 
     /* Responsividade para filtros e ordenação e opção de imagem */
     .controls-container {
         flex-direction: column; /* Empilha os grupos verticalmente */
-        align-items: flex-start;
-        gap: 15px;
-        padding: 10px;
+        align-items: flex-start; /* Alinha os grupos ao início */
+        gap: 15px; /* Espaçamento entre os grupos */
+        padding: 10px; /* Preenchimento */
     }
 
     .search-group,
     .filter-sort-group,
     .display-options {
         flex-direction: column; /* Empilha label e input/select/checkbox */
-        align-items: flex-start;
+        align-items: flex-start; /* Alinha ao início */
         width: 100%; /* Ocupa a largura total */
     }
 
     .search-group input[type="text"] {
         width: 100%; /* Ocupa a largura total */
-        min-width: unset;
+        min-width: unset; /* Remove largura mínima */
     }
 
     .filter-sort-group select {
@@ -1017,28 +893,16 @@ footer .fas {
 
     /* Modal em telas menores */
     .modal-content {
-        padding: 20px;
-        max-width: 95%;
+        padding: 20px; /* Menos preenchimento */
+        max-width: 95%; /* Ocupa mais largura */
     }
-    .modal-content h2 {
-        font-size: 1.5em;
+
+    .modal-buttons {
+        flex-direction: column; /* Empilha os botões verticalmente */
+        gap: 10px; /* Menos espaçamento */
     }
-    .modal-content p {
-        font-size: 1em;
-    }
+
     .modal-buttons button {
-        padding: 8px 15px;
-        font-size: 0.9em;
-    }
-}
-
-/* Para telas menores que 576px (celulares menores) */
-@media (max-width: 576px) {
-    header h1 {
-        font-size: 1.5em;
-    }
-
-    section h2 {
-        font-size: 1.2em;
+        max-width: 100%; /* Ocupa a largura total */
     }
 }
